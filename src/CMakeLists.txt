@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/stm32_gcc.cmake)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
 project(stm32-bt C ASM)
+add_definitions( -D__FPU_PRESENT=1 ) 
 
 find_package(CMSIS COMPONENTS STM32F767ZI REQUIRED)
 # Find CMSIS for all F4 devices:

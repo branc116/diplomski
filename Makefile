@@ -1,5 +1,5 @@
 .PHONY: all
-all: build/src/stm32-bt.elf
+all: compile_commands.json build/src/stm32-bt.elf
 	echo "EVERYTHING build"
 
 build/docs/diplomski.pdf: docs/diplomski.tex
@@ -10,6 +10,9 @@ build/src/build.ninja: build/src
 
 build/src/stm32-bt.elf: build/src/build.ninja
 	cd build/src && ninja
+
+compile_commands.json: build/src/build.ninja build/src/compile_commands.json
+	cp build/src/compile_commands.json .
 
 build/src: build
 	mkdir build/src
