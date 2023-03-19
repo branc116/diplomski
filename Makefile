@@ -2,8 +2,8 @@
 all: build/src/stm32-bt.elf
 	echo "EVERYTHING build"
 
-build/docs/diplomski.pdf: docs/latex/diplomski.tex
-	cd docs/latex && pdflatex -mltex -output-directory ../../build/docs diplomski.tex;
+build/docs/diplomski.pdf: docs/diplomski.tex
+	cd docs && pdflatex -mltex -output-directory ../build/docs diplomski.tex;
 
 build/src/build.ninja: build/src
 	cd build/src && STM32_CUBE_F7_PATH=/opt/stm32cubef7 cmake -G Ninja ../../src
