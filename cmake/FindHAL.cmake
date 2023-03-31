@@ -141,6 +141,7 @@ message(STATUS "Search for HAL drivers: ${HAL_FIND_COMPONENTS_DRIVERS}")
 message(STATUS "Search for HAL LL drivers: ${HAL_FIND_COMPONENTS_DRIVERS_LL}")
 
 foreach(COMP ${HAL_FIND_COMPONENTS_FAMILIES})
+    message(STATUS "${COMP}")
     string(TOUPPER ${COMP} COMP_U)
     
     string(REGEX MATCH "^STM32([FGHLMUW]P?[0-9BL])([0-9A-Z][0-9M][A-Z][0-9A-Z])?_?(M0PLUS|M4|M7)?.*$" COMP_U ${COMP_U})    
