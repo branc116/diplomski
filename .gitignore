@@ -2,3 +2,4 @@ build
 docs/LaTeX-upute.pdf
 .cache
 compile_commands.json
+hw
