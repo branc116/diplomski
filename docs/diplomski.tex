@@ -11,7 +11,7 @@
 
 \maketitle
 
-\zahvala{Zahvaljujem se Lani na tome sto mi je napisala cijeli zavrsni. <3}
+\zahvala{Zahvaljujem se Lani na tome \v{s}to mi je napisala cijeli diplomski. <3}
 
 \tableofcontents
 
@@ -24,6 +24,28 @@ Ugradbena računala su računala malih dimenzija i niske potro\v{s}nje.
 \section{STM32}
 Stm32 je ugradbeno računalo. U ovom radu stm32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
 
+\subsection{Sensortile}
+Sensortile je integrirana plocica na kojoj se nalazi STM32L4 mikrokontroler i nekoliko senzora.
+
+\subsubsection{LSM6DSM}
+LSM6DSM je integrirani system-in-package koji sadr\v{z}i 3D digaitalni akcelorometar i gyroscope. Mo\v{z} batchati podatke ili ih slati u realnom
+vremenu. Skala akcelerometra mo\v{z}e biti pode\v{s}ena na ±2/±4/±8/±16g. Kru\v{z}na brzina mo\v{z} biti pode\v{s}ena na
+±125/±245/±500/±1000/±2000 dps.
+
+\subsubsection{LSM303AGR}
+LSM303AGR je integrirani system-in-package koji sadr\v{z}i 3D digaitalni akcelorometar i 3D magnetski senzor. Skala akcelerometra je podesiva na
+±2/±4/±8/±16g. Magnetski senzor ima dinami\v{c}ki raspon do ±50 gausa. Koristi I\(^2\)C ili SPI su\v{c}elje za komunikaciju.
+
+\subsubsection{LPS22HB}
+LPS22HB je integrirani system-in-package koji sadr\v{z}i digitalni barometar. Koristi I\(^2\)C ili SPI su\v{c}elje za komunikaciju.
+
+\subsubsection{MP34DT05-A}
+MP34DT05-A je integrirani system-in-package koji sadr\v{z}i digitalni mikrofon. Koristi IC su\v{c}elje.
+
+\subsubsection{BLUENRG-MS}
+BLUENRG-MS je integrirani system-in-package koji sadr\v{z}i Cortex-M0 ARM jezgru i mogu\v{c}nost bluetooth 4.1 komunikacije.
+Cijeli paket tro\v{s}i maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
+
 \section{Razvojno okru\v{z}enje}
 Razvojno okru\v{z}enje je okru\v{z}enje u kojem se razvija.
 
@@ -31,7 +53,75 @@ Razvojno okru\v{z}enje je okru\v{z}enje u kojem se razvija.
 Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta.
 
 \subsection{GNU make}
-GNU make je programski alat za definiranje \i{recepta} i kako izgraditi pojedini element sustava.
+GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava.
+
+\section{Upravljanje interuptovima}
+Cortex m procesori posjeduju specifican nacim upravljanjem iznimkam. Iznimke su veoma bitne ko stvaranja ugradbenih sustva zato \v{s}to omugucuju energetski efikasan dizajn sustava.
+Umijesto aktovnog propitkivanja od strane procesora \textit{nalazi li se \v{s}to na nekoj sabirnici}, procesor mo\v{z}e biti na hrdverskoj razini obavje\v{s}ten da je neka sabirnica
+promjenila stanje.
+Kad se dogodi neki interupt izvodi se sljedeca procedura:
+
+\subsubsection{Suspend main program execution}
+\begin{itemize}
+  \item finish current instruction
+  \item save CPU state (push registers onto stack)
+  \item set LR to \textbf{0xFFFFFFF9} (indicates interrupt return)
+  \item set IPSR to interrupt number
+  \item load PC with ISR address from vector table
+\end{itemize}
+
+\subsubsection{Execute interrupt service routine (ISR)}
+\begin{itemize}
+  \item save other registers to be used
+  \item clear the “flag” that requested the interrupt
+  \item perform the requested service
+  \item communicate with other routines via global variables
+  \item restore any registers saved by the ISR
+\end{itemize}
+
+\subsubsection{xPSR registar}
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{c|c|c|c|c||c||c||c|}
+      \cline{2-8} & 31 & 30 & 29 & 28 & 24 & 9 & 5-0\\
+      \hline
+      \multicolumn{1}{|c|}{APSR} & N & Z & C & V & \multicolumn{3}{c|}{ } \\
+      \hline
+      \multicolumn{1}{|c|}{IPSR} & \multicolumn{6}{c||}{ } & Broj iznimke \\
+      \hline
+      \multicolumn{1}{|c|}{EPSR} & \multicolumn{4}{c||}{ } & T & a & \\
+      \hline
+    \end{tabular}
+    \caption{Sadr\v{z}aj xPSR registra}
+  \end{center}
+\end{table}
+
+\newpage
+\section{Bluetooth}
+\subsection{Bluetooth GAP}
+Bluetooth \textbf{G}eneric \textbf{A}ccess \textbf{P}rofile.
+Gap definiral role unutar bluetooth standard. Role koje postoje su Advertizer, Scanner, Slave, Master. Adertizer i Scanner role vr\v{s}e razmjenu informacija isklju\v{c}ivo u smjeru
+od Advertizera do Scannera. Isto tako, nije potrebno eksplicitno spajati uredaje.
+Vi\v{s}e Scannera mo\v{z}e slu\v{s}ati jednog Adverizera.
+
+\subsection{Bluetooth na linux operativnom sustavu}
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}[c]{l|r}
+      \multicolumn{1}{c|}{\textbf{Paket}} & 
+      \multicolumn{1}{c}{\textbf{Opis paketa}} \\
+      \hline
+      bluez-utils & Pomocni programi za debugiranje bluetooth protokola \\
+      bluez-libs & Biblioteke implementacijom raznih bluetooth protokola \\
+      bluez & Servis za automatsko upravljanje bluetooth adapterima \\
+      \hline
+    \end{tabular}
+  \caption{Lista paketa potrebnih za ispravan rad bluetootha na linux os-u}
+  \end{center}
+\end{table}
+
 
 \begin{equation}
   \pi=3
