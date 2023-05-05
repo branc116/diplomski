@@ -57,7 +57,6 @@ typedef enum
 typedef struct
 {
   tHciIO io; /**< Manage the BUS IO operations */
-  void (* UserEvtRx)(void* pData); /**< ACI events callback function pointer */
 } tHciContext;
 
 /**

@@ -52,7 +52,6 @@ volatile int break_ret(volatile int i) {
 uint32_t MX_BlueNRG_MS_Init(void)
 {
   /* Initialize the peripherals and the BLE Stack */
-  uint8_t CLIENT_BDADDR[] = {0xbb, 0x00, 0x00, 0xE1, 0x80, 0x02};
   uint8_t SERVER_BDADDR[] = {0xaa, 0x00, 0x00, 0xE1, 0x80, 0x02};
   uint8_t bdaddr[BDADDR_SIZE];
   uint16_t service_handle, dev_name_char_handle, appearance_char_handle;
@@ -63,11 +62,9 @@ uint32_t MX_BlueNRG_MS_Init(void)
 
   User_Init();
 
-  hci_init(user_notify, NULL);  if (0) {
-    BLUENRG_memcpy(bdaddr, CLIENT_BDADDR, sizeof(CLIENT_BDADDR));
-  } else {
-    BLUENRG_memcpy(bdaddr, SERVER_BDADDR, sizeof(SERVER_BDADDR));
-  }
+  hci_init(NULL);
+
+  BLUENRG_memcpy(bdaddr, SERVER_BDADDR, sizeof(SERVER_BDADDR));
 
   ret = aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET,
                                   CONFIG_DATA_PUBADDR_LEN,

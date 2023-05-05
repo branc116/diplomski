@@ -56,16 +56,17 @@ tBleStatus Add_Sample_Service(void)
   ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &sampleServHandle); /* original is 9?? */
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 
-  ret = aci_gatt_add_char(sampleServHandle,
-			     UUID_TYPE_128,
-			     simp_char_uuid,
-			     20,
-			     CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP,
-			     ATTR_PERMISSION_NONE,
-			     GATT_NOTIFY_ATTRIBUTE_WRITE,
-			     16,
-			     1,
-           &simpCharHandle);
+  ret = aci_gatt_add_char(sampleServHandle, // serviceHandle
+			     UUID_TYPE_128, //charUuidType
+			     simp_char_uuid, //const uint8_t* charUuid
+			     20, //uint8_t charValueLen
+			     CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, //uint8_t charProperties
+			     ATTR_PERMISSION_NONE, //uint8_t secPermissions
+			     GATT_NOTIFY_ATTRIBUTE_WRITE, //uint8_t gattEvtMask
+			     16, //uint8_t encryKeySize
+			     1, // uint8_t isVariable
+           &simpCharHandle // uint16_t* charHandle
+      );
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 
   return BLE_STATUS_SUCCESS;
@@ -258,6 +259,7 @@ void GAP_DisconnectionComplete_CB(void)
   end_read_tx_char_handle = FALSE;
   end_read_rx_char_handle = FALSE;
 }
+
 /**
  * @brief  This function is called when there is a notification from the sever.
  * @param  attr_handle Handle of the attribute
@@ -270,16 +272,17 @@ void GATT_Notification_CB(uint16_t attr_handle, uint8_t attr_len, uint8_t *attr_
     receiveData(attr_value, attr_len);
   }
 }
+
 evt_disconn_complete last_disconn_complete_msg;
+
 /**
  * @brief  This function is called whenever there is an ACI event to be processed.
  * @note   Inside this function each event must be identified and correctly
  *         parsed.
  * @param  pData  Pointer to the ACI packet
  */
-void user_notify(void * pData)
+void user_notify(hci_uart_pckt* hci_pckt)
 {
-  hci_uart_pckt *hci_pckt = pData;
   /* obtain event packet */
   hci_event_pckt *event_pckt = (hci_event_pckt*)hci_pckt->data;
 

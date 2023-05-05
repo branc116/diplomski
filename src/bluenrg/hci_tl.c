@@ -4,6 +4,7 @@
 #include "hci_const.h"
 #include "hci.h"
 #include "hci_tl.h"
+#include "sample_service.h"
 #include <stdint.h>
 #include <string.h>
 
@@ -134,13 +135,8 @@ static void free_event_list(void)
 
 /********************** HCI Transport layer functions *****************************/
 
-void hci_init(void(* UserEvtRx)(void* pData), void* pConf)
+void hci_init(void* pConf)
 {
-  if(UserEvtRx != NULL)
-  {
-    hciContext.UserEvtRx = UserEvtRx;
-  }
-
   /* Initialize list heads of ready and free hci data packet queues */
   memset(hciReadPacketBuffer, 0, sizeof(hciReadPacketBuffer));
   read_packet_counter = 1;
@@ -261,7 +257,7 @@ int hci_send_req(struct hci_request* r, BOOL async)
           return -4;
 
         default:
-          hciContext.UserEvtRx(hciReadPacket->dataBuff);
+          user_notify(hci_hdr);
           break;
         }
       }
@@ -270,7 +266,7 @@ int hci_send_req(struct hci_request* r, BOOL async)
 
 
 done:
-  hciContext.UserEvtRx(hciReadPacket->dataBuff);
+  user_notify(hci_hdr);
 
   return 0;
 }
@@ -280,24 +276,16 @@ void process_idle(void) {
   while (any_unread())
   {
     tHciDataPacket * hciReadPacket = pop_last();
-    if (hciContext.UserEvtRx != NULL)
-    {
-      hciContext.UserEvtRx(hciReadPacket->dataBuff);
-    }
+    user_notify((hci_uart_pckt *)hciReadPacket->dataBuff);
   }
 }
 
 void hci_user_evt_proc(void)
 {
-
-  /* process any pending events read */
   while (any_unread())
   {
     tHciDataPacket * hciReadPacket = pop_last();
-    if (hciContext.UserEvtRx != NULL)
-    {
-      hciContext.UserEvtRx(hciReadPacket->dataBuff);
-    }
+    user_notify((hci_uart_pckt *)hciReadPacket->dataBuff);
   }
 }
 
