@@ -479,7 +479,8 @@ uint8_t Sensor_IO_SPI_Read( void *handle, uint8_t ReadAddr, uint8_t *pBuffer, ui
   __HAL_SPI_ENABLE(&SPI_Sensor_Handle);
 
   return COMPONENT_OK;
-}uint8_t Sensor_IO_SPI_CS_Enable(void *handle)
+}
+uint8_t Sensor_IO_SPI_CS_Enable(void *handle)
 {
   DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
 
@@ -639,7 +640,8 @@ void SPI_Write(SPI_HandleTypeDef* xSpiHandle, uint8_t val)
   /* Wait BSY flag */
   while ((xSpiHandle->Instance->SR & SPI_FLAG_FTLVL) != SPI_FTLVL_EMPTY);
   while ((xSpiHandle->Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY);
-}/******************************* I2C Routines *********************************/
+}
+/******************************* I2C Routines *********************************/
 
 /**
  * @brief  Configures I2C interface.

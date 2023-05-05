@@ -1,11 +1,14 @@
 #include "sample_service.h"
+#include "bluenrg_def.h"
 #include "bluenrg_gap.h"
 #include "bluenrg_gap_aci.h"
 #include "bluenrg_gatt_aci.h"
+#include "bluenrg_gatt_server.h"
 #include "bluenrg_hal_aci.h"
 
 #include "stm32l4xx.h"
 #include "SensorTile.h"
+#include "stm32l4xx_hal_conf.h"
 
 volatile int connected = FALSE;
 volatile uint8_t set_connectable = 1;
@@ -15,11 +18,12 @@ volatile uint8_t start_read_tx_char_handle = FALSE;
 volatile uint8_t start_read_rx_char_handle = FALSE;
 volatile uint8_t end_read_tx_char_handle = FALSE;
 volatile uint8_t end_read_rx_char_handle = FALSE;
+extern int bip;
 
 uint16_t tx_handle;
 uint16_t rx_handle;
 
-uint16_t sampleServHandle, TXCharHandle, RXCharHandle;
+uint16_t sampleServHandle, simpCharHandle;
 
 extern uint8_t bnrg_expansion_board;
 
@@ -47,21 +51,23 @@ tBleStatus Add_Sample_Service(void)
   */
 
   const uint8_t service_uuid[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe0,0xf2,0x73,0xd9};
-  const uint8_t charUuidTX[16] =   {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
-  const uint8_t charUuidRX[16] =   {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe2,0xf2,0x73,0xd9};
+  const uint8_t simp_char_uuid[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
 
   ret = aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &sampleServHandle); /* original is 9?? */
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 
-  ret =  aci_gatt_add_char(sampleServHandle, UUID_TYPE_128, charUuidTX, 20, CHAR_PROP_NOTIFY, ATTR_PERMISSION_NONE, 0,
-                           16, 1, &TXCharHandle);
+  ret = aci_gatt_add_char(sampleServHandle,
+			     UUID_TYPE_128,
+			     simp_char_uuid,
+			     20,
+			     CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP,
+			     ATTR_PERMISSION_NONE,
+			     GATT_NOTIFY_ATTRIBUTE_WRITE,
+			     16,
+			     1,
+           &simpCharHandle);
   if (ret != BLE_STATUS_SUCCESS) goto fail;
 
-  ret =  aci_gatt_add_char(sampleServHandle, UUID_TYPE_128, charUuidRX, 20, CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, ATTR_PERMISSION_NONE, GATT_NOTIFY_ATTRIBUTE_WRITE,
-                           16, 1, &RXCharHandle);
-  if (ret != BLE_STATUS_SUCCESS) goto fail;
-
-  PRINTF("Sample Service added.\nTX Char Handle %04X, RX Char Handle %04X\n", TXCharHandle, RXCharHandle);
   return BLE_STATUS_SUCCESS;
 
 fail:
@@ -180,7 +186,10 @@ void sendData(const uint8_t* data_buffer, uint8_t Nb_bytes)
 
 int sendText(const char* data_buffer, uint8_t Nb_bytes)
 {
-    return aci_gatt_write_without_response(connection_handle, rx_handle+1, Nb_bytes, (const uint8_t*)data_buffer);
+//    return aci_gatt_write_charac_descriptor(connection_handle, simpCharHandle, Nb_bytes, (const uint8_t *)data_buffer);
+
+    return aci_gatt_write_without_response(connection_handle, simpCharHandle, Nb_bytes, (const uint8_t*)data_buffer);
+
 }
 
 /**
@@ -207,12 +216,13 @@ void enableNotification(void)
  */
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
-  if(handle == RXCharHandle + 1){
-    receiveData(att_data, data_length);
-  } else if (handle == TXCharHandle + 2) {
-    if(att_data[0] == 0x01)
-      notification_enabled = TRUE;
-  }
+  assert_param(false);
+//  if(handle == RXCharHandle + 1){
+//    receiveData(att_data, data_length);
+//  } else if (handle == TXCharHandle + 2) {
+//    if(att_data[0] == 0x01)
+//      notification_enabled = TRUE;
+//  }
 }
 
 /**

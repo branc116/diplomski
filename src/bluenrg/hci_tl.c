@@ -1,8 +1,11 @@
 // @brief   Contains the basic functions for managing the framework required for handling the HCI interface
 
+#include "bluenrg_types.h"
 #include "hci_const.h"
 #include "hci.h"
 #include "hci_tl.h"
+#include <stdint.h>
+#include <string.h>
 
 #define HCI_LOG_ON                      0
 #define HCI_PCK_TYPE_OFFSET             0
@@ -12,17 +15,69 @@
  * Increase this parameter to overcome possible issues due to BLE devices crowded environment
  * or high number of incoming notifications from peripheral devices
  */
-#define HCI_READ_PACKET_NUM_MAX 	   (5)
+#define HCI_READ_PACKET_NUM_MAX 	   (150)
 
 #define MIN(a,b)      ((a) < (b))? (a) : (b)
 #define MAX(a,b)      ((a) > (b))? (a) : (b)
 
-tListNode             hciReadPktPool;
-tListNode             hciReadPktRxQueue;
-static tHciDataPacket hciReadPacketBuffer[HCI_READ_PACKET_NUM_MAX];
+static uint32_t read_packet_counter = 1;
+static struct hciDataPacketWithId { tHciDataPacket el; int32_t id;  } hciReadPacketBuffer[HCI_READ_PACKET_NUM_MAX];
 static tHciContext    hciContext;
 
-/************************* Static internal functions **************************/
+static BOOL any_unread() {
+  for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
+    if (hciReadPacketBuffer[i].id > 0) return TRUE;
+  }
+  return FALSE;
+}
+
+static BOOL any_available() {
+  for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
+    if (hciReadPacketBuffer[i].id <= 0) return TRUE;
+  }
+  return FALSE;
+}
+
+static tHciDataPacket* take_first_available() {
+  int32_t biggest = 0xFFFFFFFF;
+  struct hciDataPacketWithId * ret = NULL;
+
+  for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
+    if (hciReadPacketBuffer[i].id <= 0 && hciReadPacketBuffer[i].id > biggest) {
+      biggest = hciReadPacketBuffer[i].id;
+      ret = &hciReadPacketBuffer[i];
+    }
+  }
+  if (ret) {
+    ret->id = read_packet_counter++;
+    return &ret->el;
+  }
+  return NULL;
+}
+
+static void invalidat(tHciDataPacket* data) {
+ struct hciDataPacketWithId * r = (struct hciDataPacketWithId *)(data);
+ r->el.data_len = 0;
+ r->id = 0;
+}
+
+static tHciDataPacket* pop_last() {
+  struct hciDataPacketWithId * ret = NULL;
+  int32_t min_id = 0x7FFFFFFF;
+
+  for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
+    if (hciReadPacketBuffer[i].id > 0 && hciReadPacketBuffer[i].id < min_id) {
+      ret = &hciReadPacketBuffer[i];
+      min_id = hciReadPacketBuffer[i].id;
+    }
+  }
+  if (ret) {
+    ret->id = -ret->id;
+    return &ret->el;
+  } else {
+    return NULL;
+  }
+}
 
 /**
   * @brief  Verify the packet type.
@@ -69,16 +124,11 @@ static void send_cmd(uint16_t ogf, uint16_t ocf, uint8_t plen, void *param)
   }
 }
 
-/**
-  * @brief  Free the HCI event list.
-  */
 static void free_event_list(void)
 {
-  tHciDataPacket * pckt;
-
-  while(list_get_size(&hciReadPktPool) < HCI_READ_PACKET_NUM_MAX/2){
-    list_remove_head(&hciReadPktRxQueue, (tListNode **)&pckt);
-    list_insert_tail(&hciReadPktPool, (tListNode *)pckt);
+  for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
+    if (hciReadPacketBuffer[i].id > 0)
+      hciReadPacketBuffer[i].id = -hciReadPacketBuffer[i].id;
   }
 }
 
@@ -86,25 +136,18 @@ static void free_event_list(void)
 
 void hci_init(void(* UserEvtRx)(void* pData), void* pConf)
 {
-  uint8_t index;
-
   if(UserEvtRx != NULL)
   {
     hciContext.UserEvtRx = UserEvtRx;
   }
 
   /* Initialize list heads of ready and free hci data packet queues */
-  list_init_head(&hciReadPktPool);
-  list_init_head(&hciReadPktRxQueue);
+  memset(hciReadPacketBuffer, 0, sizeof(hciReadPacketBuffer));
+  read_packet_counter = 1;
 
   /* Initialize TL BLE layer */
   hci_tl_lowlevel_init();
 
-  /* Initialize the queue of free hci data packets */
-  for (index = 0; index < HCI_READ_PACKET_NUM_MAX; index++)
-  {
-    list_insert_tail(&hciReadPktPool, (tListNode *)&hciReadPacketBuffer[index]);
-  }
 
   /* Initialize low level driver */
   if (hciContext.io.Init)  hciContext.io.Init(NULL);
@@ -130,7 +173,7 @@ int hci_send_req(struct hci_request* r, BOOL async)
 
   tHciDataPacket * hciReadPacket = NULL;
 
-  free_event_list();
+  //free_event_list();
 
   send_cmd(r->ogf, r->ocf, r->clen, r->cparam);  if (async)
   {
@@ -152,18 +195,15 @@ int hci_send_req(struct hci_request* r, BOOL async)
       hci_notify_asynch_evt(NULL);
       if ((HAL_GetTick() - tickstart) > HCI_DEFAULT_TIMEOUT_MS)
       {
-        goto failed;
+        return -1;
       }
 
-      if (!list_is_empty(&hciReadPktRxQueue))
-      {
-        break;
-      }
+      if (any_unread()) break;
     }
 
-    while(!list_is_empty(&hciReadPktRxQueue)) {
+    while(any_unread()) {
       /* Extract packet from HCI event queue. */
-      list_remove_head(&hciReadPktRxQueue, (tListNode **)&hciReadPacket);
+      hciReadPacket = pop_last();
 
       hci_hdr = (void *)hciReadPacket->dataBuff;
 
@@ -180,11 +220,11 @@ int hci_send_req(struct hci_request* r, BOOL async)
           cs = (void *) ptr;
 
           if (cs->opcode != opcode)
-            goto failed;
+            return -5;
 
           if (r->event != EVT_CMD_STATUS) {
             if (cs->status) {
-              goto failed;
+              return -6;
             }
             break;
           }
@@ -197,7 +237,7 @@ int hci_send_req(struct hci_request* r, BOOL async)
           cc = (void *) ptr;
 
           if (cc->opcode != opcode)
-            goto failed;
+            return -2;
 
           ptr += EVT_CMD_COMPLETE_SIZE;
           len -= EVT_CMD_COMPLETE_SIZE;
@@ -210,7 +250,7 @@ int hci_send_req(struct hci_request* r, BOOL async)
           me = (void *) ptr;
 
           if (me->subevent != r->event)
-            break;
+            return -3;
 
           len -= 1;
           r->rlen = MIN(len, r->rlen);
@@ -218,74 +258,59 @@ int hci_send_req(struct hci_request* r, BOOL async)
           goto done;
 
         case EVT_HARDWARE_ERROR:
-          goto failed;
+          return -4;
 
         default:
           hciContext.UserEvtRx(hciReadPacket->dataBuff);
-          list_insert_head(&hciReadPktPool, (tListNode *)hciReadPacket);
           break;
         }
       }
     }
   }
 
-failed:
-  if (hciReadPacket!=NULL) {
-    list_insert_head(&hciReadPktPool, (tListNode *)hciReadPacket);
-  }
-  return -1;
 
 done:
-  /* Insert the packet back into the pool.*/
   hciContext.UserEvtRx(hciReadPacket->dataBuff);
-  list_insert_head(&hciReadPktPool, (tListNode *)hciReadPacket);
 
   return 0;
 }
 
 void process_idle(void) {
   hci_notify_asynch_evt(NULL);
-  while (list_is_empty(&hciReadPktRxQueue) == FALSE)
+  while (any_unread())
   {
-    tHciDataPacket * hciReadPacket = NULL;
-    list_remove_head (&hciReadPktRxQueue, (tListNode **)&hciReadPacket);
+    tHciDataPacket * hciReadPacket = pop_last();
     if (hciContext.UserEvtRx != NULL)
     {
       hciContext.UserEvtRx(hciReadPacket->dataBuff);
     }
-    list_insert_tail(&hciReadPktPool, (tListNode *)hciReadPacket);
   }
 }
 
 void hci_user_evt_proc(void)
 {
-  tHciDataPacket * hciReadPacket = NULL;
 
   /* process any pending events read */
-  while (list_is_empty(&hciReadPktRxQueue) == FALSE)
+  while (any_unread())
   {
-    list_remove_head (&hciReadPktRxQueue, (tListNode **)&hciReadPacket);
-
+    tHciDataPacket * hciReadPacket = pop_last();
     if (hciContext.UserEvtRx != NULL)
     {
       hciContext.UserEvtRx(hciReadPacket->dataBuff);
     }
-
-    list_insert_tail(&hciReadPktPool, (tListNode *)hciReadPacket);
   }
 }
 
 int32_t hci_notify_asynch_evt(void* pdata)
 {
-  tHciDataPacket * hciReadPacket = NULL;
   uint8_t data_len;
 
   int32_t ret = 0;
   again: ;
-  if (list_is_empty (&hciReadPktPool) == FALSE)
+  if (any_available())
   {
     /* Queuing a packet to read */
-    list_remove_head (&hciReadPktPool, (tListNode **)&hciReadPacket);
+    tHciDataPacket * hciReadPacket = take_first_available();
 
     if (hciContext.io.Receive)
     {
@@ -293,16 +318,14 @@ int32_t hci_notify_asynch_evt(void* pdata)
       if (data_len > 0)
       {
         hciReadPacket->data_len = data_len;
-        if (verify_packet(hciReadPacket) == 0)
-          list_insert_tail(&hciReadPktRxQueue, (tListNode *)hciReadPacket);
-        else
-          list_insert_head(&hciReadPktPool, (tListNode *)hciReadPacket);
+        if (verify_packet(hciReadPacket) != 0)
+          invalidat(hciReadPacket);
         goto again;
       }
       else
       {
         /* Insert the packet back into the pool*/
-        list_insert_head(&hciReadPktPool, (tListNode *)hciReadPacket);
+        invalidat(hciReadPacket);
       }
     }
   }

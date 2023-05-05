@@ -371,7 +371,8 @@ typedef __packed struct _le_test_end_rp{
 #define LE_TEST_END_RP_SIZE 3
 
 /* Vendor specific commands */
-#define OGF_VENDOR_CMD		0x3f/*------------- Events -------------*/
+#define OGF_VENDOR_CMD		0x3f
+/*------------- Events -------------*/
 #define EVT_CONN_COMPLETE		0x03
 typedef __packed struct _evt_conn_complete{
   uint8_t  status;

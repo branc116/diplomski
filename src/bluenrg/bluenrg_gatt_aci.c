@@ -1084,7 +1084,7 @@ tBleStatus aci_gatt_read_long_charac_desc(uint16_t conn_handle, uint16_t attr_ha
 }
 
 tBleStatus aci_gatt_write_charac_descriptor(uint16_t conn_handle, uint16_t attr_handle,
-					   uint8_t value_len, uint8_t *attr_value)
+					   uint8_t value_len, uint8_t const *attr_value)
 {
   struct hci_request rq;
   uint8_t status;

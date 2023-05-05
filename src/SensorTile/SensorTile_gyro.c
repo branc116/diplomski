@@ -40,7 +40,9 @@ DrvStatusTypeDef BSP_GYRO_Init( GYRO_ID_t id, void **handle )
   }
 
   return COMPONENT_OK;
-}static DrvStatusTypeDef BSP_LSM6DSM_GYRO_Init( void **handle )
+}
+
+static DrvStatusTypeDef BSP_LSM6DSM_GYRO_Init( void **handle )
 {
   GYRO_Drv_t *driver = NULL;
   uint8_t data = 0x0C;
@@ -204,7 +206,9 @@ DrvStatusTypeDef BSP_GYRO_Sensor_Disable( void *handle )
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Check if the gyroscope sensor is initialized
  * @param handle the device handle
  * @param status the pointer to the initialization status
@@ -228,7 +232,9 @@ DrvStatusTypeDef BSP_GYRO_IsInitialized( void *handle, uint8_t *status )
   *status = ctx->isInitialized;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Check if the gyroscope sensor is enabled
  * @param handle the device handle
  * @param status the pointer to the enable status
@@ -252,7 +258,9 @@ DrvStatusTypeDef BSP_GYRO_IsEnabled( void *handle, uint8_t *status )
   *status = ctx->isEnabled;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Check if the gyroscope sensor is combo
  * @param handle the device handle
  * @param status the pointer to the combo status
@@ -276,7 +284,9 @@ DrvStatusTypeDef BSP_GYRO_IsCombo( void *handle, uint8_t *status )
   *status = ctx->isCombo;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the gyroscope sensor instance
  * @param handle the device handle
  * @param instance the pointer to the device instance
@@ -300,7 +310,9 @@ DrvStatusTypeDef BSP_GYRO_Get_Instance( void *handle, uint8_t *instance )
   *instance = ctx->instance;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the WHO_AM_I ID of the gyroscope sensor
  * @param handle the device handle
  * @param who_am_i pointer to the value of WHO_AM_I register
@@ -334,7 +346,9 @@ DrvStatusTypeDef BSP_GYRO_Get_WhoAmI( void *handle, uint8_t *who_am_i )
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Check the WHO_AM_I ID of the gyroscope sensor
  * @param handle the device handle
  * @retval COMPONENT_OK in case of success
@@ -363,7 +377,9 @@ DrvStatusTypeDef BSP_GYRO_Check_WhoAmI( void *handle )
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the gyroscope sensor axes
  * @param handle the device handle
  * @param angular_velocity pointer where the values of the axes are written [mdps]
@@ -397,7 +413,9 @@ DrvStatusTypeDef BSP_GYRO_Get_Axes( void *handle, SensorAxes_t *angular_velocity
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the gyroscope sensor raw axes
  * @param handle the device handle
  * @param value pointer where the raw values of the axes are written

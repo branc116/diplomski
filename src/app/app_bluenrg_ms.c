@@ -1,6 +1,7 @@
 // BlueNRG-M0 initialization and applicative code
 #include "app_bluenrg_ms.h"
 
+#include "SensorTile.h"
 #include "hci_tl.h"
 #include "sample_service.h"
 #include "bluenrg_utils.h"
@@ -72,26 +73,22 @@ uint32_t MX_BlueNRG_MS_Init(void)
                                   CONFIG_DATA_PUBADDR_LEN,
                                   bdaddr);
   if (ret) {
-    printf("Setting BD_ADDR failed 0x%02x.\n", ret);
     return break_ret(ret);
   }
 
   ret = aci_gatt_init();
   if (ret) {
-    printf("GATT_Init failed.\n");
     return break_ret(ret);
   }
   ret = aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, 0, 0x07, &service_handle, &dev_name_char_handle, &appearance_char_handle);
 
   if (ret != BLE_STATUS_SUCCESS) {
-    printf("GAP_Init failed.\n");
     return break_ret(ret);
   }
 
   const char name[] = "BlueNRG";
   ret = aci_gatt_update_char_value(service_handle, dev_name_char_handle, 0, sizeof(name) - 1, (uint8_t *)name);
   if(ret){
-    PRINTF("aci_gatt_update_char_value failed.\n");
     return break_ret(ret);
   }
 
@@ -103,8 +100,8 @@ uint32_t MX_BlueNRG_MS_Init(void)
                                      USE_FIXED_PIN_FOR_PAIRING,
                                      123456,
                                      BONDING);
-  if (ret == BLE_STATUS_SUCCESS) {
-    printf("BLE Stack Initialized.\n");
+  if (ret != BLE_STATUS_SUCCESS) {
+    return break_ret(ret);
   }
 
   if (1) {
@@ -161,6 +158,7 @@ static void Debug(void) {
 
 volatile int succ = 0;
 volatile int unsucc = 0;
+int bip = 0;
 
 /**
  * @brief  Configure the device as Client or Server and manage the communication
@@ -176,15 +174,21 @@ static void User_Process(void)
     //user_button_init_state = BSP_PB_GetState(BUTTON_KEY);
   }
   process_idle();
-  if (connected) {
-    int ok = sendText("hello", 5);
-    if (ok) {
+  if (connected && !bip) {
+    BSP_LED_On(LED1);
+    end_read_tx_char_handle = 1;
+    int res = sendText("hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
+    if (res) {
       unsucc--;
     }
     else {
       succ++;
+      bip = 1;
     }
 
+  }
+  else {
+    BSP_LED_Off(LED1);
   }
 
 //  if (1)

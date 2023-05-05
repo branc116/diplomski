@@ -675,7 +675,8 @@ typedef __packed struct _gatt_read_charac_desc_cp{
 #define GATT_READ_CHAR_DESCRIPTOR_CP_SIZE 4
 
 #define OCF_GATT_WRITE_WITHOUT_RESPONSE     0x0123
-#define GATT_WRITE_WITHOUT_RESPONSE_CP_SIZE 5  // without attr_val
+#define GATT_WRITE_WITHOUT_RESPONSE_CP_SIZE 5
+// without attr_val
 typedef __packed struct _gatt_write_without_resp_cp{
   uint16_t conn_handle;
   uint16_t attr_handle;

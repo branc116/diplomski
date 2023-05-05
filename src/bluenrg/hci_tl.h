@@ -3,7 +3,6 @@
 
 #include "hci_tl_interface.h"
 #include "bluenrg_types.h"
-#include "ble_list.h"
 #include "bluenrg_conf.h"
 
 /**
@@ -24,7 +23,6 @@ struct hci_request {
  */
 typedef struct _tHciDataPacket
 {
-  tListNode currentNode;
   uint8_t   dataBuff[HCI_READ_PACKET_SIZE];
   uint8_t   data_len;
 } tHciDataPacket;
