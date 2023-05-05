@@ -1,4 +1,5 @@
 vim.keymap.set('n', "<F5>", ":split<cr>:term make clean && make<cr>")
+vim.keymap.set('n', "<F9>", ":split<cr>:term make clean && make tst<cr>")
 vim.keymap.set('n', "<F6>", ":!make clean && make build/docs/diplomski.pdf && zathura build/docs/diplomski.pdf<cr>")
 vim.keymap.set('n', "<F7>", ":!make clean && make build/docs/diplomski.pdf<cr>")
 
@@ -7,8 +8,6 @@ local function r(s)
     print("KILL")
   end
 end
---[[
-]]--
 
 function replace_shit()
   r([[%s/\/\*\*\n *\* *@}\n *\*\/ *\n//ge]])
