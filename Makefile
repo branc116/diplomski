@@ -3,6 +3,12 @@ all: compile_commands.json build/src/stm32-bt.elf
 	echo "EVERYTHING build" && \
 	arm-none-eabi-objcopy -O binary build/src/stm32-bt.elf build/src/stm32-bt.bin
 
+.PHONY: tst
+tst:
+	c++ -Wall -Wpedantic -Wextra test/bluetooth_server.cpp -l bluetooth -o build/tst/server && build/tst/server && \
+  test -d build/tst || mkdir build/tst && cd build/tst && cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../../test && cp compile_commands.json ../..
+
+
 build/docs/diplomski.pdf: docs/diplomski.tex build/docs
 	cd docs && pdflatex -mltex -output-directory ../build/docs diplomski.tex;
 
@@ -16,7 +22,7 @@ compile_commands.json: build/src/build.ninja build/src/compile_commands.json
 	cp build/src/compile_commands.json .
 
 build/src: build
-	mkdir build/src
+	test -d build/src || mkdir build/src
 
 build/docs: build
 	test -d build/docs || mkdir build/docs
@@ -31,6 +37,7 @@ build:
 clean:
 	@rm build/docs/diplomski.pdf 2> /dev/null || echo "Nothing to remove"
 	@rm build/src/* -rdf 2> /dev/null || echo "Nothing to remove"
+	@rm build/tst/* 2> /dev/null || echo "No tests to remove"
 
 .PHONY: deps
 deps:
