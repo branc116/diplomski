@@ -2,16 +2,17 @@ cmake_minimum_required(VERSION 3.16)
 set(CMAKE_TOOLCHAIN_FILE ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/stm32_gcc.cmake)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 
-project(stm32-bt C ASM)
+project(stm32-bt C CXX ASM)
 
 find_package(CMSIS COMPONENTS STM32L476G REQUIRED)
 find_package(HAL COMPONENTS STM32L476G REQUIRED)
 
-set(PROJECT_SOURCES
+set(PS
   app/cube_hal_l4.c
   app/app_bluenrg_ms.c
   app/DemoSerial.c
   app/main.c
+  app/main.cpp
   app/sample_service.c
   app/sensor_commands.c
   app/serial_protocol.c
@@ -22,7 +23,6 @@ set(PROJECT_SOURCES
   app/usbd_desc.c
   app/vcom.c
 
-  bluenrg/ble_list.c
   bluenrg/bluenrg_gap_aci.c
   bluenrg/bluenrg_gatt_aci.c
   bluenrg/bluenrg_hal_aci.c
@@ -70,8 +70,9 @@ set(PROJECT_SOURCES
 
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
-add_executable(stm32-bt ${PROJECT_SOURCES})
+add_executable(stm32-bt ${PS})
 target_compile_options(stm32-bt PRIVATE -Wno-missing-braces)
+target_compile_features(stm32-bt PRIVATE cxx_std_20)
 
 target_include_directories(stm32-bt PRIVATE "app")
 target_include_directories(stm32-bt PRIVATE "bluenrg")
@@ -105,3 +106,4 @@ target_link_libraries(stm32-bt CMSIS::STM32::L476JG
   HAL::STM32::L4::LL_USB
   STM32::NoSys)
 stm32_print_size_of_target(stm32-bt)
+

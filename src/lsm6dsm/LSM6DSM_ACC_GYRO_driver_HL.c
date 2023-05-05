@@ -986,7 +986,9 @@ static DrvStatusTypeDef LSM6DSM_G_Sensor_Disable( DrvContextTypeDef *handle )
   handle->isEnabled = 0;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the WHO_AM_I ID of the LSM6DSM gyroscope sensor
  * @param handle the device handle
  * @param who_am_i pointer to the value of WHO_AM_I register
@@ -997,7 +999,9 @@ static DrvStatusTypeDef LSM6DSM_G_Get_WhoAmI( DrvContextTypeDef *handle, uint8_t
 {
 
   return LSM6DSM_Get_WhoAmI(handle, who_am_i);
-}/**
+}
+
+/**
  * @brief Check the WHO_AM_I ID of the LSM6DSM gyroscope sensor
  * @param handle the device handle
  * @retval COMPONENT_OK in case of success

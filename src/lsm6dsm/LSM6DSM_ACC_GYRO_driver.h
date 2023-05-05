@@ -954,7 +954,9 @@ typedef enum
 
 #define   LSM6DSM_ACC_GYRO_SW_RESET_MASK    0x01
 status_t  LSM6DSM_ACC_GYRO_W_SW_RESET(void *handle, LSM6DSM_ACC_GYRO_SW_RESET_t newValue);
-status_t LSM6DSM_ACC_GYRO_R_SW_RESET(void *handle, LSM6DSM_ACC_GYRO_SW_RESET_t *value);/*******************************************************************************
+status_t LSM6DSM_ACC_GYRO_R_SW_RESET(void *handle, LSM6DSM_ACC_GYRO_SW_RESET_t *value);
+
+/*******************************************************************************
 * Register      : CTRL3_C
 * Address       : 0X12
 * Bit Group Name: IF_INC
