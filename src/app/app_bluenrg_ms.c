@@ -101,19 +101,14 @@ uint32_t MX_BlueNRG_MS_Init(void)
     return break_ret(ret);
   }
 
-  if (1) {
-    printf("SERVER: BLE Stack Initialized\n");
-    ret = Add_Sample_Service();
+  printf("SERVER: BLE Stack Initialized\n");
+  ret = Add_Sample_Service();
 
-    if (ret == BLE_STATUS_SUCCESS)
-      printf("Service added successfully.\n");
-    else {
-      printf("Error while adding service.\n");
-      return break_ret(ret);
-    }
-
-  } else {
-    printf("CLIENT: BLE Stack Initialized\n");
+  if (ret == BLE_STATUS_SUCCESS)
+    printf("Service added successfully.\n");
+  else {
+    printf("Error while adding service.\n");
+    return break_ret(ret);
   }
 
   /* Set output power level */

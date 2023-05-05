@@ -10,18 +10,11 @@ find_package(HAL COMPONENTS STM32L476G REQUIRED)
 set(PS
   app/cube_hal_l4.c
   app/app_bluenrg_ms.c
-  app/DemoSerial.c
   app/main.c
   app/main.cpp
   app/sample_service.c
-  app/sensor_commands.c
-  app/serial_protocol.c
   app/stm32l4xx_hal_msp.c
   app/stm32l4xx_it.c
-  app/usbd_cdc_interface.c
-  app/usbd_conf.c
-  app/usbd_desc.c
-  app/vcom.c
 
   bluenrg/bluenrg_gap_aci.c
   bluenrg/bluenrg_gatt_aci.c
@@ -58,11 +51,6 @@ set(PS
 
   lps22hb/LPS22HB_Driver.c
   lps22hb/LPS22HB_Driver_HL.c
-
-  usb/usbd_cdc.c
-  usb/usbd_core.c
-  usb/usbd_ctlreq.c
-  usb/usbd_ioreq.c
 
   syscalls.c
 )

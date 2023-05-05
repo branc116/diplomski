@@ -99,12 +99,14 @@ void SysTick_Handler(void)
   */
 void OTG_FS_IRQHandler(void)
 {
-  HAL_PCD_IRQHandler(&hpcd);
-}/**
+  //HAL_PCD_IRQHandler(&hpcd);
+}
+
+/**
   * @brief  This function handles TIM interrupt request
   */
 void TIM3_IRQHandler(void)
 {
-  HAL_TIM_IRQHandler(&TimHandle);
+  //HAL_TIM_IRQHandler(&TimHandle);
 }
 

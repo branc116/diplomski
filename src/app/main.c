@@ -4,8 +4,6 @@
 #include <math.h>
 #include "SensorTile_BlueNRG.h"
 #include "main.h"
-#include "vcom.h"
-#include "DemoSerial.h"
 #include "app_bluenrg_ms.h"
 
 typedef struct displayFloatToInt_s {
@@ -15,9 +13,6 @@ typedef struct displayFloatToInt_s {
 } displayFloatToInt_t;
 #define DATA_SIZE  256
 
-uint32_t Sensors_Enabled  = 0xFFFFFF;                  /*!< Sensors Enabled/Disabled */
-uint32_t DataTxPeriod     = 50;                 /*!< TX DATA Period */
-uint8_t  DataLoggerActive = 1;                  /*!< DataLogger ON/OFF */
 
 static RTC_HandleTypeDef RtcHandle;            /*!< RTC HANDLE */
 
@@ -145,6 +140,6 @@ void RTC_TimeRegulate(uint8_t hh, uint8_t mm, uint8_t ss)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    CDC_TIM_PeriodElapsedCallback(htim);
+    //CDC_TIM_PeriodElapsedCallback(htim);
 }
 
