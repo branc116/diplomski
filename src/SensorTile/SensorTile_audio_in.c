@@ -45,6 +45,7 @@ static void DFSDMx_FilterMspDeInit(DFSDM_Filter_HandleTypeDef *hdfsdm_filter);/*
 */
 uint8_t BSP_AUDIO_IN_Init(uint32_t AudioFreq, uint32_t BitRes, uint32_t ChnlNbr)
 {
+  UNUSED(BitRes);
 
   /*Set Structure for internal state*/
   SENSORTILE_AudioIn_Handler.MicChannels = ChnlNbr;
@@ -73,6 +74,7 @@ uint8_t BSP_AUDIO_IN_DeInit(void)
 */
 __weak uint8_t BSP_AUDIO_IN_ClockConfig(uint32_t AudioFreq, void *Params)
 {
+  UNUSED(AudioFreq); UNUSED(Params);
   RCC_PeriphCLKInitTypeDef RCC_ExCLKInitStruct;
   RCC_ExCLKInitStruct.PLLSAI1.PLLSAI1N = 43;
   RCC_ExCLKInitStruct.PLLSAI1.PLLSAI1P = 7;
@@ -104,6 +106,7 @@ Its dimension must be equal to (in uint16_t words):
 */
 uint8_t BSP_AUDIO_IN_Record(uint16_t* pbuf, uint32_t size)
 {
+  UNUSED(size);
   int32_t counter = 0;
   SENSORTILE_AudioIn_Handler.PCM_Data = pbuf;
 
@@ -683,6 +686,7 @@ static uint8_t DFSDMx_DeInit(void)
 */
 static void DFSDMx_ChannelMspDeInit(DFSDM_Channel_HandleTypeDef *hdfsdm_channel)
 {
+  UNUSED(hdfsdm_channel);
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* DFSDM pins configuration: DFSDM_CKOUT, DMIC_DATIN pins ------------------*/

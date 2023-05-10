@@ -1170,8 +1170,9 @@ tBleStatus aci_gatt_write_without_response(uint16_t conn_handle, uint16_t attr_h
   rq.rparam = &status;
   rq.rlen = 1;
 
-  if (hci_send_req(&rq, FALSE) < 0)
-    return BLE_STATUS_TIMEOUT;
+  int r = hci_send_req(&rq, FALSE);
+  if (r < 0)
+    return 128+(-r);
 
   return status;
 }

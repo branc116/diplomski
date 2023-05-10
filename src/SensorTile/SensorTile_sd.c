@@ -255,6 +255,7 @@ uint8_t BSP_SD_WriteBlocks(uint32_t* p32Data, uint64_t Sector, uint16_t BlockSiz
   */
 void HAL_SPI_TxCpltCallback(SPI_HandleTypeDef *hspi)
 {
+  UNUSED(hspi);
   /* Transfer in transmission/reception process is complete */
   wTransferState = TRANSFER_COMPLETE;
 }

@@ -13,7 +13,7 @@
 #endif
 
 /* Change this define to 1 if zero-length arrays are not supported by your compiler. */
-#define VARIABLE_SIZE
+#define VARIABLE_SIZE 1
 
 /* Byte order conversions */
 #if __BYTE_ORDER == __LITTLE_ENDIAN

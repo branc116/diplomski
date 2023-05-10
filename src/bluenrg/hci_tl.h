@@ -31,16 +31,16 @@ typedef struct _tHciDataPacket
  * @brief Structure used to manage the BUS IO operations.
  *        All the structure fields will point to functions defined at user level.
  */
-typedef struct
-{
-  int32_t (* Init)    (void* pConf); /**< Pointer to HCI TL function for the IO Bus initialization */
-  int32_t (* DeInit)  (void); /**< Pointer to HCI TL function for the IO Bus de-initialization */
-  void    (* Reset)   (void); /**< Pointer to HCI TL function for the IO Bus reset */
-  int32_t (* Receive) (uint8_t*, uint16_t); /**< Pointer to HCI TL function for the IO Bus data reception */
-  int32_t (* Send)    (uint8_t*, uint16_t); /**< Pointer to HCI TL function for the IO Bus data transmission */
-  int32_t (* DataAck) (uint8_t*, uint16_t* len); /**< Pointer to HCI TL function for the IO Bus data ack reception */
-  uint32_t (* GetTick) (void); /**< Pointer to BSP function for getting the HAL time base timestamp */
-} tHciIO;
+//typedef struct
+//{
+//  int32_t (* Init)    (void* pConf); /**< Pointer to HCI TL function for the IO Bus initialization */
+//  int32_t (* DeInit)  (void); /**< Pointer to HCI TL function for the IO Bus de-initialization */
+//  void    (* Reset)   (void); /**< Pointer to HCI TL function for the IO Bus reset */
+//  int32_t (* Receive) (uint8_t*, uint16_t); /**< Pointer to HCI TL function for the IO Bus data reception */
+//  int32_t (* Send)    (uint8_t*, uint16_t); /**< Pointer to HCI TL function for the IO Bus data transmission */
+//  int32_t (* DataAck) (uint8_t*, uint16_t* len); /**< Pointer to HCI TL function for the IO Bus data ack reception */
+//  uint32_t (* GetTick) (void); /**< Pointer to BSP function for getting the HAL time base timestamp */
+//} tHciIO;
 
 /**
  * @brief Describe the HCI flow status
@@ -54,10 +54,10 @@ typedef enum
 /**
  * @brief Contain the HCI context
  */
-typedef struct
-{
-  tHciIO io; /**< Manage the BUS IO operations */
-} tHciContext;
+//typedef struct
+//{
+//  tHciIO io; /**< Manage the BUS IO operations */
+//} tHciContext;
 
 /**
  * @brief  Send an HCI request either in synchronous or in asynchronous mode.
@@ -71,51 +71,6 @@ int hci_send_req(struct hci_request *r, BOOL async);
 void process_idle(void);
 
 /**
- * @brief  Register IO bus services.
- *         The tHciIO structure is initialized here by assigning to each structure field a
- *         function for managing the IO Bus.
- *         E.g. In case the user needs to register the SPI bus services:
- *         @code
-           void hci_register_io_bus(tHciIO* fops)
-           {			
-             hciContext.io.Init    = fops->Init;
-             hciContext.io.Receive = fops->Receive;
-             hciContext.io.Send    = fops->Send;
-             hciContext.io.GetTick = fops->GetTick;
-             hciContext.io.Reset   = fops->Reset;
-           }
- *         @endcode
- *         where:
- *         - hciContext is a static variable defined in the hci_tl.c
- *         - all fops fields are initialized, at user level (hci_tl_interface.c file), in the
- *           void hci_tl_lowlevel_init(void) function. All the functions for managing the initialization,
- *           de-initialization, data sending/receiving, ... must be implemented by the user.
- *         e.g.
- *         @code
-           void hci_tl_lowlevel_init(void)
-           {
-             tHciIO fops;
-
-             //Register IO bus services
-             fops.Init    = HCI_TL_SPI_Init;
-             fops.DeInit  = HCI_TL_SPI_DeInit;
-             fops.Send    = HCI_TL_SPI_Send;
-             fops.Receive = HCI_TL_SPI_Receive;
-             fops.Reset   = HCI_TL_SPI_Reset;
-             fops.GetTick = BSP_GetTick;
-
-             hci_register_io_bus (&fops);
-
-             //Register event irq handler
-             ... ... ...
-           }
- *         @endcode
- *
- * @param  fops The HCI IO structure managing the IO BUS
- */
-void hci_register_io_bus(tHciIO* fops);
-
-/**
  * @brief  Interrupt service routine that must be called when the BlueNRG
  *         reports a packet received or an event to the host through the
  *         BlueNRG interrupt line.
@@ -123,7 +78,7 @@ void hci_register_io_bus(tHciIO* fops);
  * @param  pdata Packet or event pointer
  * @retval 0: packet/event processed, 1: no packet/event processed
  */
-int32_t hci_notify_asynch_evt(void* pdata);
+int32_t hci_notify_asynch_evt(void);
 
 /**
  * @brief  This function resume the User Event Flow which has been stopped on return
@@ -153,3 +108,4 @@ void hci_cmd_resp_wait(uint32_t timeout);
 void hci_cmd_resp_release(uint32_t flag);
 
 #endif /* HCI_TL_H */
+

@@ -1,4 +1,5 @@
 #include "SensorTile.h"
+#include "help.h"
 
 /**
 * @brief SensorTile BSP Driver version number V1.0.0
@@ -24,7 +25,7 @@ const uint32_t GPIO_PIN[LEDn] = {LED1_PIN, LEDSWD_PIN};
 uint32_t SpixTimeout = SENSORTILE_SD_SPI_TIMEOUT_MAX;        /*<! Value of Timeout when SPI communication fails */
 
 static void I2C_SENSORTILE_MspInit( void );
-static void I2C_SENSORTILE_Error( uint8_t Addr );
+static void I2C_SENSORTILE_Error(void);
 static uint8_t I2C_SENSORTILE_ReadData( uint8_t Addr, uint8_t Reg, uint8_t* pBuffer, uint16_t Size );
 static uint8_t I2C_SENSORTILE_WriteData( uint8_t Addr, uint8_t Reg, uint8_t* pBuffer, uint16_t Size );
 static uint8_t I2C_SENSORTILE_Init( void );
@@ -88,19 +89,6 @@ void BSP_LED_Init(Led_TypeDef Led)
   GPIO_InitStruct.Speed = GPIO_SPEED_FAST;
 
   HAL_GPIO_Init(GPIO_PORT[Led], &GPIO_InitStruct);
-}/**
-* @brief  DeInit LEDs.
-* @param  Led: LED to be configured.
-*          This parameter can be one of the following values:
-*            @arg  LED1
-*            @arg  LED2
-*            @arg  LED3
-*            @arg  LED4
-* @note Led DeInit does not disable the GPIO clock nor disable the Mfx
-*/
-void BSP_LED_DeInit(Led_TypeDef Led)
-{
-
 }
 
 /**
@@ -693,7 +681,7 @@ static uint8_t I2C_SENSORTILE_WriteData( uint8_t Addr, uint8_t Reg, uint8_t* pBu
   {
 
     /* Execute user timeout callback */
-    I2C_SENSORTILE_Error( Addr );
+    I2C_SENSORTILE_Error();
     return 1;
   }
   else
@@ -719,25 +707,29 @@ static uint8_t I2C_SENSORTILE_ReadData( uint8_t Addr, uint8_t Reg, uint8_t* pBuf
   if( status != HAL_OK )
   {
     /* Execute user timeout callback */
-    I2C_SENSORTILE_Error( Addr );
+    I2C_SENSORTILE_Error();
     return 1;
   }
   else
   {
     return 0;
   }
-}/**
+}
+
+/**
  * @brief  Manages error callback by re-initializing I2C
  * @param  Addr I2C Address
  */
-static void I2C_SENSORTILE_Error( uint8_t Addr )
+static void I2C_SENSORTILE_Error(void)
 {
   /* De-initialize the I2C comunication bus */
   HAL_I2C_DeInit( &I2C_SENSORTILE_Handle );
 
   /* Re-Initiaize the I2C comunication bus */
   I2C_SENSORTILE_Init();
-}/**
+}
+
+/**
  * @brief I2C MSP Initialization
  */
 static void I2C_SENSORTILE_MspInit( void )

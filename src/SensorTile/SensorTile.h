@@ -164,7 +164,6 @@ typedef enum
 
 uint32_t         BSP_GetVersion(void);
 void             BSP_LED_Init(Led_TypeDef Led);
-void             BSP_LED_DeInit(Led_TypeDef Led);
 void             BSP_LED_On(Led_TypeDef Led);
 void             BSP_LED_Off(Led_TypeDef Led);
 void             BSP_LED_Toggle(Led_TypeDef Led);

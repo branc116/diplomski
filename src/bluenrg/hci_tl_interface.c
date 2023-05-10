@@ -20,7 +20,7 @@ EXTI_HandleTypeDef hexti0;
  * @param  void* Pointer to configuration struct
  * @retval int32_t Status
  */
-int32_t HCI_TL_SPI_Init(void* pConf)
+int32_t HCI_TL_SPI_Init(void)
 {
 //  GPIO_InitTypeDef GPIO_InitStruct;
 //
@@ -76,30 +76,6 @@ static int32_t IsDataAvailable(void)
 }
 
 /***************************** hci_tl_interface main functions *****************************/
-/**
- * @brief  Register hci_tl_interface IO bus services
- *
- */
-void hci_tl_lowlevel_init(void)
-{
-  tHciIO fops;
-
-  /* Register IO bus services */
-  fops.Init    = HCI_TL_SPI_Init;
-  fops.DeInit  = HCI_TL_SPI_DeInit;
-  fops.Send    = BlueNRG_Write;
-  fops.Receive = BlueNRG_SPI_Read_All;
-  fops.Reset   = BlueNRG_RST;
-  fops.GetTick = HAL_GetTick;
-
-  hci_register_io_bus (&fops);
-
-  /* Register event irq handler */
-//  HAL_EXTI_GetHandle(&hexti0, EXTI_LINE_1);
-//  HAL_EXTI_RegisterCallback(&hexti0, HAL_EXTI_COMMON_CB_ID, hci_tl_lowlevel_isr);
-//  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
-  //HAL_NVIC_EnableIRQ(EXTI1_IRQn);
-}
 
 /**
   * @brief HCI Transport Layer Low Level Interrupt Service Routine
@@ -110,7 +86,7 @@ void hci_tl_lowlevel_isr(void)
   /* Call hci_notify_asynch_evt() */
   while(IsDataAvailable())
   {
-    if (hci_notify_asynch_evt(NULL))
+    if (hci_notify_asynch_evt())
     {
       return;
     }

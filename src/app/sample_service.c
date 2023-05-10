@@ -60,7 +60,7 @@ tBleStatus Add_Sample_Service(void)
 			     UUID_TYPE_128, //charUuidType
 			     simp_char_uuid, //const uint8_t* charUuid
 			     20, //uint8_t charValueLen
-			     CHAR_PROP_WRITE|CHAR_PROP_WRITE_WITHOUT_RESP, //uint8_t charProperties
+			     CHAR_PROP_NOTIFY | CHAR_PROP_WRITE | CHAR_PROP_WRITE_WITHOUT_RESP, //uint8_t charProperties
 			     ATTR_PERMISSION_NONE, //uint8_t secPermissions
 			     GATT_NOTIFY_ATTRIBUTE_WRITE, //uint8_t gattEvtMask
 			     16, //uint8_t encryKeySize
@@ -182,15 +182,12 @@ void receiveData(uint8_t* data_buffer, uint8_t Nb_bytes)
  */
 void sendData(const uint8_t* data_buffer, uint8_t Nb_bytes)
 {
-    aci_gatt_write_without_response(connection_handle, rx_handle+1, Nb_bytes, data_buffer);
+    aci_gatt_update_char_value(sampleServHandle, simpCharHandle, 0, Nb_bytes, data_buffer);
 }
 
 int sendText(const char* data_buffer, uint8_t Nb_bytes)
 {
-//    return aci_gatt_write_charac_descriptor(connection_handle, simpCharHandle, Nb_bytes, (const uint8_t *)data_buffer);
-
-    return aci_gatt_write_without_response(connection_handle, simpCharHandle, Nb_bytes, (const uint8_t*)data_buffer);
-
+    return aci_gatt_update_char_value(sampleServHandle, simpCharHandle, 0, Nb_bytes, data_buffer);
 }
 
 /**
@@ -217,6 +214,7 @@ void enableNotification(void)
  */
 void Attribute_Modified_CB(uint16_t handle, uint8_t data_length, uint8_t *att_data)
 {
+  UNUSED(handle); UNUSED(data_length); UNUSED(att_data);
   assert_param(false);
 //  if(handle == RXCharHandle + 1){
 //    receiveData(att_data, data_length);

@@ -20,7 +20,7 @@ struct CircBuffer {
   }
   size_t pos = 0;
   size_t len = 0;
-  T buffer[buffSize] = {{0}};
+  T buffer[buffSize] = {};
 };
 
 struct SpiCs {
@@ -48,11 +48,13 @@ class Lsm6dsm {
       bang_regs();
       isInitialized = true;
     }
+
     GyroReadout get_readout(void) {
-      GyroReadout ro{0};
+      GyroReadout ro{};
       spi_read(LSM6DSM_ACC_GYRO_OUT_TEMP_L, (uint8_t*)(&ro), sizeof(ro));
       return ro;
     }
+
     int bang_regs() {
       int res = 0;
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_IF_INC_MASK, LSM6DSM_ACC_GYRO_IF_INC_ENABLED);
@@ -64,9 +66,10 @@ class Lsm6dsm {
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_ODR_G_833Hz);
       return res;
     }
+
     int bang_reg(uint8_t reg, uint8_t mask_and, uint8_t mask_or){
-      uint8_t value;
-      if( 0 != spi_read(reg, &value, 1))
+      uint8_t value = 0;
+      if( 0 != spi_read(reg, &value))
         return -1;
 
       value &= ~mask_and;
@@ -77,6 +80,7 @@ class Lsm6dsm {
 
       return 0;
     }
+
     int spi_write(uint8_t addr, uint8_t const * buff, uint16_t buffLen) {
       SpiCs cs(gpioPort, gpioCs.Pin);
       write_one(addr);
@@ -85,6 +89,7 @@ class Lsm6dsm {
       }
       return 0;
     }
+
     int spi_read(uint8_t addr, uint8_t * buff, uint16_t len) {
       SpiCs cs(gpioPort, gpioCs.Pin);
       write_one(addr | 0x80);
@@ -93,7 +98,6 @@ class Lsm6dsm {
       SPI_1LINE_RX(&spiHandle);
       __disable_irq();
       __HAL_SPI_ENABLE(&spiHandle);
-
       /* Transfer loop */
       while (len > 1U)
       {
@@ -109,13 +113,10 @@ class Lsm6dsm {
          So to guarantee the clock generation for only one data, the clock must be
          disabled after the first bit and before the latest bit of the last Byte received */
       /* __DSB instruction are inserted to garantee that clock is Disabled in the right timeframe */
-
       __DSB();
       __DSB();
       __HAL_SPI_DISABLE(&spiHandle);
-
       __enable_irq();
-
       while ((spiHandle.Instance->SR & SPI_FLAG_RXNE) != SPI_FLAG_RXNE);
       /* read the received data */
       *buff = *(__IO uint8_t *) &spiHandle.Instance->DR;
@@ -125,9 +126,46 @@ class Lsm6dsm {
       __HAL_SPI_ENABLE(&spiHandle);
       return 0;
     }
+
+    uint8_t spi_read( uint8_t ReadAddr, uint8_t *val)
+    {
+      SpiCs cs(gpioPort, gpioCs.Pin);
+
+      /* Write Reg Address */
+      write_one(ReadAddr | 0x80);
+
+      /* Disable the SPI and change the data line to input */
+      __HAL_SPI_DISABLE(&spiHandle);
+      SPI_1LINE_RX(&spiHandle);
+
+      /* In master RX mode the clock is automaticaly generated on the SPI enable.
+      So to guarantee the clock generation for only one data, the clock must be
+      disabled after the first bit and before the latest bit */
+      /* Interrupts should be disabled during this operation */
+
+      __disable_irq();
+
+      __HAL_SPI_ENABLE(&spiHandle);
+      __asm("dsb\n");
+      __asm("dsb\n");
+      __HAL_SPI_DISABLE(&spiHandle);
+
+      __enable_irq();
+
+      while ((spiHandle.Instance->SR & SPI_FLAG_RXNE) != SPI_FLAG_RXNE);
+      /* read the received data */
+      *val = *(__IO uint8_t *) &spiHandle.Instance->DR;
+      while ((spiHandle.Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY);
+
+      /* Change the data line to output and enable the SPI */
+      SPI_1LINE_TX(&spiHandle);
+      __HAL_SPI_ENABLE(&spiHandle);
+
+      return COMPONENT_OK;
+    }
   private:
     void init_spi() {
-      GPIO_InitTypeDef GPIO_InitStruct;
+      GPIO_InitTypeDef GPIO_InitStruct{};
 
       if(HAL_SPI_GetState(&spiHandle) == HAL_SPI_STATE_RESET )
       {
@@ -175,6 +213,7 @@ class Lsm6dsm {
       HAL_GPIO_WritePin(gpioPort, gpioCs.Pin, GPIO_PIN_SET);
       HAL_GPIO_Init(SENSORTILE_LSM6DSM_SPI_CS_Port, &gpioCs);
     }
+
     void write_one(uint8_t val) {
       /* check TXE flag */
       while ((spiHandle.Instance->SR & SPI_FLAG_TXE) != SPI_FLAG_TXE);
@@ -187,21 +226,15 @@ class Lsm6dsm {
       while ((spiHandle.Instance->SR & SPI_FLAG_BSY) == SPI_FLAG_BSY);
 
     }
-    uint8_t who_am_i = LSM6DSM_ACC_GYRO_WHO_AM_I;
-    uint8_t ifType = 1; // SPI INTERFACE
-    uint8_t adderss = LSM6DSM_ACC_GYRO_I2C_ADDRESS_HIGH;
-    uint8_t spiDevice     = LSM6DSM;
-    uint8_t instance      = LSM6DSM_G_0;
     uint8_t isInitialized = 0;
-    uint8_t isEnabled     = 0;
-    uint8_t isCombo       = 1;
-    SPI_HandleTypeDef spiHandle{0};
-    GPIO_InitTypeDef gpioCs;
-    GPIO_TypeDef* gpioPort;
+    SPI_HandleTypeDef spiHandle{};
+    GPIO_InitTypeDef gpioCs{};
+    GPIO_TypeDef* gpioPort{};
 };
+
 static int entry(void) {
   Lsm6dsm l{};
-  CircBuffer<GyroReadout, 16> buff;
+  CircBuffer<GyroReadout, 16> buff{};
   while(1) {
     buff.push(l.get_readout());
     MX_BlueNRG_MS_Process();

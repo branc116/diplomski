@@ -1,11 +1,5 @@
-
 #include "SensorTile_BlueNRG.h"
 //#include "gp_timer.h"
-//#include "debug.h"
-
-#ifdef PRINT_CSV_FORMAT
-extern volatile uint32_t ms_counter;
-#endif /* PRINT_CSV_FORMAT */
 
 #define HEADER_SIZE 5
 #define MAX_BUFFER_SIZE 255
@@ -15,16 +9,6 @@ SPI_HandleTypeDef SpiHandle;static void us150Delay(void);
 void set_irq_as_output(void);
 void set_irq_as_input(void);
 
-#ifdef PRINT_CSV_FORMAT
-/**
-* @brief  This function is a utility to print the log time
-*          in the format HH:MM:SS:MSS (DK GUI time format)
-*/
-void print_csv_time(void){
-  uint32_t ms = ms_counter;
-  PRINT_CSV("%02d:%02d:%02d.%03d", ms/(60*60*1000)%24, ms/(60*1000)%60, (ms/1000)%60, ms%1000);
-}
-#endif /* PRINT_CSV_FORMAT */
 
 /**
 * @brief  This function is used for low level initialization of the SPI
@@ -115,21 +99,7 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* hspi)
 void Hal_Write_Serial(const void* data1, const void* data2, int32_t n_bytes1,
                       int32_t n_bytes2)
 {
-
-#ifdef PRINT_CSV_FORMAT
-  print_csv_time();
-  for (int i=0; i<n_bytes1; i++) {
-    PRINT_CSV(" %02x", ((uint8_t *)data1)[i]);
-  }
-  for (int i=0; i<n_bytes2; i++) {
-    PRINT_CSV(" %02x", ((uint8_t *)data2)[i]);
-  }
-  PRINT_CSV("\n");
-#endif
-
-  while(1){
-    if(BlueNRG_SPI_Write(&SpiHandle, (uint8_t *)data1,(uint8_t *)data2, n_bytes1, n_bytes2)==0) break;
-  }
+  while(BlueNRG_SPI_Write(&SpiHandle, (uint8_t *)data1,(uint8_t *)data2, n_bytes1, n_bytes2));
 }
 
 /**
@@ -173,10 +143,7 @@ void BlueNRG_RST(void)
 // FIXME: find a better way to handle this return value (bool type? TRUE and FALSE)
 uint8_t BlueNRG_DataPresent(void)
 {
-  if (HAL_GPIO_ReadPin(BNRG_SPI_EXTI_PORT, BNRG_SPI_EXTI_PIN) == GPIO_PIN_SET)
-    return 1;
-  else
-    return 0;
+  return HAL_GPIO_ReadPin(BNRG_SPI_EXTI_PORT, BNRG_SPI_EXTI_PIN) == GPIO_PIN_SET;
 } /* end BlueNRG_DataPresent() */
 
 /**
@@ -239,16 +206,6 @@ int32_t BlueNRG_SPI_Read_All(uint8_t *buffer,
   // Add a small delay to give time to the BlueNRG to set the IRQ pin low
   // to avoid a useless SPI read at the end of the transaction
   for(volatile int i = 0; i < 2; i++)__NOP();
-
-#ifdef PRINT_CSV_FORMAT
-  if (len > 0) {
-    print_csv_time();
-    for (int i=0; i<len; i++) {
-      PRINT_CSV(" %02x", buffer[i]);
-    }
-    PRINT_CSV("\n");
-  }
-#endif
 
   return len;
 }

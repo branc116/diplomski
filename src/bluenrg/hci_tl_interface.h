@@ -26,11 +26,7 @@ extern EXTI_HandleTypeDef     hexti0;
 #define H_EXTI_0 hexti0int32_t HCI_TL_SPI_Init    (void* pConf);
 int32_t HCI_TL_SPI_DeInit  (void);
 int32_t HCI_TL_SPI_Reset   (void);
-
-/**
- * @brief  Register hci_tl_interface IO bus services
- */
-void hci_tl_lowlevel_init(void);
+int32_t HCI_TL_SPI_Init(void);
 
 /**
  * @brief HCI Transport Layer Low Level Interrupt Service Routine

@@ -1,5 +1,6 @@
 #include "LPS22HB_Driver_HL.h"
 #include <math.h>
+#include "help.h"
 
 static DrvStatusTypeDef LPS22HB_P_Init( DrvContextTypeDef *handle );
 static DrvStatusTypeDef LPS22HB_P_DeInit( DrvContextTypeDef *handle );
@@ -952,6 +953,7 @@ static DrvStatusTypeDef LPS22HB_Set_ODR_When_Enabled( DrvContextTypeDef *handle,
 static DrvStatusTypeDef LPS22HB_Set_ODR_When_Disabled( DrvContextTypeDef *handle, SensorOdr_t odr,
     LPS22HB_Combo_Data_t *combo )
 {
+  UNUSED(handle);
 
   switch( odr )
   {
@@ -1019,6 +1021,7 @@ static DrvStatusTypeDef LPS22HB_Set_ODR_Value_When_Enabled( DrvContextTypeDef *h
 static DrvStatusTypeDef LPS22HB_Set_ODR_Value_When_Disabled( DrvContextTypeDef *handle, float odr,
     LPS22HB_Combo_Data_t *combo )
 {
+  UNUSED(handle);
 
   combo->Last_ODR = ( odr <=  1.0f ) ? 1.0f
                     : ( odr <= 10.0f ) ? 10.0f

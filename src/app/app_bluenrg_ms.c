@@ -45,7 +45,7 @@ void print_csv_time(void){
   PRINT_CSV("%02ld:%02ld:%02ld.%03ld", (long)(ms/(60*60*1000)%24), (long)(ms/(60*1000)%60), (long)((ms/1000)%60), (long)(ms%1000));
 }
 #endif
-volatile int break_ret(volatile int i) {
+int break_ret(volatile int i) {
   return i;
 }
 
@@ -56,13 +56,13 @@ uint32_t MX_BlueNRG_MS_Init(void)
   uint8_t bdaddr[BDADDR_SIZE];
   uint16_t service_handle, dev_name_char_handle, appearance_char_handle;
 
-  uint8_t  hwVersion = 49;
-  uint16_t fwVersion = 1827;
+  //hwVersion = 49;
+  //fwVersion = 1827;
   int ret;
 
   User_Init();
 
-  hci_init(NULL);
+  hci_init();
 
   BLUENRG_memcpy(bdaddr, SERVER_BDADDR, sizeof(SERVER_BDADDR));
 
@@ -146,6 +146,7 @@ static void Debug(void) {
   volatile uint32_t stat = aci_hal_get_link_status(link_status, conn_handle);
   stat = aci_hal_get_fw_build_number(&build_number);
   stat = getBlueNRGVersion(&hwVersion, &fwVersion);
+  UNUSED(stat);
 }
 
 volatile int succ = 0;
@@ -159,6 +160,7 @@ int bip = 0;
  */
 static void User_Process(void)
 {
+  UNUSED(Debug);
   if (set_connectable)
   {
     /* Establish connection with remote device */
@@ -166,10 +168,10 @@ static void User_Process(void)
     //user_button_init_state = BSP_PB_GetState(BUTTON_KEY);
   }
   process_idle();
-  if (connected && !bip) {
+  //if (connected && !bip) {
     BSP_LED_On(LED1);
     end_read_tx_char_handle = 1;
-    int res = sendText("hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
+    int res = sendText("hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 69);
     if (res) {
       unsucc--;
     }
@@ -178,10 +180,10 @@ static void User_Process(void)
       bip = 1;
     }
 
-  }
-  else {
-    BSP_LED_Off(LED1);
-  }
+  //}
+  //else {
+  //  BSP_LED_Off(LED1);
+  //}
 
 //  if (1)
 //  {

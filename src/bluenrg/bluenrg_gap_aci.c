@@ -6,6 +6,7 @@
 #include "bluenrg_gap_aci.h"
 #include "bluenrg_gatt_server.h"
 #include "bluenrg_gap.h"
+#include <stdint.h>
 
 #define MIN(a,b)            ((a) < (b) )? (a) : (b)
 #define MAX(a,b)            ((a) > (b) )? (a) : (b)
@@ -103,7 +104,7 @@ tBleStatus aci_gap_set_limited_discoverable(uint8_t AdvType, uint16_t AdvIntervM
   uint8_t buffer[40];
   uint8_t indx = 0;
 
-  if ((LocalNameLen+ServiceUUIDLen+14) > sizeof(buffer))
+  if ((uint32_t)(LocalNameLen+ServiceUUIDLen+14) > sizeof(buffer))
     return BLE_STATUS_INVALID_PARAMS;
 
   buffer[indx] = AdvType;
@@ -166,7 +167,7 @@ tBleStatus aci_gap_set_discoverable(uint8_t AdvType, uint16_t AdvIntervMin, uint
   uint8_t buffer[40];
   uint8_t indx = 0;
 
-  if ((LocalNameLen+ServiceUUIDLen+14) > sizeof(buffer))
+  if ((uint32_t)(LocalNameLen+ServiceUUIDLen+14) > sizeof(buffer))
     return BLE_STATUS_INVALID_PARAMS;
 
   buffer[indx] = AdvType;

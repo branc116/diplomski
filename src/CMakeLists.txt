@@ -13,7 +13,6 @@ set(PS
   app/main.c
   app/main.cpp
   app/sample_service.c
-  app/stm32l4xx_hal_msp.c
   app/stm32l4xx_it.c
 
   bluenrg/bluenrg_gap_aci.c
@@ -59,7 +58,7 @@ set(PS
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 add_executable(stm32-bt ${PS})
-target_compile_options(stm32-bt PRIVATE -Wno-missing-braces)
+target_compile_options(stm32-bt PRIVATE -ggdb3 -Wno-missing-braces -Wno-language-extension-token -Wextra -Wall -Wpedantic)
 target_compile_features(stm32-bt PRIVATE cxx_std_20)
 
 target_include_directories(stm32-bt PRIVATE "app")

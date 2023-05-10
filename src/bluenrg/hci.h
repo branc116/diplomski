@@ -17,7 +17,7 @@ extern "C" {
  *         the BLE core device.
  * @param  pConf: Configuration structure pointer
  */
-void hci_init(void* pConf);
+void hci_init(void);
 
 /**
  * @brief  Processing function that must be called after an event is received from

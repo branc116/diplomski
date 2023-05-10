@@ -1,5 +1,6 @@
 // @brief   Contains the basic functions for managing the framework required for handling the HCI interface
 
+#include "SensorTile_BlueNRG.h"
 #include "bluenrg_types.h"
 #include "hci_const.h"
 #include "hci.h"
@@ -23,23 +24,23 @@
 
 static uint32_t read_packet_counter = 1;
 static struct hciDataPacketWithId { tHciDataPacket el; int32_t id;  } hciReadPacketBuffer[HCI_READ_PACKET_NUM_MAX];
-static tHciContext    hciContext;
+//static tHciContext    hciContext;
 
-static BOOL any_unread() {
+static BOOL any_unread(void) {
   for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
     if (hciReadPacketBuffer[i].id > 0) return TRUE;
   }
   return FALSE;
 }
 
-static BOOL any_available() {
+static BOOL any_available(void) {
   for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
     if (hciReadPacketBuffer[i].id <= 0) return TRUE;
   }
   return FALSE;
 }
 
-static tHciDataPacket* take_first_available() {
+static tHciDataPacket* take_first_available(void) {
   int32_t biggest = 0xFFFFFFFF;
   struct hciDataPacketWithId * ret = NULL;
 
@@ -62,7 +63,7 @@ static void invalidat(tHciDataPacket* data) {
  r->id = 0;
 }
 
-static tHciDataPacket* pop_last() {
+static tHciDataPacket* pop_last(void) {
   struct hciDataPacketWithId * ret = NULL;
   int32_t min_id = 0x7FFFFFFF;
 
@@ -119,45 +120,20 @@ static void send_cmd(uint16_t ogf, uint16_t ocf, uint8_t plen, void *param)
   BLUENRG_memcpy(payload + 1, &hc, sizeof(hc));
   BLUENRG_memcpy(payload + HCI_HDR_SIZE + HCI_COMMAND_HDR_SIZE, param, plen);
 
-  if (hciContext.io.Send)
-  {
-    hciContext.io.Send (payload, HCI_HDR_SIZE + HCI_COMMAND_HDR_SIZE + plen);
-  }
-}
-
-static void free_event_list(void)
-{
-  for (int i = 0; i < HCI_READ_PACKET_NUM_MAX; ++i) {
-    if (hciReadPacketBuffer[i].id > 0)
-      hciReadPacketBuffer[i].id = -hciReadPacketBuffer[i].id;
-  }
+  BlueNRG_Write(payload, HCI_HDR_SIZE + HCI_COMMAND_HDR_SIZE + plen);
 }
 
 /********************** HCI Transport layer functions *****************************/
 
-void hci_init(void* pConf)
+void hci_init(void)
 {
   /* Initialize list heads of ready and free hci data packet queues */
   memset(hciReadPacketBuffer, 0, sizeof(hciReadPacketBuffer));
   read_packet_counter = 1;
 
-  /* Initialize TL BLE layer */
-  hci_tl_lowlevel_init();
-
-
   /* Initialize low level driver */
-  if (hciContext.io.Init)  hciContext.io.Init(NULL);
-  if (hciContext.io.Reset) hciContext.io.Reset();
-}
-
-void hci_register_io_bus(tHciIO* fops)
-{
-  /* Register bus function */
-  hciContext.io.Init    = fops->Init;
-  hciContext.io.Receive = fops->Receive;
-  hciContext.io.Send    = fops->Send;
-  hciContext.io.GetTick = fops->GetTick;
-  hciContext.io.Reset   = fops->Reset;
+  HCI_TL_SPI_Init();
+  BlueNRG_RST();
 }
 
 int hci_send_req(struct hci_request* r, BOOL async)
@@ -188,7 +164,7 @@ int hci_send_req(struct hci_request* r, BOOL async)
 
     while (1)
     {
-      hci_notify_asynch_evt(NULL);
+      hci_notify_asynch_evt();
       if ((HAL_GetTick() - tickstart) > HCI_DEFAULT_TIMEOUT_MS)
       {
         return -1;
@@ -272,7 +248,7 @@ done:
 }
 
 void process_idle(void) {
-  hci_notify_asynch_evt(NULL);
+  hci_notify_asynch_evt();
   while (any_unread())
   {
     tHciDataPacket * hciReadPacket = pop_last();
@@ -289,7 +265,7 @@ void hci_user_evt_proc(void)
   }
 }
 
-int32_t hci_notify_asynch_evt(void* pdata)
+int32_t hci_notify_asynch_evt(void)
 {
   uint8_t data_len;
 
@@ -300,27 +276,19 @@ int32_t hci_notify_asynch_evt(void* pdata)
     /* Queuing a packet to read */
     tHciDataPacket * hciReadPacket = take_first_available();
 
-    if (hciContext.io.Receive)
+    data_len = BlueNRG_SPI_Read_All(hciReadPacket->dataBuff, HCI_READ_PACKET_SIZE);
+    if (data_len > 0)
     {
-      data_len = hciContext.io.Receive(hciReadPacket->dataBuff, HCI_READ_PACKET_SIZE);
-      if (data_len > 0)
-      {
-        hciReadPacket->data_len = data_len;
-        if (verify_packet(hciReadPacket) != 0)
-          invalidat(hciReadPacket);
-        goto again;
-      }
-      else
-      {
-        /* Insert the packet back into the pool*/
+      hciReadPacket->data_len = data_len;
+      if (verify_packet(hciReadPacket) != 0)
         invalidat(hciReadPacket);
-      }
+      goto again;
+    }
+    else
+    {
+      /* Insert the packet back into the pool*/
+      invalidat(hciReadPacket);
     }
   }
-  else
-  {
-    ret = 1;
-  }
   return ret;
-
 }

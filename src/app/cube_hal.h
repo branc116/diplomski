@@ -24,9 +24,6 @@
 #endif
 
 void SystemClock_Config(void);
-uint32_t Get_DMA_Flag_Status(DMA_HandleTypeDef *handle_dma); // TODO: Check if needed
-uint32_t Get_DMA_Counter(DMA_HandleTypeDef *handle_dma);     // TODO: Check if needed
-void Config_DMA_Handler(DMA_HandleTypeDef *handle_dma);      // TODO: Check if needed
 
 #ifdef __cplusplus
 }

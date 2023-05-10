@@ -1,5 +1,6 @@
 #include "LSM303AGR_MAG_driver_HL.h"
 #include <math.h>
+#include "help.h"
 
 static DrvStatusTypeDef LSM303AGR_M_Get_Axes_Raw( DrvContextTypeDef *handle, int16_t* pData );
 
@@ -101,7 +102,9 @@ static DrvStatusTypeDef LSM303AGR_M_Init( DrvContextTypeDef *handle )
   handle->isInitialized = 1;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Deinitialize the LSM303AGR sensor
  * @param handle the device handle
  * @retval COMPONENT_OK in case of success
@@ -129,7 +132,9 @@ static DrvStatusTypeDef LSM303AGR_M_DeInit( DrvContextTypeDef *handle )
   handle->isInitialized = 0;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Enable the LSM303AGR sensor
  * @param handle the device handle
  * @retval COMPONENT_OK in case of success
@@ -153,7 +158,9 @@ static DrvStatusTypeDef LSM303AGR_M_Sensor_Enable( DrvContextTypeDef *handle )
   handle->isEnabled = 1;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Disable the LSM303AGR sensor
  * @param handle the device handle
  * @retval COMPONENT_OK in case of success
@@ -177,7 +184,9 @@ static DrvStatusTypeDef LSM303AGR_M_Sensor_Disable( DrvContextTypeDef *handle )
   handle->isEnabled = 0;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the WHO_AM_I ID of the LSM303AGR sensor
  * @param handle the device handle
  * @param who_am_i pointer to the value of WHO_AM_I register
@@ -194,7 +203,9 @@ static DrvStatusTypeDef LSM303AGR_M_Get_WhoAmI( DrvContextTypeDef *handle, uint8
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Check the WHO_AM_I ID of the LSM303AGR sensor
  * @param handle the device handle
  * @retval COMPONENT_OK in case of success
@@ -215,7 +226,9 @@ static DrvStatusTypeDef LSM303AGR_M_Check_WhoAmI( DrvContextTypeDef *handle )
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the LSM303AGR sensor axes
  * @param handle the device handle
  * @param magnetic_field pointer where the values of the axes are written
@@ -246,7 +259,9 @@ static DrvStatusTypeDef LSM303AGR_M_Get_Axes( DrvContextTypeDef *handle, SensorA
   magnetic_field->AXIS_Z = ( int32_t )( pDataRaw[2] * sensitivity );
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the LSM303AGR sensor raw axes
  * @param handle the device handle
  * @param value pointer where the raw values of the axes are written
@@ -270,7 +285,9 @@ static DrvStatusTypeDef LSM303AGR_M_Get_AxesRaw( DrvContextTypeDef *handle, Sens
   value->AXIS_Z = pDataRaw[2];
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the LSM303AGR sensor sensitivity
  * @param handle the device handle
  * @param sensitivity pointer where the sensitivity value is written [LSB/gauss]
@@ -279,10 +296,13 @@ static DrvStatusTypeDef LSM303AGR_M_Get_AxesRaw( DrvContextTypeDef *handle, Sens
  */
 static DrvStatusTypeDef LSM303AGR_M_Get_Sensitivity( DrvContextTypeDef *handle, float *sensitivity )
 {
+  UNUSED(handle);
   *sensitivity = ( float )LSM303AGR_MAG_SENSITIVITY_FOR_FS_50G;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the LSM303AGR sensor output data rate
  * @param handle the device handle
  * @param odr pointer where the output data rate is written
@@ -317,7 +337,9 @@ static DrvStatusTypeDef LSM303AGR_M_Get_ODR( DrvContextTypeDef *handle, float *o
       return COMPONENT_ERROR;
   }
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Set the LSM303AGR sensor output data rate
  * @param handle the device handle
  * @param odr the functional output data rate to be set
@@ -377,7 +399,9 @@ static DrvStatusTypeDef LSM303AGR_M_Set_ODR_Value( DrvContextTypeDef *handle, fl
   }
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Get the LSM303AGR sensor full scale
  * @param handle the device handle
  * @param fullScale pointer where the full scale is written
@@ -386,10 +410,13 @@ static DrvStatusTypeDef LSM303AGR_M_Set_ODR_Value( DrvContextTypeDef *handle, fl
  */
 static DrvStatusTypeDef LSM303AGR_M_Get_FS( DrvContextTypeDef *handle, float *fullScale )
 {
+  UNUSED(handle);
   *fullScale = 50.0f;
 
   return COMPONENT_OK;
-}/**
+}
+
+/**
  * @brief Set the LSM303AGR sensor full scale
  * @param handle the device handle
  * @param fullScale the functional full scale to be set
@@ -398,6 +425,7 @@ static DrvStatusTypeDef LSM303AGR_M_Get_FS( DrvContextTypeDef *handle, float *fu
  */
 static DrvStatusTypeDef LSM303AGR_M_Set_FS( DrvContextTypeDef *handle, SensorFs_t fullScale )
 {
+  UNUSED(handle); UNUSED(fullScale);
   return COMPONENT_OK;
 }/**
  * @brief Set the LSM303AGR sensor full scale
@@ -408,6 +436,7 @@ static DrvStatusTypeDef LSM303AGR_M_Set_FS( DrvContextTypeDef *handle, SensorFs_
  */
 static DrvStatusTypeDef LSM303AGR_M_Set_FS_Value( DrvContextTypeDef *handle, float fullScale )
 {
+  UNUSED(handle); UNUSED(fullScale);
   return COMPONENT_OK;
 }/**
  * @brief Read the data from register

@@ -6,14 +6,6 @@
 #include "main.h"
 #include "app_bluenrg_ms.h"
 
-typedef struct displayFloatToInt_s {
-  int8_t   sign;     /* 0 means positive, 1 means negative*/
-  uint32_t out_int;
-  uint32_t out_dec;
-} displayFloatToInt_t;
-#define DATA_SIZE  256
-
-
 static RTC_HandleTypeDef RtcHandle;            /*!< RTC HANDLE */
 
 static int RTC_SYNCH_PREDIV;
@@ -140,6 +132,7 @@ void RTC_TimeRegulate(uint8_t hh, uint8_t mm, uint8_t ss)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+  UNUSED(htim);
     //CDC_TIM_PeriodElapsedCallback(htim);
 }
 
