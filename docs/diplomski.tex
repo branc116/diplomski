@@ -99,6 +99,24 @@ Kad se dogodi neki interupt izvodi se sljedeca procedura:
 
 \newpage
 \section{Bluetooth}
+\subsection{BlueNRG}
+BlueNRG je bluetooth module koji se nalazi na Sensortile plo\v{c}ici. Komunicira s mikrokontrolerom pomocu SPI protokola.
+Specificno postoji
+\begin{itemize}
+  \item Zaglavlje
+  \item Tijelo
+\end{itemize}
+Zaglavlje govori koliko bajta je BlueNRG spreman primiti te koliko je bajta \v{z}eljan poslati.
+Postoji pet signala koji povezuju bluetooth module i STM32 mikrokontroler:
+\begin{itemize}
+  \item Odabir \v{c}ipa (engl. Chip select CS) Mikrokontroler stavlja na logi\v{c}ku nulu da ozna\v{c}i da BlueNRG smije komunicirati.
+  \item Takt (engl. clock) Mikrokontroler odrduje takt kojim ce komunicirati
+  \item STM32 govori, BlueNRG slu\v{s}a
+  \item BlueNRG govori, STM32 slu\v{s}a
+  \item Podaci su spremni (engl. Data ready) BlueNRG ozna\v{c}ava da su dostupni podaci koje STM32 mo\v{z}e pro\v{c}itati.
+\end{itemize}
+
+
 \subsection{Bluetooth GAP}
 Bluetooth \textbf{G}eneric \textbf{A}ccess \textbf{P}rofile.
 Gap definiral role unutar bluetooth standard. Role koje postoje su Advertizer, Scanner, Slave, Master. Adertizer i Scanner role vr\v{s}e razmjenu informacija isklju\v{c}ivo u smjeru
