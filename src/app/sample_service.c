@@ -16,6 +16,7 @@
 #include "SensorTile.h"
 #include "stm32l4xx_hal_conf.h"
 #include <stm32l476xx.h>
+#include <stm32l4xx_hal.h>
 #include <sys/_stdint.h>
 
 int sendText(blue_state_t* state, const char* data_buffer, uint8_t Nb_bytes)
@@ -176,8 +177,11 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
           evt_gatt_attr_modified_IDB05A1 *evt = (evt_gatt_attr_modified_IDB05A1*)eaci->data;
           add_event(state, evt->conn_handle, evt->attr_handle, evt->data_length, evt->att_data);
           state->changed_attrs_count++;
-          if (state->changed_attrs_count == 2)
-            sendText(state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
+          if (state->changed_attrs_count == 2) {
+            //sendText(state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
+            state->can_send = true;
+            state->send_tick = uwTick;
+          }
         }
         break;
 
@@ -214,6 +218,14 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
           InfLoop();
         }
         break;
+      case EVT_BLUE_GATT_TX_POOL_AVAILABLE:
+        {
+          evt_gatt_tx_pool_available* p_ = (void*)eaci->data;
+          UNUSED(p_);
+          state->can_send = true;
+          state->send_tick = uwTick + 10;
+        }
+        break;
       default:
         InfLoop();
     }
@@ -225,16 +237,13 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
     else if (cc->opcode != OCF_GATT_UPD_CHAR_VAL)
       InfLoop();
     uint8_t status = cc->res[0];
-    us150Delay();
     if (status) {
       state->number_of_unsuccessfull_sends++;
-      us150Delay();
-      sendText(state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
-      //InfLoop();
     }else {
       state->number_of_successfull_sends++;
-      sendText(state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
+      state->can_send = true;
     }
+    state->send_tick = uwTick;
 
   }else {
     InfLoop();

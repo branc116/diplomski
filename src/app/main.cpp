@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stm32l476xx.h>
+#include <stm32l4xx_hal.h>
 #include <stm32l4xx_hal_def.h>
 #include <stm32l4xx_hal_gpio.h>
 
@@ -242,6 +243,15 @@ static int entry(void) {
       MX_BlueNRG_MS_Init();
       blue_state.number_of_resets++;
     }else if (blue_state.status == USER_PROCESS_STATUS__CONNECTED)  {
+      if (blue_state.can_send && blue_state.send_tick < uwTick - 4) {
+        blue_state.can_send = false;
+        blue_state.send_tick = uwTick;
+        sendText(&blue_state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
+        //hci_notify_asynch_evt();
+      }
+      if (blue_state.send_tick < uwTick - 100) {
+        hci_notify_asynch_evt();
+      }
       //sendText(&blue_state, "hihihiihihiihi", 20);
       //buff.push(l.get_readout());
     }

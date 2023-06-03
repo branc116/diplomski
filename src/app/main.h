@@ -15,7 +15,6 @@ extern "C" {
 #include "SensorTile_humidity.h"
 
 void Error_Handler(void);
-void RTC_TimeRegulate(uint8_t hh, uint8_t mm, uint8_t ss);
 
 #ifdef __cplusplus
 }

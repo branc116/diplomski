@@ -2,7 +2,9 @@
 #define SAMPLE_SERVICE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
+
 #ifdef __cplusplus
  extern "C" {
 #endif
@@ -55,6 +57,8 @@ typedef struct {
   int blue_number_of_times_in_interupt;
   int number_of_send_attempts, number_of_unsuccessfull_sends, number_of_successfull_sends;
   int number_of_events;
+  uint32_t send_tick;
+  bool can_send;
   blue_event_modified_t events[BLUE_EVENTS_CAPACITY];
 } blue_state_t;
 
