@@ -22,32 +22,9 @@ EXTI_HandleTypeDef hexti0;
  */
 int32_t HCI_TL_SPI_Init(void)
 {
-//  GPIO_InitTypeDef GPIO_InitStruct;
-//
-//  __HAL_RCC_GPIOA_CLK_ENABLE();
-//
-//  /* Configure EXTI Line */
-//  GPIO_InitStruct.Pin = HCI_TL_SPI_EXTI_PIN;
-//  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-//  GPIO_InitStruct.Pull = GPIO_NOPULL;
-//  HAL_GPIO_Init(HCI_TL_SPI_EXTI_PORT, &GPIO_InitStruct);
-//
-//  /* Configure RESET Line */
-//  GPIO_InitStruct.Pin =  HCI_TL_RST_PIN;
-//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//  GPIO_InitStruct.Pull = GPIO_NOPULL;
-//  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-//  HAL_GPIO_Init(HCI_TL_RST_PORT, &GPIO_InitStruct);
-//
-//  /* Configure CS */
-//  GPIO_InitStruct.Pin = HCI_TL_SPI_CS_PIN;
-//  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-//  GPIO_InitStruct.Pull = GPIO_NOPULL;
-//  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-//  HAL_GPIO_Init(HCI_TL_SPI_CS_PORT, &GPIO_InitStruct);
-
+  //Disable_SPI_IRQ();
   BNRG_SPI_Init();
-  //Enable_SPI_IRQ();
+  Clear_SPI_IRQ();
   return 0;
 }
 
@@ -65,31 +42,3 @@ int32_t HCI_TL_SPI_DeInit(void)
   return 0;
 }
 
-/**
- * @brief  Reports if the BlueNRG has data for the host micro.
- *
- * @retval int32_t: 1 if data are present, 0 otherwise
- */
-static int32_t IsDataAvailable(void)
-{
-  return (HAL_GPIO_ReadPin(HCI_TL_SPI_EXTI_PORT, HCI_TL_SPI_EXTI_PIN) == GPIO_PIN_SET);
-}
-
-/***************************** hci_tl_interface main functions *****************************/
-
-/**
-  * @brief HCI Transport Layer Low Level Interrupt Service Routine
-  *
-  */
-void hci_tl_lowlevel_isr(void)
-{
-  /* Call hci_notify_asynch_evt() */
-  while(IsDataAvailable())
-  {
-    if (hci_notify_asynch_evt())
-    {
-      return;
-    }
-  }
-
-}

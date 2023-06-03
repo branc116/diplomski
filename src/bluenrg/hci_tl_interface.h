@@ -28,11 +28,6 @@ int32_t HCI_TL_SPI_DeInit  (void);
 int32_t HCI_TL_SPI_Reset   (void);
 int32_t HCI_TL_SPI_Init(void);
 
-/**
- * @brief HCI Transport Layer Low Level Interrupt Service Routine
- */
-void hci_tl_lowlevel_isr(void);
-
 #ifdef __cplusplus
 }
 #endif

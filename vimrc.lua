@@ -9,7 +9,7 @@ local function r(s)
   end
 end
 
-function replace_shit()
+local function replace_shit()
   r([[%s/\/\*\*\n *\* *@}\n *\*\/ *\n//ge]])
   r([[%s/ *\* *@\w* *None\n//ge]])
   r([[%s/ \* *@{\n//ge]])

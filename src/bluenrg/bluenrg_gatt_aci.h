@@ -90,7 +90,7 @@ tBleStatus aci_gatt_include_service(uint16_t service_handle, uint16_t included_s
 tBleStatus aci_gatt_add_char(uint16_t serviceHandle,
 			     uint8_t charUuidType,
 			     const uint8_t* charUuid,
-			     uint8_t charValueLen,
+			     uint16_t charValueLen,
 			     uint8_t charProperties,
 			     uint8_t secPermissions,
 			     uint8_t gattEvtMask,

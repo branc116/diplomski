@@ -405,6 +405,7 @@ typedef __packed struct _evt_encrypt_change{
 typedef __packed struct _evt_cmd_complete{
   uint8_t  ncmd;
   uint16_t opcode;
+  uint8_t res[1];
 } PACKED evt_cmd_complete;
 #define EVT_CMD_COMPLETE_SIZE 3
 
@@ -452,7 +453,7 @@ typedef __packed struct _evt_encryption_key_refresh_complete{
 #define EVT_LE_META_EVENT	0x3E
 typedef __packed struct _evt_le_meta_event{
   uint8_t subevent;
-  uint8_t data[VARIABLE_SIZE];
+  char data[1];
 } PACKED evt_le_meta_event;
 #define EVT_LE_META_EVENT_SIZE 1
 
@@ -514,6 +515,7 @@ typedef __packed struct _evt_le_long_term_key_request{
 #define cmd_opcode_pack(ogf, ocf)   (uint16_t)((ocf & 0x03ff)|(ogf << 10))
 #define cmd_opcode_ogf(op)          (op >> 10)
 #define cmd_opcode_ocf(op)          (op & 0x03ff)
+#define to_opcode(ogf, ocf)         (htobs(cmd_opcode_pack(ogf, ocf)))
 
 typedef enum {
   WAITING_TYPE,

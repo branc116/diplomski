@@ -66,7 +66,7 @@ typedef enum
  * @param  async: TRUE if asynchronous mode, FALSE if synchronous mode
  * @retval int: 0 when success, -1 when failure
  */
-int hci_send_req(struct hci_request *r, BOOL async);
+int hci_send_req(struct hci_request *r);
 
 void process_idle(void);
 
@@ -78,7 +78,7 @@ void process_idle(void);
  * @param  pdata Packet or event pointer
  * @retval 0: packet/event processed, 1: no packet/event processed
  */
-int32_t hci_notify_asynch_evt(void);
+void hci_notify_asynch_evt(void);
 
 /**
  * @brief  This function resume the User Event Flow which has been stopped on return

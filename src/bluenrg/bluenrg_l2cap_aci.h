@@ -65,7 +65,9 @@ tBleStatus aci_l2cap_connection_parameter_update_response_IDB05A1(uint16_t conn_
  */
 tBleStatus aci_l2cap_connection_parameter_update_response_IDB04A1(uint16_t conn_handle, uint16_t interval_min,
 							 uint16_t interval_max, uint16_t slave_latency,
-							 uint16_t timeout_multiplier, uint8_t id, uint8_t accept);/**
+							 uint16_t timeout_multiplier, uint8_t id, uint8_t accept);
+
+/**
  * This event is generated when the master responds to the L2CAP connection update request packet.
  * For more info see CONNECTION PARAMETER UPDATE RESPONSE and COMMAND REJECT in Bluetooth Core v4.0 spec.
  */
@@ -124,3 +126,4 @@ typedef __packed struct _evt_l2cap_conn_upd_req{
 } PACKED evt_l2cap_conn_upd_req;
 
 #endif /* __BLUENRG_L2CAP_ACI_H__ */
+

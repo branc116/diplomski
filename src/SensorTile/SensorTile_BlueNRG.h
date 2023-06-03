@@ -95,7 +95,6 @@ void Clear_SPI_EXTI_Flag(void);
 
 void BNRG_SPI_Init(void);
 void BlueNRG_RST(void);
-uint8_t BlueNRG_DataPresent(void);
 void    BlueNRG_HW_Bootloader(void);
 int32_t BlueNRG_SPI_Read_All(uint8_t *buffer,
                              uint16_t buff_size);
@@ -106,10 +105,7 @@ int32_t BlueNRG_SPI_Write(SPI_HandleTypeDef *hspi,
                           uint8_t Nb_bytes2);
 
 int32_t BlueNRG_Write(uint8_t* data, uint16_t size);
-
-void Hal_Write_Serial(const void* data1, const void* data2, int32_t n_bytes1,
-                      int32_t n_bytes2);
-
+void us150Delay(void);
 #ifdef __cplusplus
 }
 #endif

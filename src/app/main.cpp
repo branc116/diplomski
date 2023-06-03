@@ -1,9 +1,11 @@
 #include "LSM6DSM_ACC_GYRO_driver.h"
 #include "SensorTile.h"
+#include "SensorTile_BlueNRG.h"
 #include "SensorTile_gyro.h"
 #include "app_bluenrg_ms.h"
 #include "bluenrg_aci_const.h"
 #include "cube_hal.h"
+#include "sample_service.h"
 #include <stddef.h>
 #include <stdint.h>
 #include <stm32l476xx.h>
@@ -96,7 +98,7 @@ class Lsm6dsm {
       /* Disable the SPI and change the data line to input */
       __HAL_SPI_DISABLE(&spiHandle);
       SPI_1LINE_RX(&spiHandle);
-      __disable_irq();
+      //__disable_irq();
       __HAL_SPI_ENABLE(&spiHandle);
       /* Transfer loop */
       while (len > 1U)
@@ -116,7 +118,7 @@ class Lsm6dsm {
       __DSB();
       __DSB();
       __HAL_SPI_DISABLE(&spiHandle);
-      __enable_irq();
+      //__enable_irq();
       while ((spiHandle.Instance->SR & SPI_FLAG_RXNE) != SPI_FLAG_RXNE);
       /* read the received data */
       *buff = *(__IO uint8_t *) &spiHandle.Instance->DR;
@@ -233,11 +235,16 @@ class Lsm6dsm {
 };
 
 static int entry(void) {
-  Lsm6dsm l{};
+  //Lsm6dsm l{};
   CircBuffer<GyroReadout, 16> buff{};
-  while(1) {
-    buff.push(l.get_readout());
-    MX_BlueNRG_MS_Process();
+ while(1) {
+    if (blue_state.status == USER_PROCESS_STATUS__RESET) {
+      MX_BlueNRG_MS_Init();
+      blue_state.number_of_resets++;
+    }else if (blue_state.status == USER_PROCESS_STATUS__CONNECTED)  {
+      //sendText(&blue_state, "hihihiihihiihi", 20);
+      //buff.push(l.get_readout());
+    }
   }
 }
 
@@ -245,3 +252,4 @@ extern "C" int main_cpp(void) {
   entry();
   return 0;
 }
+
