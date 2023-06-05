@@ -212,9 +212,10 @@ class Lsm6dsm {
       SENSORTILE_LSM6DSM_SPI_CS_GPIO_CLK_ENABLE();
       gpioCs.Pin = SENSORTILE_LSM6DSM_SPI_CS_Pin;
       gpioPort = SENSORTILE_LSM6DSM_SPI_CS_Port;
+
       /* Set the pin before init to avoid glitch */
       HAL_GPIO_WritePin(gpioPort, gpioCs.Pin, GPIO_PIN_SET);
-      HAL_GPIO_Init(SENSORTILE_LSM6DSM_SPI_CS_Port, &gpioCs);
+      HAL_GPIO_Init(gpioPort, &gpioCs);
     }
 
     void write_one(uint8_t val) {
@@ -236,25 +237,24 @@ class Lsm6dsm {
 };
 
 static int entry(void) {
-  //Lsm6dsm l{};
-  CircBuffer<GyroReadout, 16> buff{};
+ Lsm6dsm l{};
+ CircBuffer<GyroReadout, 16> buff{};
+ int t = (int)uwTick;
+ initialize_blue_char_collection(&blue_state.chars);
  while(1) {
     if (blue_state.status == USER_PROCESS_STATUS__RESET) {
       MX_BlueNRG_MS_Init();
       blue_state.number_of_resets++;
-    }else if (blue_state.status == USER_PROCESS_STATUS__CONNECTED)  {
-      if (blue_state.can_send && blue_state.send_tick < uwTick - 4) {
-        blue_state.can_send = false;
-        blue_state.send_tick = uwTick;
-        sendText(&blue_state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
-        //hci_notify_asynch_evt();
+    }else if (blue_state.everything_inited && blue_state.status == USER_PROCESS_STATUS__CONNECTED)  {
+      if (!blue_send_next(&blue_state.chars)) {
+        t = uwTick;
       }
-      if (blue_state.send_tick < uwTick - 100) {
+      else if ((int)uwTick - t > 90) {
         hci_notify_asynch_evt();
+        t = (int)uwTick;
       }
-      //sendText(&blue_state, "hihihiihihiihi", 20);
-      //buff.push(l.get_readout());
     }
+    buff.push(l.get_readout());
   }
 }
 

@@ -209,7 +209,7 @@ int32_t BlueNRG_Write(uint8_t* data, uint16_t size)
   */
 
   /* Assert CS line after at least 112us */
-  us150Delay();
+  //us150Delay();
 
   /* CS reset */
   HAL_GPIO_WritePin(BNRG_SPI_CS_PORT, BNRG_SPI_CS_PIN, GPIO_PIN_RESET);

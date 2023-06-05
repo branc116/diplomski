@@ -108,6 +108,7 @@ Specificno postoji
 \end{itemize}
 Zaglavlje govori koliko bajta je BlueNRG spreman primiti te koliko je bajta \v{z}eljan poslati.
 Postoji pet signala koji povezuju bluetooth module i STM32 mikrokontroler:
+
 \begin{itemize}
   \item Odabir \v{c}ipa (engl. Chip select CS) Mikrokontroler stavlja na logi\v{c}ku nulu da ozna\v{c}i da BlueNRG smije komunicirati.
   \item Takt (engl. clock) Mikrokontroler odrduje takt kojim ce komunicirati
@@ -115,6 +116,27 @@ Postoji pet signala koji povezuju bluetooth module i STM32 mikrokontroler:
   \item BlueNRG govori, STM32 slu\v{s}a
   \item Podaci su spremni (engl. Data ready) BlueNRG ozna\v{c}ava da su dostupni podaci koje STM32 mo\v{z}e pro\v{c}itati.
 \end{itemize}
+
+\subsection{Performase}
+Kori\v{s}tenjem jednog znakovnog kanala (engl. Character stream) u jednoj sekundi moguce je poslati do 140 poruka od 20B.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}[c]{l|l|l|l}
+      \hline
+      \multicolumn{1}{c|}{\textbf{Broj kanala}} &
+      \multicolumn{1}{c}{\textbf{Veli\v{c}ina poruke (bajt)}} &
+      \multicolumn{1}{c}{\textbf{Poruka/sekunda}} &
+      \multicolumn{1}{c}{\textbf{Bajt/sekunda}} \\
+      \hline
+      1 & 16 & 142 & 2272 \\
+      1 & 20 & 144 & 2880 \\
+      2 & 20 & 162 & 3240 \\
+      \hline
+    \end{tabular}
+  \caption{Bluetooth performanse}
+  \end{center}
+\end{table}
 
 
 \subsection{Bluetooth GAP}

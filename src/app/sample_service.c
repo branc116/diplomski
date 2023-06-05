@@ -19,10 +19,59 @@
 #include <stm32l4xx_hal.h>
 #include <sys/_stdint.h>
 
-int sendText(blue_state_t* state, const char* data_buffer, uint8_t Nb_bytes)
+int blue_send_next(blue_char_collection_t* coll) {
+  if (coll->waiting_for_confirm != -1) return -1;
+  int i = coll->last_sent;
+  int n = BLUE_NUMBER_OF_CHAR_STREAMS;
+  while(n > 0) {
+    ++i;
+    i %= BLUE_NUMBER_OF_CHAR_STREAMS;
+    if (coll->char_streams[i].send_ticks < uwTick && coll->char_streams[i].size > 0) {
+      coll->waiting_for_confirm = i;
+      coll->last_sent = i;
+      ++coll->sent_packets;
+      return blue_send_char_stream(&coll->char_streams[i]);
+    }
+    --n;
+  }
+  return -1;
+}
+
+int blue_send_char_stream(blue_char_stream_t* state)
 {
-  state->number_of_send_attempts++;
-  return aci_gatt_update_char_value(state->sampleServHandle, state->simpCharHandle, 0, Nb_bytes, data_buffer);
+  static uint8_t buff[20];
+  memset(buff, 0, 20);
+  state->waiting_for_confirm = true;
+  ++state->sent_attempts;
+  int len = MIN(state->size, 20);
+  if (state->location + len <= BLUE_CHAR_STREAM_CAPACITY) {
+    memcpy(buff, &state->data[state->location], len);
+    state->location += len;
+  } else {
+    int f = BLUE_CHAR_STREAM_CAPACITY - state->location;
+    memcpy(buff, &state->data[state->location], f);
+    memcpy(&buff[f], state->data, len - f);
+    state->location = len - f;
+  }
+  state->last_len = len;
+  state->size -= len;
+  int s = aci_gatt_update_char_value(state->serv_handle, state->char_handle, 0, 20, buff);
+  state->send_ticks = uwTick + 3;
+  return s;
+}
+
+void initialize_blue_char_collection(blue_char_collection_t* coll) {
+  for (int j = 0; j < BLUE_NUMBER_OF_CHAR_STREAMS; ++j) {
+    coll->char_streams[j].char_uuid[0] = 0x66 + j;
+    coll->char_streams[j].char_uuid[1] = 0x9a + j;
+    coll->char_streams[j].char_size = 20;
+    for (int i = 0; i < BLUE_CHAR_STREAM_CAPACITY; ++i) {
+      coll->char_streams[j].data[i] = (uint8_t)(i % 256);
+    }
+    coll->char_streams[j].size = 256;
+    coll->waiting_for_confirm = -1;
+    coll->last_sent = -1;
+  }
 }
 
 evt_disconn_complete last_disconn_complete_msg;
@@ -96,35 +145,53 @@ static void user_notify_begin(blue_state_t* state, uint8_t evt, evt_cmd_complete
       {
         gatt_add_serv_rp* resp = (gatt_add_serv_rp*)cc->res;
         if (resp->status) InfLoop();
-
-        state->simpCharHandle = btohs(resp->handle);
-        aci_hal_set_tx_power_level(1,7);
+        int cur = state->chars.initialized_streams;
+        state->chars.char_streams[cur].char_handle = btohs(resp->handle);
+        state->chars.char_streams[cur].is_initialized = true;
+        ++(state->chars.initialized_streams);
+        if (state->chars.initialized_streams < BLUE_NUMBER_OF_CHAR_STREAMS) {
+          ++cur;
+          aci_gatt_add_char(state->chars.char_streams[cur].serv_handle, // serviceHandle
+              UUID_TYPE_16, //charUuidType
+              state->chars.char_streams[cur].char_uuid, //const uint8_t* charUuid
+              state->chars.char_streams[cur].char_size, //uint8_t charValueLen
+              CHAR_PROP_NOTIFY | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE, //uint8_t charProperties
+              ATTR_PERMISSION_NONE, //uint8_t secPermissions
+              GATT_NOTIFY_ATTRIBUTE_WRITE, //uint8_t gattEvtMask
+              16, //uint8_t encryKeySize
+              0, // uint8_t isVariable
+              NULL // uint16_t* charHandle
+              );
+        }else {
+          aci_hal_set_tx_power_level(1,7);
+        }
         break;
       }
     case to_opcode(OGF_VENDOR_CMD, OCF_GATT_ADD_SERV):
       {
         gatt_add_serv_rp* resp = (gatt_add_serv_rp*)cc->res;
         if (resp->status) InfLoop();
-        state->sampleServHandle = btohs(resp->handle);
+        for (int i = 0; i < BLUE_NUMBER_OF_CHAR_STREAMS; ++i) {
+          state->chars.char_streams[i].serv_handle = btohs(resp->handle);
+        }
 
-        const uint8_t simp_char_uuid[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe1,0xf2,0x73,0xd9};
-        aci_gatt_add_char(state->sampleServHandle, // serviceHandle
+        aci_gatt_add_char(state->chars.char_streams[0].serv_handle, // serviceHandle
             UUID_TYPE_16, //charUuidType
-            simp_char_uuid, //const uint8_t* charUuid
-            20, //uint8_t charValueLen
-            CHAR_PROP_NOTIFY | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE, //uint8_t charProperties
+            state->chars.char_streams[0].char_uuid, //const uint8_t* charUuid
+            state->chars.char_streams[0].char_size, //uint8_t charValueLen
+            CHAR_PROP_NOTIFY | CHAR_PROP_WRITE_WITHOUT_RESP | CHAR_PROP_WRITE | CHAR_PROP_READ, //uint8_t charProperties
             ATTR_PERMISSION_NONE, //uint8_t secPermissions
             GATT_NOTIFY_ATTRIBUTE_WRITE, //uint8_t gattEvtMask
             16, //uint8_t encryKeySize
             0, // uint8_t isVariable
-            &state->simpCharHandle // uint16_t* charHandle
+            NULL // uint16_t* charHandle
             );
         break;
       }
     case to_opcode(OGF_VENDOR_CMD, OCF_GAP_SET_AUTH_REQUIREMENT):
       {
         const uint8_t service_uuid[16] = {0x66,0x9a,0x0c,0x20,0x00,0x08,0x96,0x9e,0xe2,0x11,0x9e,0xb1,0xe0,0xf2,0x73,0xd9};
-        aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, &state->sampleServHandle);
+        aci_gatt_add_serv(UUID_TYPE_128, service_uuid, PRIMARY_SERVICE, 7, NULL);
         break;
       }
     case to_opcode(OGF_VENDOR_CMD, OCF_GATT_UPD_CHAR_VAL):
@@ -177,10 +244,9 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
           evt_gatt_attr_modified_IDB05A1 *evt = (evt_gatt_attr_modified_IDB05A1*)eaci->data;
           add_event(state, evt->conn_handle, evt->attr_handle, evt->data_length, evt->att_data);
           state->changed_attrs_count++;
-          if (state->changed_attrs_count == 2) {
-            //sendText(state, "hello_world_from_bluecuc_this is the end of the world as we know it\n\n", 20);
-            state->can_send = true;
-            state->send_tick = uwTick;
+          if (state->changed_attrs_count == (BLUE_NUMBER_OF_CHAR_STREAMS * 2)) {
+            state->everything_inited = true;
+            //state->chars.char_streams[0].send_ticks = uwTick + 1000;
           }
         }
         break;
@@ -222,8 +288,10 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
         {
           evt_gatt_tx_pool_available* p_ = (void*)eaci->data;
           UNUSED(p_);
-          state->can_send = true;
-          state->send_tick = uwTick + 10;
+//          int i = state->chars.waiting_for_confirm;
+//          state->chars.waiting_for_confirm = -1;
+//          state->chars.char_streams[i].waiting_for_confirm = false;
+//          state->chars.char_streams[i].send_ticks = uwTick + 10;
         }
         break;
       default:
@@ -234,17 +302,28 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
     BSP_LED_Off(LED1);
   } else if (ev == EVT_CMD_COMPLETE) {
     if (cc->opcode == to_opcode(OGF_VENDOR_CMD, 0x106));
+    else if (cc->opcode == to_opcode(OGF_VENDOR_CMD, OCF_GATT_UPD_CHAR_VAL_EXT));
     else if (cc->opcode != OCF_GATT_UPD_CHAR_VAL)
       InfLoop();
     uint8_t status = cc->res[0];
+    int i = state->chars.waiting_for_confirm;
+    state->chars.waiting_for_confirm = -1;
+    state->chars.char_streams[i].waiting_for_confirm = false;
+    state->write_history <<= 1;
+    state->chars.char_streams[i].size += state->chars.char_streams[i].last_len;
     if (status) {
       state->number_of_unsuccessfull_sends++;
+      state->chars.char_streams[i].send_ticks = uwTick + 10;
+      state->chars.char_streams[i].location = 
+        (BLUE_CHAR_STREAM_CAPACITY - state->chars.char_streams[i].last_len + state->chars.char_streams[i].location) % BLUE_CHAR_STREAM_CAPACITY;
+      state->chars.char_streams[i].size += state->chars.char_streams[i].last_len;
+      //if (state->chars.char_streams[i].size > BLUE_CHAR_STREAM_CAPACITY) InfLoop();
+
     }else {
       state->number_of_successfull_sends++;
-      state->can_send = true;
+      state->chars.char_streams[i].send_ticks = uwTick + 3;
+      state->write_history |= 1;
     }
-    state->send_tick = uwTick;
-
   }else {
     InfLoop();
   }
