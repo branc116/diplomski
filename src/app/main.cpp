@@ -27,6 +27,10 @@ struct CircBuffer {
     if (len > 0) --len;
     return ret;
   }
+  const T& peek() {
+    int index = (pos - len + buffSize) % buffSize;
+    return buffer[index];
+  }
   size_t pos = 0;
   size_t len = 0;
   T buffer[buffSize] = {};
@@ -48,7 +52,14 @@ struct SpiCs {
   int16_t acceleration[3];
   int16_t angular[3];
 };
+struct [[gnu::packed]]  GyroReadoutBLE {
+  GyroReadout ro;
+  uint16_t index;
+  uint32_t timestamp;
+};
+
 static_assert(sizeof(GyroReadout) == 14U, "GyroReadout must be of size 14");
+static_assert(sizeof(GyroReadoutBLE) == 20U, "GyroReadoutBLE must be of size 20");
 
 class Lsm6dsm {
   public:
@@ -56,12 +67,13 @@ class Lsm6dsm {
       init_spi();
       bang_regs();
       isInitialized = true;
+      index = 0;
     }
 
-    GyroReadout get_readout(void) {
+    GyroReadoutBLE get_readout(void) {
       GyroReadout ro{};
       spi_read(LSM6DSM_ACC_GYRO_OUT_TEMP_L, (uint8_t*)(&ro), sizeof(ro));
-      return ro;
+      return {ro, index++, uwTick};
     }
 
     int bang_regs() {
@@ -242,19 +254,65 @@ class Lsm6dsm {
     SPI_HandleTypeDef spiHandle{};
     GPIO_InitTypeDef gpioCs{};
     GPIO_TypeDef* gpioPort{};
+    uint16_t index = 0;
 };
 
-template<size_t s>
-static void move(CircBuffer<GyroReadout, s>& from, blue_char_collection_t* to) {
-  if (from.len == 0) return;
-  auto gr = from.pop();
-  int16_t val = gr.acceleration[0];
-  blue_char_stream_push_int16(&to->char_streams[0], val);
+CircBuffer<GyroReadoutBLE, 16> circ_buff;
+uint32_t last_sent_controll = 0;
+
+void fill_controll_message(uint8_t* buff) {
+  for (int i = 0; i < 17; ++i) {
+    buff[i] = (i % 2) * 0xFF;
+  }
+  // uint16_t, 6*int16_t, uint16_t, uint32_t
+//    NODATA  = 0
+//    USHORT  = 4
+//    SSHORT  = 6
+//    USHORT2 = 8
+//    SSHORT2 = 10
+//    ULONG   = 12
+//    SLONG   = 14
+//    SFLOAT   = 15
+  buff[17] = 0x4A; //ui16, 2*i16
+  buff[18] = 0xAA; //4*i16
+  buff[19] = 0x4C;
+}
+
+extern "C" bool fill(int char_id, uint8_t* buff) {
+  if (char_id == 0) {
+    if (last_sent_controll < uwTick) {
+      fill_controll_message(buff);
+      return true;
+    }
+    if (circ_buff.len == 0) return false;
+    auto& a = circ_buff.peek();
+    memcpy(buff, &a, sizeof(a));
+    return true;
+  }else {
+    return false;
+  }
+}
+
+extern "C" void confirm_sent(int char_id) {
+  if (char_id == 0) {
+    if (last_sent_controll < uwTick)  {
+      // Send controll message every 3 seconds;
+      last_sent_controll = uwTick + 3000;
+    }
+    circ_buff.pop();
+  }
+}
+
+extern "C" bool is_empty(int char_id) {
+  if (char_id == 0) {
+    return circ_buff.len == 0 && last_sent_controll >= uwTick;
+  }else {
+    return false;
+  }
 }
 
 static int entry(void) {
  Lsm6dsm l{};
- CircBuffer<GyroReadout, 16> buff{};
  int t = (int)uwTick;
  int t2 = (int)uwTick + 2;
  initialize_blue_char_collection(&blue_state.chars);
@@ -270,9 +328,8 @@ static int entry(void) {
         hci_notify_asynch_evt();
         t = (int)uwTick;
       }
-      if (t2 < uwTick) {
-        buff.push(l.get_readout());
-        move(buff, &blue_state.chars);
+      if (t2 < (int)uwTick) {
+        circ_buff.push(l.get_readout());
         t2 = uwTick + 2;
       }
     }

@@ -26,35 +26,24 @@ int blue_send_next(blue_char_collection_t* coll) {
   while(n > 0) {
     ++i;
     i %= BLUE_NUMBER_OF_CHAR_STREAMS;
-    if (coll->char_streams[i].send_ticks < uwTick && coll->char_streams[i].size > 0) {
+    if (coll->char_streams[i].send_ticks < uwTick && !is_empty(i)) {
       coll->waiting_for_confirm = i;
       coll->last_sent = i;
       ++coll->sent_packets;
-      return blue_send_char_stream(&coll->char_streams[i]);
+      return blue_send_char_stream(&coll->char_streams[i], i);
     }
     --n;
   }
   return -1;
 }
 
-int blue_send_char_stream(blue_char_stream_t* state)
+int blue_send_char_stream(blue_char_stream_t* state, int char_index)
 {
   static uint8_t buff[20];
   memset(buff, 0, 20);
   state->waiting_for_confirm = true;
   ++state->sent_attempts;
-  int len = MIN(state->size, 20);
-  if (state->location + len <= BLUE_CHAR_STREAM_CAPACITY) {
-    memcpy(buff, &state->data[state->location], len);
-    state->location += len;
-  } else {
-    int f = BLUE_CHAR_STREAM_CAPACITY - state->location;
-    memcpy(buff, &state->data[state->location], f);
-    memcpy(&buff[f], state->data, len - f);
-    state->location = len - f;
-  }
-  state->last_len = len;
-  state->size -= len;
+  fill(char_index, buff);
   int s = aci_gatt_update_char_value(state->serv_handle, state->char_handle, 0, 20, buff);
   state->send_ticks = uwTick + 3;
   return s;
@@ -70,17 +59,6 @@ void initialize_blue_char_collection(blue_char_collection_t* coll) {
   }
 }
 
-int blue_char_stream_push_int16(blue_char_stream_t* state, int16_t val) {
-  if ((state->size + 2) > BLUE_CHAR_STREAM_CAPACITY) return -1;
-  uint8_t l = (uint8_t)(val & 0xFF);
-  uint8_t h = (uint8_t)((val >> 8) & 0xFF);
-  int index_l = (state->location + state->size) % BLUE_CHAR_STREAM_CAPACITY;
-  int index_h = (state->location + state->size + 1) % BLUE_CHAR_STREAM_CAPACITY;
-  state->data[index_l] = l;
-  state->data[index_h] = h;
-  state->size += 2;
-  return 0;
-}
 evt_disconn_complete last_disconn_complete_msg;
 const char name[] = "BlueNRG";
 
@@ -318,17 +296,15 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
     state->chars.char_streams[i].waiting_for_confirm = false;
     state->write_history <<= 1;
     if (status) {
+      // Error happed, eventualy someone will send the same packet again...
       state->number_of_unsuccessfull_sends++;
       state->chars.char_streams[i].send_ticks = uwTick + 10;
-      state->chars.char_streams[i].location = 
-        (BLUE_CHAR_STREAM_CAPACITY - state->chars.char_streams[i].last_len + state->chars.char_streams[i].location) % BLUE_CHAR_STREAM_CAPACITY;
-      state->chars.char_streams[i].size += state->chars.char_streams[i].last_len;
-      if (state->chars.char_streams[i].size > BLUE_CHAR_STREAM_CAPACITY) InfLoop();
-
-    }else {
+    } else {
+      // Successfuly sent
       state->number_of_successfull_sends++;
       state->chars.char_streams[i].send_ticks = uwTick + 3;
       state->write_history |= 1;
+      confirm_sent(i);
     }
   }else {
     InfLoop();

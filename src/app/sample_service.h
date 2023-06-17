@@ -39,9 +39,7 @@ typedef struct {
   bool is_initialized, waiting_for_confirm;
   int sent_attempts, sent_packets;
   uint32_t send_ticks;
-  uint16_t last_len, location, size;
   uint8_t char_uuid[2];
-  uint8_t data[BLUE_CHAR_STREAM_CAPACITY];
 } blue_char_stream_t;
 
 #define BLUE_EVENTS_CAPACITY 32
@@ -72,10 +70,13 @@ typedef struct {
 } blue_state_t;
 
 void initialize_blue_char_collection(blue_char_collection_t* coll);
-int blue_send_char_stream(blue_char_stream_t* state);
-int blue_char_stream_push_int16(blue_char_stream_t* state, int16_t val);
+int blue_send_char_stream(blue_char_stream_t* state, int char_index);
 int blue_send_next(blue_char_collection_t* coll);
 void user_notify(hci_uart_pckt* pData);
+
+bool fill(int char_id, uint8_t* buff);
+bool is_empty(int char_id);
+void confirm_sent(int char_id);
 
 extern blue_state_t blue_state;
 
