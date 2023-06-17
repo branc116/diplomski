@@ -21,6 +21,12 @@ struct CircBuffer {
     if (len < buffSize) ++len;
     return ret;
   }
+  T pop() {
+    int index = (pos - len + buffSize) % buffSize;
+    auto ret = buffer[index];
+    if (len > 0) --len;
+    return ret;
+  }
   size_t pos = 0;
   size_t len = 0;
   T buffer[buffSize] = {};
@@ -60,13 +66,15 @@ class Lsm6dsm {
 
     int bang_regs() {
       int res = 0;
+      uint8_t d = 0x0C;
+      spi_write(LSM6DSM_ACC_GYRO_CTRL3_C, &d, 1);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_IF_INC_MASK, LSM6DSM_ACC_GYRO_IF_INC_ENABLED);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_BDU_MASK, LSM6DSM_ACC_GYRO_BDU_BLOCK_UPDATE);
       res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_FIFO_MODE_MASK, LSM6DSM_ACC_GYRO_FIFO_MODE_BYPASS);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_FIFO_MODE_BYPASS);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_FS_G_MASK, LSM6DSM_ACC_GYRO_FS_G_2000dps);
-      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL4_C, LSM6DSM_ACC_GYRO_I2C_DISABLE_MASK, LSM6DSM_ACC_GYRO_I2C_DISABLE_SPI_ONLY);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_ODR_G_833Hz);
+      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL4_C, LSM6DSM_ACC_GYRO_I2C_DISABLE_MASK, LSM6DSM_ACC_GYRO_I2C_DISABLE_SPI_ONLY);
       return res;
     }
 
@@ -236,10 +244,19 @@ class Lsm6dsm {
     GPIO_TypeDef* gpioPort{};
 };
 
+template<size_t s>
+static void move(CircBuffer<GyroReadout, s>& from, blue_char_collection_t* to) {
+  if (from.len == 0) return;
+  auto gr = from.pop();
+  int16_t val = gr.acceleration[0];
+  blue_char_stream_push_int16(&to->char_streams[0], val);
+}
+
 static int entry(void) {
  Lsm6dsm l{};
  CircBuffer<GyroReadout, 16> buff{};
  int t = (int)uwTick;
+ int t2 = (int)uwTick + 2;
  initialize_blue_char_collection(&blue_state.chars);
  while(1) {
     if (blue_state.status == USER_PROCESS_STATUS__RESET) {
@@ -253,8 +270,12 @@ static int entry(void) {
         hci_notify_asynch_evt();
         t = (int)uwTick;
       }
+      if (t2 < uwTick) {
+        buff.push(l.get_readout());
+        move(buff, &blue_state.chars);
+        t2 = uwTick + 2;
+      }
     }
-    buff.push(l.get_readout());
   }
 }
 

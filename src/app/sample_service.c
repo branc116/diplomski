@@ -65,15 +65,22 @@ void initialize_blue_char_collection(blue_char_collection_t* coll) {
     coll->char_streams[j].char_uuid[0] = 0x66 + j;
     coll->char_streams[j].char_uuid[1] = 0x9a + j;
     coll->char_streams[j].char_size = 20;
-    for (int i = 0; i < BLUE_CHAR_STREAM_CAPACITY; ++i) {
-      coll->char_streams[j].data[i] = (uint8_t)(i % 256);
-    }
-    coll->char_streams[j].size = 256;
     coll->waiting_for_confirm = -1;
     coll->last_sent = -1;
   }
 }
 
+int blue_char_stream_push_int16(blue_char_stream_t* state, int16_t val) {
+  if ((state->size + 2) > BLUE_CHAR_STREAM_CAPACITY) return -1;
+  uint8_t l = (uint8_t)(val & 0xFF);
+  uint8_t h = (uint8_t)((val >> 8) & 0xFF);
+  int index_l = (state->location + state->size) % BLUE_CHAR_STREAM_CAPACITY;
+  int index_h = (state->location + state->size + 1) % BLUE_CHAR_STREAM_CAPACITY;
+  state->data[index_l] = l;
+  state->data[index_h] = h;
+  state->size += 2;
+  return 0;
+}
 evt_disconn_complete last_disconn_complete_msg;
 const char name[] = "BlueNRG";
 
@@ -310,14 +317,13 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
     state->chars.waiting_for_confirm = -1;
     state->chars.char_streams[i].waiting_for_confirm = false;
     state->write_history <<= 1;
-    state->chars.char_streams[i].size += state->chars.char_streams[i].last_len;
     if (status) {
       state->number_of_unsuccessfull_sends++;
       state->chars.char_streams[i].send_ticks = uwTick + 10;
       state->chars.char_streams[i].location = 
         (BLUE_CHAR_STREAM_CAPACITY - state->chars.char_streams[i].last_len + state->chars.char_streams[i].location) % BLUE_CHAR_STREAM_CAPACITY;
       state->chars.char_streams[i].size += state->chars.char_streams[i].last_len;
-      //if (state->chars.char_streams[i].size > BLUE_CHAR_STREAM_CAPACITY) InfLoop();
+      if (state->chars.char_streams[i].size > BLUE_CHAR_STREAM_CAPACITY) InfLoop();
 
     }else {
       state->number_of_successfull_sends++;

@@ -46,7 +46,7 @@ typedef struct {
 
 #define BLUE_EVENTS_CAPACITY 32
 #define BLUE_CHAN_SIZE 20
-#define BLUE_NUMBER_OF_CHAR_STREAMS 2
+#define BLUE_NUMBER_OF_CHAR_STREAMS 1
 
 typedef struct {
   int waiting_for_confirm;
@@ -73,6 +73,7 @@ typedef struct {
 
 void initialize_blue_char_collection(blue_char_collection_t* coll);
 int blue_send_char_stream(blue_char_stream_t* state);
+int blue_char_stream_push_int16(blue_char_stream_t* state, int16_t val);
 int blue_send_next(blue_char_collection_t* coll);
 void user_notify(hci_uart_pckt* pData);
 
