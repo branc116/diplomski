@@ -18,10 +18,11 @@ def RESET():
 
 gdb.execute("set confirm off")
 gdb.execute("delete")
-RESET()
-gdb.execute("file stm32-bt.elf")
-gdb.execute("load stm32-bt.elf")
-RESET()
+for i in range(2):
+    RESET()
+    gdb.execute("file stm32-bt.elf")
+    gdb.execute("load stm32-bt.elf")
+    RESET()
 gdb.execute("break main")
 #gdb.execute("break user_notify")
 #gdb.execute("b EXTI9_5_IRQHandler")
