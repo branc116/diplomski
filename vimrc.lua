@@ -1,9 +1,3 @@
-vim.keymap.set('n', "<F5>", ":split<cr>:term make clean && make<cr>")
-vim.keymap.set('n', "<F8>", ":term cd ble-serial && python -m ble_serial<cr>")
-vim.keymap.set('n', "<F9>", ":split<cr>:term make clean && make tst<cr>")
-vim.keymap.set('n', "<F6>", ":!make clean && make build/docs/diplomski.pdf && zathura build/docs/diplomski.pdf<cr>")
-vim.keymap.set('n', "<F7>", ":!make clean && make build/docs/diplomski.pdf<cr>")
-
 local function r(s)
   if pcall(vim.api.nvim_exec2(s, {output= false})) then
     print("KILL")
@@ -21,19 +15,13 @@ local function replace_shit()
   r([[%s/  *$//ge]])
 end
 
+vim.keymap.set('n', "<F5>", ":split<cr>:term make clean && make<cr>")
+vim.keymap.set('n', "<F11>", ":term cd ble-serial && python -m ble_serial<cr>")
+vim.keymap.set('n', "<F9>", ":split<cr>:term make clean && make tst<cr>")
+vim.keymap.set('n', "<F6>", ":!make clean && make build/docs/diplomski.pdf && zathura build/docs/diplomski.pdf<cr>")
+vim.keymap.set('n', "<F7>", ":!make clean && make build/docs/diplomski.pdf<cr>")
 vim.keymap.set('n', "<F8>", replace_shit)
 
-local p = vim.cmd.pwd();
-local lsp = require("lsp-zero")
-
-require("lspconfig").clangd.setup({
-  root_dir = function ()
-    return p
-  end
-})
-
-lsp.preset('recommended')
-lsp.setup()
 
 --for index, value in ipairs(vim.split(vim.fn.glob("./src/**/*.c"), "\n")) do
 --  vim.cmd(":e" .. value)
