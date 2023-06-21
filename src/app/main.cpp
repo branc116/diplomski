@@ -82,10 +82,12 @@ class Lsm6dsm {
       spi_write(LSM6DSM_ACC_GYRO_CTRL3_C, &d, 1);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_IF_INC_MASK, LSM6DSM_ACC_GYRO_IF_INC_ENABLED);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_BDU_MASK, LSM6DSM_ACC_GYRO_BDU_BLOCK_UPDATE);
-      res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_FIFO_MODE_MASK, LSM6DSM_ACC_GYRO_FIFO_MODE_BYPASS);
-      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_FIFO_MODE_BYPASS);
+      res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_FIFO_MODE_MASK, LSM6DSM_ACC_GYRO_FIFO_MODE_DYN_STREAM_2);
+      res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_ODR_FIFO_MASK, LSM6DSM_ACC_GYRO_ODR_FIFO_200Hz);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_FS_G_MASK, LSM6DSM_ACC_GYRO_FS_G_2000dps);
-      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_ODR_G_833Hz);
+      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_ODR_G_104Hz);
+      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL1_XL, LSM6DSM_ACC_GYRO_FS_XL_MASK, LSM6DSM_ACC_GYRO_FS_XL_8g);
+      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL1_XL, LSM6DSM_ACC_GYRO_ODR_XL_MASK, LSM6DSM_ACC_GYRO_ODR_XL_104Hz);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL4_C, LSM6DSM_ACC_GYRO_I2C_DISABLE_MASK, LSM6DSM_ACC_GYRO_I2C_DISABLE_SPI_ONLY);
       return res;
     }
@@ -260,7 +262,7 @@ class Lsm6dsm {
 CircBuffer<GyroReadoutBLE, 16> circ_buff;
 uint32_t last_sent_controll = 0;
 
-void fill_controll_message(uint8_t* buff) {
+static void fill_controll_message(uint8_t* buff) {
   for (int i = 0; i < 17; ++i) {
     buff[i] = (i % 2) * 0xFF;
   }
@@ -330,7 +332,7 @@ static int entry(void) {
       }
       if (t2 < (int)uwTick) {
         circ_buff.push(l.get_readout());
-        t2 = uwTick + 2;
+        t2 = uwTick + 10;
       }
     }
   }
