@@ -1,0 +1,6 @@
+[submodule "raylib-plotter"]
+	path = raylib-plotter
+	url = git@github.com:branc116/raylib-udploter.git
+[submodule "ble-serial"]
+	path = ble-serial
+	url = git@github.com:branc116/ble-serial.git
