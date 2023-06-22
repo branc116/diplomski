@@ -10,7 +10,7 @@ tst:
 
 
 build/docs/diplomski.pdf: docs/diplomski.tex build/docs
-	cd docs && pdflatex -mltex -output-directory ../build/docs diplomski.tex;
+	cd docs && cp diplomski.* ../build/docs && cd ../build/docs && pdflatex -mltex diplomski.tex && bibtex diplomski && pdflatex -mltex diplomski.tex
 
 build/src/stm32-bt.elf: build/src/build.ninja
 	cd build/src && ninja

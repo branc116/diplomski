@@ -1,5 +1,39 @@
-\documentclass[times, utf8, diplomski]{fer}
+\documentclass[times, utf8, diplomski]{diplomski}
 \usepackage{booktabs}
+\usepackage{listings}
+\usepackage{nameref}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\renewcommand{\lstlistingname}{Kod}
+\renewcommand{\lstlistlistingname}{Lista Kodova}
+\lstset{language=C, tabsize=2}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize\small,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
 
 \begin{document}
 
@@ -11,72 +45,184 @@
 
 \maketitle
 
-\zahvala{Zahvaljujem se Lani na tome \v{s}to mi je napisala cijeli diplomski. <3}
+\zahvala{Zahvaljujem se Lani na tome što mi je napisala cijeli diplomski. <3}
 
 \tableofcontents
 
 \chapter{Uvod}
-Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja cine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama, iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog. Opisan je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo stm32, koje čita podatke sa senzora i iste u realnom vremenu \v{s}alje na server.
+Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja cine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama, iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog. Opisan je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo Stm32, koje čita podatke sa senzora i iste u realnom vremenu šalje na server.
 
 \chapter{Ugradbena računala}
-Ugradbena računala su računala malih dimenzija i niske potro\v{s}nje. 
+Ugradbena računala su računala malih dimenzija i niske potrošnje. 
 
-\section{STM32}
-Stm32 je ugradbeno računalo. U ovom radu stm32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
+\section{Stm32}
+Stm32[\cite{STM32L476JG}] je ugradbeno računalo. U ovom radu Stm32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
 
 \subsection{Sensortile}
-Sensortile je integrirana plocica na kojoj se nalazi STM32L4 mikrokontroler i nekoliko senzora.
+Sensortile[\cite{sensortile}] je integrirana pločica na kojoj se nalazi Stm32L4 mikrokontroler i nekoliko senzora.
 
 \subsubsection{LSM6DSM}
-LSM6DSM je integrirani system-in-package koji sadr\v{z}i 3D digaitalni akcelorometar i gyroscope. Mo\v{z} batchati podatke ili ih slati u realnom
-vremenu. Skala akcelerometra mo\v{z}e biti pode\v{s}ena na ±2/±4/±8/±16g. Kru\v{z}na brzina mo\v{z} biti pode\v{s}ena na
+LSM6DSM[\cite{LSM6DSM}] je integrirani system-in-package koji sadrži 3D digaitalni akcelorometar i gyroscope. Može batchati podatke ili ih slati u realnom
+vremenu. Skala akcelerometra može biti podešena na ±2/±4/±8/±16g. Kružna brzina mož biti podešena na
 ±125/±245/±500/±1000/±2000 dps.
 
 \subsubsection{LSM303AGR}
-LSM303AGR je integrirani system-in-package koji sadr\v{z}i 3D digaitalni akcelorometar i 3D magnetski senzor. Skala akcelerometra je podesiva na
-±2/±4/±8/±16g. Magnetski senzor ima dinami\v{c}ki raspon do ±50 gausa. Koristi I\(^2\)C ili SPI su\v{c}elje za komunikaciju.
+LSM303AGR je integrirani system-in-package koji sadrži 3D digaitalni akcelorometar i 3D magnetski senzor. Skala akcelerometra je podesiva na
+±2/±4/±8/±16g. Magnetski senzor ima dinamički raspon do ±50 gausa. Koristi I\(^2\)C ili SPI sučelje za komunikaciju.
 
 \subsubsection{LPS22HB}
-LPS22HB je integrirani system-in-package koji sadr\v{z}i digitalni barometar. Koristi I\(^2\)C ili SPI su\v{c}elje za komunikaciju.
+LPS22HB je integrirani system-in-package koji sadrži digitalni barometar. Koristi I\(^2\)C ili SPI sučelje za komunikaciju.
 
 \subsubsection{MP34DT05-A}
-MP34DT05-A je integrirani system-in-package koji sadr\v{z}i digitalni mikrofon. Koristi IC su\v{c}elje.
+MP34DT05-A je integrirani system-in-package koji sadrži digitalni mikrofon. Koristi IC sučelje.
 
-\subsubsection{BLUENRG-MS}
-BLUENRG-MS je integrirani system-in-package koji sadr\v{z}i Cortex-M0 ARM jezgru i mogu\v{c}nost bluetooth 4.1 komunikacije.
-Cijeli paket tro\v{s}i maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
+\subsubsection{BlueNRG-MS}
+BlueNRG-MS[\cite{BlueNrgMs}] je integrirani system-in-package koji sadrži Cortex-M0 ARM jezgru i mogučnost bluetooth 4.1 komunikacije.
+Cijeli paket troši maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
 
-\section{Razvojno okru\v{z}enje}
-Razvojno okru\v{z}enje je okru\v{z}enje u kojem se razvija.
+\section{Razvojno okruženje}
+U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. FLOSS[\cite{FLOSS}]). Integrirana okruženja poput Stm32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razovjna rješenja imaju cijenu od 0€. Valuta plačanju kod korištenja takvih sutava je sloboda. Sloboda mjenjanja kompanije čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od neslobodnih itegrianih okurženja, teško je to isto rješenje reformulirati da radi na uređajima koje proizvodi druga firma[\cite{VENDORLOCKIN}]. Dodatna cijena koja se plaća korištenjem specifično Stm32CUBE integriranog okruženjem je generiran kod koji nije zadovoljavajući. Naime, Stm32CUBE često generira kod koji je previše opčenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog je prikazan u \ref{badcode}.
+
+
+\begin{lstlisting}[caption={Primjer geneririranog koda kojeg generira Stm32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]
+DrvStatusTypeDef BSP_GYRO_Get_WhoAmI
+(void *handle, uint8_t *who_am_i)
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  GYRO_Drv_t *driver = NULL;
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+  driver = ( GYRO_Drv_t * )ctx->pVTable;
+  if ( who_am_i == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_WhoAmI == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_WhoAmI( ctx, who_am_i ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+  return COMPONENT_OK;
+}
+
+// file: commonsensors/gyroscope.h
+typedef struct
+{
+  DrvStatusTypeDef ( *Init            ) ( DrvContextTypeDef* );
+  DrvStatusTypeDef ( *DeInit          ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Sensor_Enable   ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Sensor_Disable  ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Get_WhoAmI      ) DrvContextTypeDef*, uint8_t* );
+  DrvStatusTypeDef ( *Check_WhoAmI    ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Get_Axes        ) DrvContextTypeDef*, SensorAxes_t* );
+  DrvStatusTypeDef ( *Get_AxesRaw     ) DrvContextTypeDef*, SensorAxesRaw_t* );
+  DrvStatusTypeDef ( *Get_Sensitivity ) DrvContextTypeDef*, float* );
+  DrvStatusTypeDef ( *Get_ODR         ) DrvContextTypeDef*, float* );
+  DrvStatusTypeDef ( *Set_ODR         ) DrvContextTypeDef*, SensorOdr_t );
+  DrvStatusTypeDef ( *Set_ODR_Value   ) DrvContextTypeDef*, float );
+  DrvStatusTypeDef ( *Get_FS          ) DrvContextTypeDef*, float* );
+  DrvStatusTypeDef ( *Set_FS          ) DrvContextTypeDef*, SensorFs_t );
+  DrvStatusTypeDef ( *Set_FS_Value    ) DrvContextTypeDef*, float );
+  DrvStatusTypeDef ( *Get_Axes_Status ) DrvContextTypeDef*, uint8_t* );
+  DrvStatusTypeDef ( *Set_Axes_Status ) DrvContextTypeDef*, uint8_t* );
+  DrvStatusTypeDef ( *Read_Reg        ) DrvContextTypeDef*, uint8_t, uint8_t* );
+  DrvStatusTypeDef ( *Write_Reg       ) DrvContextTypeDef*, uint8_t, uint8_t );
+  DrvStatusTypeDef ( *Get_DRDY_Status ) DrvContextTypeDef*, uint8_t* );
+} GYRO_Drv_t;
+
+// This is assigned to Get_WhoAmI field of GYRO_Drv_t struct.
+// file: lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
+status_t LSM6DSM_ACC_GYRO_R_WHO_AM_I
+(void *handle, u8_t *value)
+{
+  if( !LSM6DSM_ACC_GYRO_ReadReg(handle, 
+       LSM6DSM_ACC_GYRO_WHO_AM_I_REG, (u8_t *)value, 1))
+    return MEMS_ERROR;
+
+  *value &= LSM6DSM_ACC_GYRO_WHO_AM_I_BIT_MASK; //coerce
+  *value = *value >> LSM6DSM_ACC_GYRO_WHO_AM_I_BIT_POSITION; //mask
+
+  return MEMS_SUCCESS;
+}
+
+//file: lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
+status_t LSM6DSM_ACC_GYRO_ReadReg
+(void *handle, u8_t Reg, u8_t* Data, u16_t len)
+{
+  if (Sensor_IO_Read(handle, Reg, Data, len))
+  {
+    return MEMS_ERROR;
+  }
+  else
+  {
+    return MEMS_SUCCESS;
+  }
+}
+
+// file: sensortile/SensorTile.c
+// I2C path in this function is never used
+// because SnsorTile Stm32L4 cpu is using
+// spi to communicate with LSM6DSM
+uint8_t Sensor_IO_Read
+(void *handle, uint8_t ReadAddr,
+uint8_t *pBuffer, uint16_t nBytesToRead)
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx->ifType == 0)
+  {
+    if ( nBytesToRead > 1 )
+    {
+      if (ctx->who_am_i == HTS221_WHO_AM_I_VAL)
+      {
+        ReadAddr |= 0x80;  /* Enable I2C multi-bytes Write */
+      }
+    }
+    return Sensor_IO_I2C_Read
+      ( handle, ReadAddr, pBuffer, nBytesToRead );
+  }
+  if(ctx->ifType == 1 )
+  {
+    if ( nBytesToRead > 1 ) {
+      switch(ctx->who_am_i)
+        {
+          case LSM303AGR_ACC_WHO_AM_I: ReadAddr |= 0x40; break;
+          case LSM303AGR_MAG_WHO_AM_I: break;
+          default:;
+        }
+    }
+   return
+     Sensor_IO_SPI_Read( handle, ReadAddr, pBuffer, nBytesToRead );
+  }
+
+  return COMPONENT_ERROR;
+}
+\end{lstlisting}
+
+Svrha navedenog generiranog iscječka koda je čitanje jednog bajta koji označava ime spi poduređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog bajta. Također prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi koristi vrši se i kod svakog drugih poziva prema spi poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
 
 \subsection{cmake}
-Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta.
+Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugrađenog program (engl. firmware.) Cmake olakšava definiranje ovisnosti između jedicia prvođenja (engl. compilation units.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica u različitim jedinicama prevođenja.
 
 \subsection{GNU make}
-GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava.
+GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju ne više od pet \textbf{shell} naredbi koje se moraju izvršti za uspješnu gradnju neke komponente sustava.
 
-\section{Upravljanje interuptovima}
-Cortex m procesori posjeduju specifican nacim upravljanjem iznimkam. Iznimke su veoma bitne ko stvaranja ugradbenih sustva zato \v{s}to omugucuju energetski efikasan dizajn sustava.
-Umijesto aktovnog propitkivanja od strane procesora \textit{nalazi li se \v{s}to na nekoj sabirnici}, procesor mo\v{z}e biti na hrdverskoj razini obavje\v{s}ten da je neka sabirnica
-promjenila stanje.
+\section{Upravljanje događajima (engl. interupts)}
+Cortex m procesori posjeduju specifičan načim upravljanjem događaja. Događaji su veoma bitne kod stvaranja ugradbenih sustva zato što omugucuju energetski efikasan dizajn sustava.
+Umijesto aktovnog propitkivanja od strane procesora \textit{nalazi li se što na nekoj sabirnici}, procesor može biti na hrdverskoj razini obavješten da je neka sabirnica promjenila stanje.
 Kad se dogodi neki interupt izvodi se sljedeca procedura:
 
-\subsubsection{Suspend main program execution}
 \begin{itemize}
-  \item finish current instruction
-  \item save CPU state (push registers onto stack)
-  \item set LR to \textbf{0xFFFFFFF9} (indicates interrupt return)
-  \item set IPSR to interrupt number
-  \item load PC with ISR address from vector table
-\end{itemize}
-
-\subsubsection{Execute interrupt service routine (ISR)}
-\begin{itemize}
-  \item save other registers to be used
-  \item clear the “flag” that requested the interrupt
-  \item perform the requested service
-  \item communicate with other routines via global variables
-  \item restore any registers saved by the ISR
+  \item dovrši trenutnu instrukciju.
+  \item spremi trenutno stanje procesora na stog.
+  \item postavi LR regirtar na vrijednost \textbf{0xFFFFFFF9} (označava da procesor obrađuje događaj.)
+  \item postavi IPSR registar na vrijednost broja događaja.
+  \item postavi PC registar na lokaciju procedure koja obrađuje specifičan događaj.
 \end{itemize}
 
 \subsubsection{xPSR registar}
@@ -93,39 +239,169 @@ Kad se dogodi neki interupt izvodi se sljedeca procedura:
       \multicolumn{1}{|c|}{EPSR} & \multicolumn{4}{c||}{ } & T & a & \\
       \hline
     \end{tabular}
-    \caption{Sadr\v{z}aj xPSR registra}
+    \caption{Sadržaj xPSR registra}
   \end{center}
 \end{table}
 
 \newpage
 \section{Bluetooth}
+Bluetooth[\cite{core41}] je otvoren protokol koji definira prijenos podataka na fizičkom sloju na sloju veze i mrežnom sloju. Omogučuje razmjenu informacija između dva uređaja bez korištenja središnjeg čvora.
+
+\subsection {Fizička Razina}
+Na fizičkoj razini bluetooth protokol koristi GBFSK[\cite{GBFSK}] modulaciju.
+
+\subsection{Bluetooth GAP}
+Bluetooth \textbf{G}eneric \textbf{A}ccess \textbf{P}rofile.
+Gap definira uloge (engl. roles) u bluetooth standardu. Uloge koje postoje su oglašivač (engl. Advertizer), skener (engl. Scanner), sporedna (engl. Slave) i glavna (engl. Master). Oglašivačka i skener uloga vrše razmjenu informacija isključivo u smjeru od oglašivača do skenera. Isto tako, nije potrebno eksplicitno spajanje uređaja.
+Više skenera može slušati jednog oglašivača.
+
+\subsubsection {Razmjena podataka na između glavne i sporedne uloge}
+Glavan i sporedna uloga zahtjevaju eksplicitno povezivanje (engl. pairing) Nakon povezivanja moguće je razmjenjivati poruke. Poruke je moguće razmjeniti na nekoliko načina:
+
+\begin{itemize}
+  \item Pisanje u karakteristični tok (engl. characteristic stream) i čitanje iz istog.
+  \item Oglašavanjem promjena u karakterističnom toku.
+  \item Oglašavanjem promjena u karakterističnom toku uz potvrdu o primitku oglasa.
+\end{itemize}
+
+Pisanje i čitanje iz karakterističnih tokova zahtijeva dodatnu logiku za osiguranje prijenosa svih poruka. Ovaj načina prijenosa radi na principu prozivanja. Klijent koji čita podatak i bez dodatne intervencije ne daje do znanja drugoj stanini da je pročitao podatak.
+
+\subsubsection {Oglašavanje promjena}
+Razmjena poruka može se vrišiti oglašavanjem poruka. Oglašavanje poruka vriši se na način da prilikom povezivanja uređaji sinkorniziraju satove i u točno određenim trenucima razmjene promjenjene poruke. Dodatno protokol na bez intervencije korisnika koristi dvosmjernu komunikaciju za osiguravanje prijenosa poruke. Time se osigurava da će poruka biti isporučena. Dodatno, bez intervencije korisnika, na svaku poruku dodaje se CRC čime se osigurava točnost poruke.
+
 \subsection{BlueNRG}
-BlueNRG je bluetooth module koji se nalazi na Sensortile plo\v{c}ici. Komunicira s mikrokontrolerom pomocu SPI protokola.
+BlueNRG je bluetooth module koji se nalazi na Sensortile pločici. Komunicira s mikrokontrolerom pomocu SPI protokola.
 Specificno postoji
+
 \begin{itemize}
   \item Zaglavlje
   \item Tijelo
 \end{itemize}
-Zaglavlje govori koliko bajta je BlueNRG spreman primiti te koliko je bajta \v{z}eljan poslati.
-Postoji pet signala koji povezuju bluetooth module i STM32 mikrokontroler:
+
+Zaglavlje govori koliko bajta je BlueNRG spreman primiti te koliko je bajta željan poslati.
+Postoji pet signala koji povezuju bluetooth module i Stm32 mikrokontroler:
 
 \begin{itemize}
-  \item Odabir \v{c}ipa (engl. Chip select CS) Mikrokontroler stavlja na logi\v{c}ku nulu da ozna\v{c}i da BlueNRG smije komunicirati.
-  \item Takt (engl. clock) Mikrokontroler odrduje takt kojim ce komunicirati
-  \item STM32 govori, BlueNRG slu\v{s}a
-  \item BlueNRG govori, STM32 slu\v{s}a
-  \item Podaci su spremni (engl. Data ready) BlueNRG ozna\v{c}ava da su dostupni podaci koje STM32 mo\v{z}e pro\v{c}itati.
+  \item Odabir čipa (engl. Chip select CS) Mikrokontroler stavlja na logičku nulu da označi da BlueNRG smije komunicirati.
+  \item Takt (engl. Clock) Mikrokontroler odrduje takt kojim ce komunicirati
+  \item Stm32 govori, BlueNRG sluša (engl. Master out, slave in)
+  \item BlueNRG govori, Stm32 sluša (engl. Master in, slave out)
+  \item Podaci su spremni (engl. Data ready) BlueNRG označava da su dostupni podaci koje Stm32 može pročitati.
 \end{itemize}
 
-\subsection{Performase}
-Kori\v{s}tenjem jednog znakovnog kanala (engl. Character stream) u jednoj sekundi moguce je poslati do 140 poruka od 20B.
+U ovom radu postoje tri stanja u kojima se moze nalaziti BlueNRG:
+
+\begin{itemize}
+  \item Ne inicijaliziran
+  \item Inicijaliziran
+  \item Povezano
+\end{itemize}
+
+\subsubsection{Ne inicijalizirano stanje BlueNRG-a}
+Prilikom svakog ponovnog paljenja, BlueNRG module se nalazi u \textbf{ne inicijaliziranom} stanju. Sve interne vrijednosti postavljene su na inicijalne vrijednosti. Za ispravan rad BlueNRG modula potreno je promjeniti neke vrijednosti. U ovom radu BlueNRG je u glavnoj ulozi. Za uspješno postavljanje BlueNRGa u glavnu ulogu u ovom radu izvršavaju se koraci opisani u kodovima od \ref{firstinit} do \ref{lastinit}.
+
+\begin{lstlisting}[caption={Postavi MAC adresu}, label={firstinit}]
+aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET,
+  CONFIG_DATA_PUBADDR_LEN, bdaddr);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Inicijaliziraj gatt podsustav}]
+aci_gatt_init();
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Inicijaliziraj gap podsustav}]
+aci_gap_init_IDB05A1(...);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavi ime kojim će se predstavljati ostalim bluetooth uređajima.}]
+aci_gatt_update_char_value(state->service_handle,
+  state->dev_name_char_handle,
+  0, sizeof(name) - 1, (uint8_t *)name);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavi autentifikacijske zahtjeve}]
+aci_gap_set_auth_requirement(...);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavljanje sevisa koji sadrži karakteristične tokve}]
+aci_gatt_add_serv(UUID_TYPE_128,
+  service_uuid, PRIMARY_SERVICE,
+  number_of_char_streams, &service_id);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavljanje karakterističnih tokova}]
+aci_gatt_add_char(serviceHandle,
+  UUID_TYPE_16,
+  char_uuid,
+  20, // Velicina poruke
+  CHAR_PROP_NOTIFY, // Komunikacija obavjestima
+  security_flags,
+  GATT_NOTIFY_ATTRIBUTE_WRITE,
+  16, // encryKeySize
+  false, // Is length variable
+  &charHandle
+);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavi snagu odašiljača}]
+aci_hal_set_tx_power_level(1,7);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavi odgovor na poruku otkrivanja (engl. discover message)}]
+// Ne odgovoraj
+hci_le_set_scan_resp_data(0,NULL);
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Postavi stanje BlueNRGa u stanje u povezivo stanje}, label={lastinit}]
+aci_gap_set_discoverable(...);
+\end{lstlisting}
+\ \
+
+Nakon uspješnog izvršavanja navedenih koraka, BlueNRG prelazi u \textbf{inicijalizirano} stanje.
+
+\subsubsection{Inicijalizirano stanje BlueNRG-a}
+U \textbf{inicijaliziranom} stanju ne vrši se komunikacija između BlueNRG Stm32 mikrokontrolera sve dok se BlueNRG ne poveže s nekim poduređajem. Nakon što se BlueNRG poveže s poduređajem, BlueNRG generira događaj kojim obavještava Stm32 mikrokontroler da se stanje može postaviti u \textbf{povezano}.
+
+\subsubsection{Povezano stanje BlueNRG-a}
+Nakon povezivanja bez eksplicitnog zahtjeva, razmjene se poruke između BlueNRG-a i poduređaja koji je na njega povezan. Specifično razmjenju se poruke o maksimalnoj veličini poruke (engl. MTU), način enkripcije, definicija servisa i karakterističnih tokova. Nakon razmjene tih poruka. Stm32 mikrokontroler može početi slati poruke sa mjernim podacima. Procedura slanja u ovom radu je difinirana na sljedeći način:
+
+\begin{enumerate}
+  \item Odredi koji će se se karakteritični tok sljedeći slati
+\begin{lstlisting}[caption = {Procedura za odabir karakterističnog toka koji će sljedeći biti poslan}]
+int blue_send_next(blue_char_collection_t* coll, int len) {
+  if (coll->waiting_for_confirm != -1) return -1;
+  int i = coll->last_sent;
+  int n = len;
+  while(n > 0) {
+    ++i;
+    i %= len;
+    if (coll->streams[i].send_ticks < uwTick && !is_empty(i)) {
+      coll->waiting_for_confirm = i;
+      coll->last_sent = i;
+      ++coll->sent_packets;
+      return blue_send_char_stream(&coll->char_streams[i], i);
+    }
+    --n;
+  }
+  return -1;
+}
+\end{lstlisting}
+  \item Čekaj odgovor BlueNRG-a je li poruka uspješno poslana.
+    \begin{enumerate}
+      \item Ukoliko je uspješno poslana, vrati se na korak 1.
+      \item Ukoliko nije uspješno poslana, pošalji istu poruku ponovno i vrati se na korak 2.
+    \end{enumerate}
+\end{enumerate}
+
+
+\subsubsection{Performase}
 
 \begin{table}[h]
   \begin{center}
     \begin{tabular}[c]{l|l|l|l}
       \hline
-      \multicolumn{1}{c|}{\textbf{Broj kanala}} &
-      \multicolumn{1}{c}{\textbf{Veli\v{c}ina poruke (bajt)}} &
+      \multicolumn{1}{c|}{\textbf{Broj tokova}} &
+      \multicolumn{1}{c}{\textbf{Veličina poruke (bajt)}} &
       \multicolumn{1}{c}{\textbf{Poruka/sekunda}} &
       \multicolumn{1}{c}{\textbf{Bajt/sekunda}} \\
       \hline
@@ -138,14 +414,104 @@ Kori\v{s}tenjem jednog znakovnog kanala (engl. Character stream) u jednoj sekund
   \end{center}
 \end{table}
 
+U ovom radu testirano je nekoliko konfiguracija veličina paketa i broja tokova. Ukupna propusnost ne mjenja se značajno dodavanje dodatnih tokova. Maksimalno kašnjenje nije mjereno, no predpostavka je da nije veča od intervala spajanja (engl. connection interval.) Interval spajanja definira poduređaj. U ovom radu bio je pet milisekunde.
 
-\subsection{Bluetooth GAP}
-Bluetooth \textbf{G}eneric \textbf{A}ccess \textbf{P}rofile.
-Gap definiral role unutar bluetooth standard. Role koje postoje su Advertizer, Scanner, Slave, Master. Adertizer i Scanner role vr\v{s}e razmjenu informacija isklju\v{c}ivo u smjeru
-od Advertizera do Scannera. Isto tako, nije potrebno eksplicitno spajati uredaje.
-Vi\v{s}e Scannera mo\v{z}e slu\v{s}ati jednog Adverizera.
+
+\subsection{Ugrađeni program na Mikorokontroleru}
+Ugrađeni program (engl. firmware) za mikrokontroleru pisan je u programskim jezicima C i C++. Pisan je na načina da se sva komunikacija sa bluetooth BlueNRG moduluom izvršava unutar događaja (engl. interupt). Nije korišten operativni sustav. Čitanje podataka sa senzora odvija u glavnoj petlji programa. Postoji \textbf{prvi unutra, prvi van} (engl. FIFO) struktura koja osigurava da se čitanje novih padatak sa senzora može odvijati neovisno o slanju istih bluetoothom. Ista struktura opisna je kodom \ref{corefifo}.
+
+\begin{lstlisting}[language=c++, caption={FIFO struktura koja omgučuje neovisan dohvat novih podataka i slanje najstarijih}, label={codefifo}]
+template<class T, size_t buffSize>
+struct CircBuffer {
+  T& push(T el) {
+    auto& ret = buffer[pos++] = el;
+    if (pos >= buffSize) pos = 0;
+    if (len < buffSize) ++len;
+    return ret;
+  }
+  T pop() {
+    int index = (pos - len + buffSize) % buffSize;
+    auto ret = buffer[index];
+    if (len > 0) --len;
+    return ret;
+  }
+  const T& peek() {
+    int index = (pos - len + buffSize) % buffSize;
+    return buffer[index];
+  }
+  size_t pos = 0;
+  size_t len = 0;
+  T buffer[buffSize] = {};
+};
+\end{lstlisting}
+
+\subsubsection{Podatkovni protokol}
+Sva podatkovna komunikacija se odvija od smjera mikrokontrolera do računalne aplikacije. Korisiti se više karakterističnih tokova (engl. caracteristic stream), svaki koristi način komunikacije sa obavjestima, svaki obavještava sa točno 20 podatkovnih bajta, svaki šalje točno dvije vrste poruka. Jednom u tri sekunde kroz svaki tok šalje se kontrolna poruka, a ostatak vremena šalje se podatkovna poruke. Nti bajt kontrolne poruke sadrži vrijednost \textbf{(N \% 2) * 0xFF}, osim zadnja tri bajta. Zadnja tri bajta kontrolne poruke opisuju strukturu podatkovnih poruka na način koji je definiran sljedećom tablicom.
+\newpage{}
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}[c]{l|r}
+      \multicolumn{1}{c|}{\textbf{Vrijednost opisnog bajta}} & 
+      \multicolumn{1}{c}{\textbf{Definicija opisnog bajta}} \\
+      \hline
+      0b0000 & Podatak ne postoji \\
+      0b0100 & jedan uint16 \\
+      0b0110 & jedan int16 \\
+      0b1000 & dva uint16 \\
+      0b1010 & dva int16 \\
+      0b1100 & jedan uint32 \\
+      0b1110 & jedan int32 \\
+      0b1111 & jedan float32 \\
+      \hline
+    \end{tabular}
+  \caption{Značenje svake polovice bajta zadnjih tri bajta kontrolne poruke}
+  \end{center}
+\end{table}
+
+Jedna od poruka koja se šalje je poruka koja sadrži podatke prikupljene sa žiroskopskog senzor LSM6DSM. Struktua koja se puni opisana je u kodu \ref{codereadout}:
+
+\begin{lstlisting}[caption = {Definicija strukure koja se šalje bluetoothom}, label={codereadout}]
+ struct [[gnu::packed]]  GyroReadout {
+  uint16_t temperature;
+  int16_t acceleration[3];
+  int16_t angular[3];
+};
+struct [[gnu::packed]]  GyroReadoutBLE {
+  GyroReadout ro;
+  uint16_t index;
+  uint32_t timestamp;
+};
+\end{lstlisting}
+
+Navedena struktura puni se svakih 10 milisekunde pozivom metode navedene u kodu \ref{codegetreadout}.
+
+\begin{lstlisting}[language=c++, caption={Dohvaćanje očitanja s LSM6DSM senzora}, label={codegetreadout}]
+GyroReadoutBLE get_readout(void) {
+  GyroReadout ro{};
+  spi_read(LSM6DSM_ACC_GYRO_OUT_TEMP_L,
+    (uint8_t*)(&ro), sizeof(ro));
+  return {ro, index++, uwTick}; // uwTick is global variable
+                                // that is incremented in 
+                                // some interupt every 1ms.
+}
+\end{lstlisting}
+
+Uzevši u obzir tipove vrijednosti od kojih se sastoji struktura GyroReadoutBLE funkcija u kodu \ref{codecontroll} puni kontrolnu poruku za tok koji šalje GyroReadoutBLE podatke.
+
+\begin{lstlisting}[language=c++, caption={Funkcija koja puni kontrolnu poruku za žiroskopske podatke}, label={codecontroll}]
+void fill_controll_message_gyro(uint8_t* buff) {
+  for (int i = 0; i < 17; ++i) {
+    buff[i] = (i % 2) * 0xFF;
+  }
+  buff[17] = 0x4A; //uint16, 2*int16
+  buff[18] = 0xAA; //2*int16, 2*int16
+  buff[19] = 0x4C; //uint16, int32
+}
+\end{lstlisting}
 
 \subsection{Bluetooth na linux operativnom sustavu}
+Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je softversko rješenje koje se vrši na računalu. U ovom radu korišteno je rješenje koje se vrši na Linux operativnom sustavu. Navedeni su neki softverski paketi koji olakšavaju rad sa bluetooth uređajima u Linux okolini.
 
 \begin{table}[h]
   \begin{center}
@@ -153,7 +519,8 @@ Vi\v{s}e Scannera mo\v{z}e slu\v{s}ati jednog Adverizera.
       \multicolumn{1}{c|}{\textbf{Paket}} & 
       \multicolumn{1}{c}{\textbf{Opis paketa}} \\
       \hline
-      bluez-utils & Pomocni programi za debugiranje bluetooth protokola \\
+      dbus & Multipleksiranje komunikacije s jednim bluetooth uređajem \\
+      bluez-utils & Pomoćni programi za debugiranje bluetooth protokola \\
       bluez-libs & Biblioteke implementacijom raznih bluetooth protokola \\
       bluez & Servis za automatsko upravljanje bluetooth adapterima \\
       \hline
@@ -162,6 +529,7 @@ Vi\v{s}e Scannera mo\v{z}e slu\v{s}ati jednog Adverizera.
   \end{center}
 \end{table}
 
+Sama aplikacija na starni računala podjeljena je na dva djela. Prvi dio pisan je u programskom jeziku python. Jezgra prvog djela je preuzeta od poznate python biblioteke[\cite{ble-serial}]. Svrha prvog djela je spajanje bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mjenja uređaj. Dodatno prvi dio aplikacije prosljeđuje blago formatirane podatke drugom djelu aplikacije preko UDP protokola[\cite{firstPart}]. Drugi dio aplikacije prikuplja podatke od prvog djela i iste podatke grafički iscrtava[\cite{secondPart}]. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati izrazito responzivno sučelje za grafički prikaz, a programski jezik python omgučuje izrazito jednostavnu komunikaciju korištenjem bluetooth protokola.
 
 \begin{equation}
   \pi=3
@@ -170,13 +538,16 @@ Vi\v{s}e Scannera mo\v{z}e slu\v{s}ati jednog Adverizera.
 \chapter{Zaključak}
 Ugradbena računala su dobra.
 
-\bibliography{literatura}
-\bibliographystyle{fer}
+\nocite{*}
+\bibliographystyle{diplomski}
+\bibliography{diplomski}
+
+\lstlistoflistings
 
 \begin{sazetak}
-  Ugradbena ra\v{c}unala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama, iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
+Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama, iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
 
-\kljucnerijeci{Ugradbena računala, Pouzdanost, Bluetooth, STM32}
+\kljucnerijeci{Ugradbena računala, Pouzdanost, Bluetooth, Stm32}
 \end{sazetak}
 
 \engtitle{Software support for data collection from embedded devices with high availability}
@@ -184,7 +555,7 @@ Ugradbena računala su dobra.
 \begin{abstract}
 Embedded computers offer number of features that can augment day to day exisstance of every individual. Their dimensions and power efficiency make them great candidate for making a world a better place. Even thou embedded devices exist and are availabel to everyone, creating a system that uses that device is not trivial. This work touches on those processies and analasys of availability of those processies.
 
-\keywords{Embedded Computers, Availability, Bluetooth, STM32}
+\keywords{Embedded Computers, Availability, Bluetooth, Stm32}
 \end{abstract}
 
 \end{document}
