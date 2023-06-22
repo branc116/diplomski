@@ -62,7 +62,7 @@ Stm32[\cite{STM32L476JG}] je ugradbeno računalo. U ovom radu Stm32 koristi se k
 Sensortile[\cite{sensortile}] je integrirana pločica na kojoj se nalazi Stm32L4 mikrokontroler i nekoliko senzora.
 
 \subsubsection{LSM6DSM}
-LSM6DSM[\cite{LSM6DSM}] je integrirani system-in-package koji sadrži 3D digaitalni akcelorometar i gyroscope. Može batchati podatke ili ih slati u realnom
+LSM6DSM[\cite{LSM6DSM}] je integrirani system-in-package koji sadrži 3D digitalni akcelerometar i gyroscope. Može batchati podatke ili ih slati u realnom
 vremenu. Skala akcelerometra može biti podešena na ±2/±4/±8/±16g. Kružna brzina mož biti podešena na
 ±125/±245/±500/±1000/±2000 dps.
 
@@ -79,138 +79,6 @@ MP34DT05-A je integrirani system-in-package koji sadrži digitalni mikrofon. Kor
 \subsubsection{BlueNRG-MS}
 BlueNRG-MS[\cite{BlueNrgMs}] je integrirani system-in-package koji sadrži Cortex-M0 ARM jezgru i mogučnost bluetooth 4.1 komunikacije.
 Cijeli paket troši maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
-
-\section{Razvojno okruženje}
-U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. FLOSS[\cite{FLOSS}]). Integrirana okruženja poput Stm32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razovjna rješenja imaju cijenu od 0€. Valuta plačanju kod korištenja takvih sutava je sloboda. Sloboda mjenjanja kompanije čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od neslobodnih itegrianih okurženja, teško je to isto rješenje reformulirati da radi na uređajima koje proizvodi druga firma[\cite{VENDORLOCKIN}]. Dodatna cijena koja se plaća korištenjem specifično Stm32CUBE integriranog okruženjem je generiran kod koji nije zadovoljavajući. Naime, Stm32CUBE često generira kod koji je previše opčenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog je prikazan u \ref{badcode}.
-
-
-\begin{lstlisting}[caption={Primjer geneririranog koda kojeg generira Stm32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]
-DrvStatusTypeDef BSP_GYRO_Get_WhoAmI
-(void *handle, uint8_t *who_am_i)
-{
-  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
-  GYRO_Drv_t *driver = NULL;
-  if(ctx == NULL)
-  {
-    return COMPONENT_ERROR;
-  }
-  driver = ( GYRO_Drv_t * )ctx->pVTable;
-  if ( who_am_i == NULL )
-  {
-    return COMPONENT_ERROR;
-  }
-  if ( driver->Get_WhoAmI == NULL )
-  {
-    return COMPONENT_ERROR;
-  }
-  if ( driver->Get_WhoAmI( ctx, who_am_i ) == COMPONENT_ERROR )
-  {
-    return COMPONENT_ERROR;
-  }
-  return COMPONENT_OK;
-}
-
-// file: commonsensors/gyroscope.h
-typedef struct
-{
-  DrvStatusTypeDef ( *Init            ) ( DrvContextTypeDef* );
-  DrvStatusTypeDef ( *DeInit          ) DrvContextTypeDef* );
-  DrvStatusTypeDef ( *Sensor_Enable   ) DrvContextTypeDef* );
-  DrvStatusTypeDef ( *Sensor_Disable  ) DrvContextTypeDef* );
-  DrvStatusTypeDef ( *Get_WhoAmI      ) DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *Check_WhoAmI    ) DrvContextTypeDef* );
-  DrvStatusTypeDef ( *Get_Axes        ) DrvContextTypeDef*, SensorAxes_t* );
-  DrvStatusTypeDef ( *Get_AxesRaw     ) DrvContextTypeDef*, SensorAxesRaw_t* );
-  DrvStatusTypeDef ( *Get_Sensitivity ) DrvContextTypeDef*, float* );
-  DrvStatusTypeDef ( *Get_ODR         ) DrvContextTypeDef*, float* );
-  DrvStatusTypeDef ( *Set_ODR         ) DrvContextTypeDef*, SensorOdr_t );
-  DrvStatusTypeDef ( *Set_ODR_Value   ) DrvContextTypeDef*, float );
-  DrvStatusTypeDef ( *Get_FS          ) DrvContextTypeDef*, float* );
-  DrvStatusTypeDef ( *Set_FS          ) DrvContextTypeDef*, SensorFs_t );
-  DrvStatusTypeDef ( *Set_FS_Value    ) DrvContextTypeDef*, float );
-  DrvStatusTypeDef ( *Get_Axes_Status ) DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *Set_Axes_Status ) DrvContextTypeDef*, uint8_t* );
-  DrvStatusTypeDef ( *Read_Reg        ) DrvContextTypeDef*, uint8_t, uint8_t* );
-  DrvStatusTypeDef ( *Write_Reg       ) DrvContextTypeDef*, uint8_t, uint8_t );
-  DrvStatusTypeDef ( *Get_DRDY_Status ) DrvContextTypeDef*, uint8_t* );
-} GYRO_Drv_t;
-
-// This is assigned to Get_WhoAmI field of GYRO_Drv_t struct.
-// file: lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
-status_t LSM6DSM_ACC_GYRO_R_WHO_AM_I
-(void *handle, u8_t *value)
-{
-  if( !LSM6DSM_ACC_GYRO_ReadReg(handle, 
-       LSM6DSM_ACC_GYRO_WHO_AM_I_REG, (u8_t *)value, 1))
-    return MEMS_ERROR;
-
-  *value &= LSM6DSM_ACC_GYRO_WHO_AM_I_BIT_MASK; //coerce
-  *value = *value >> LSM6DSM_ACC_GYRO_WHO_AM_I_BIT_POSITION; //mask
-
-  return MEMS_SUCCESS;
-}
-
-//file: lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
-status_t LSM6DSM_ACC_GYRO_ReadReg
-(void *handle, u8_t Reg, u8_t* Data, u16_t len)
-{
-  if (Sensor_IO_Read(handle, Reg, Data, len))
-  {
-    return MEMS_ERROR;
-  }
-  else
-  {
-    return MEMS_SUCCESS;
-  }
-}
-
-// file: sensortile/SensorTile.c
-// I2C path in this function is never used
-// because SnsorTile Stm32L4 cpu is using
-// spi to communicate with LSM6DSM
-uint8_t Sensor_IO_Read
-(void *handle, uint8_t ReadAddr,
-uint8_t *pBuffer, uint16_t nBytesToRead)
-{
-  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
-
-  if(ctx->ifType == 0)
-  {
-    if ( nBytesToRead > 1 )
-    {
-      if (ctx->who_am_i == HTS221_WHO_AM_I_VAL)
-      {
-        ReadAddr |= 0x80;  /* Enable I2C multi-bytes Write */
-      }
-    }
-    return Sensor_IO_I2C_Read
-      ( handle, ReadAddr, pBuffer, nBytesToRead );
-  }
-  if(ctx->ifType == 1 )
-  {
-    if ( nBytesToRead > 1 ) {
-      switch(ctx->who_am_i)
-        {
-          case LSM303AGR_ACC_WHO_AM_I: ReadAddr |= 0x40; break;
-          case LSM303AGR_MAG_WHO_AM_I: break;
-          default:;
-        }
-    }
-   return
-     Sensor_IO_SPI_Read( handle, ReadAddr, pBuffer, nBytesToRead );
-  }
-
-  return COMPONENT_ERROR;
-}
-\end{lstlisting}
-
-Svrha navedenog generiranog iscječka koda je čitanje jednog bajta koji označava ime spi poduređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog bajta. Također prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi koristi vrši se i kod svakog drugih poziva prema spi poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
-
-\subsection{cmake}
-Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugrađenog program (engl. firmware.) Cmake olakšava definiranje ovisnosti između jedicia prvođenja (engl. compilation units.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica u različitim jedinicama prevođenja.
-
-\subsection{GNU make}
-GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju ne više od pet \textbf{shell} naredbi koje se moraju izvršti za uspješnu gradnju neke komponente sustava.
 
 \section{Upravljanje događajima (engl. interupts)}
 Cortex m procesori posjeduju specifičan načim upravljanjem događaja. Događaji su veoma bitne kod stvaranja ugradbenih sustva zato što omugucuju energetski efikasan dizajn sustava.
@@ -244,6 +112,7 @@ Kad se dogodi neki interupt izvodi se sljedeca procedura:
 \end{table}
 
 \newpage
+
 \section{Bluetooth}
 Bluetooth[\cite{core41}] je otvoren protokol koji definira prijenos podataka na fizičkom sloju na sloju veze i mrežnom sloju. Omogučuje razmjenu informacija između dva uređaja bez korištenja središnjeg čvora.
 
@@ -530,6 +399,139 @@ Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je soft
 \end{table}
 
 Sama aplikacija na starni računala podjeljena je na dva djela. Prvi dio pisan je u programskom jeziku python. Jezgra prvog djela je preuzeta od poznate python biblioteke[\cite{ble-serial}]. Svrha prvog djela je spajanje bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mjenja uređaj. Dodatno prvi dio aplikacije prosljeđuje blago formatirane podatke drugom djelu aplikacije preko UDP protokola[\cite{firstPart}]. Drugi dio aplikacije prikuplja podatke od prvog djela i iste podatke grafički iscrtava[\cite{secondPart}]. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati izrazito responzivno sučelje za grafički prikaz, a programski jezik python omgučuje izrazito jednostavnu komunikaciju korištenjem bluetooth protokola.
+
+\newpage
+
+\section{Razvojno okruženje}
+U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. FLOSS[\cite{FLOSS}]). Integrirana okruženja poput Stm32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razovjna rješenja imaju cijenu od 0€. Valuta plačanju kod korištenja takvih sutava je sloboda. Sloboda mjenjanja kompanije čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od neslobodnih itegrianih okurženja, teško je to isto rješenje reformulirati da radi na uređajima koje proizvodi druga firma[\cite{VENDORLOCKIN}]. Dodatna cijena koja se plaća korištenjem specifično Stm32CUBE integriranog okruženjem je generiran kod koji nije zadovoljavajući. Naime, Stm32CUBE često generira kod koji je previše opčenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog je prikazan u \ref{badcode}.
+
+\begin{lstlisting}[caption={Primjer geneririranog koda kojeg generira Stm32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]
+DrvStatusTypeDef BSP_GYRO_Get_WhoAmI
+(void *handle, uint8_t *who_am_i)
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+  GYRO_Drv_t *driver = NULL;
+  if(ctx == NULL)
+  {
+    return COMPONENT_ERROR;
+  }
+  driver = ( GYRO_Drv_t * )ctx->pVTable;
+  if ( who_am_i == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_WhoAmI == NULL )
+  {
+    return COMPONENT_ERROR;
+  }
+  if ( driver->Get_WhoAmI( ctx, who_am_i ) == COMPONENT_ERROR )
+  {
+    return COMPONENT_ERROR;
+  }
+  return COMPONENT_OK;
+}
+
+// file: commonsensors/gyroscope.h
+typedef struct
+{
+  DrvStatusTypeDef ( *Init            ) ( DrvContextTypeDef* );
+  DrvStatusTypeDef ( *DeInit          ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Sensor_Enable   ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Sensor_Disable  ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Get_WhoAmI      ) DrvContextTypeDef*, uint8_t* );
+  DrvStatusTypeDef ( *Check_WhoAmI    ) DrvContextTypeDef* );
+  DrvStatusTypeDef ( *Get_Axes        ) DrvContextTypeDef*, SensorAxes_t* );
+  DrvStatusTypeDef ( *Get_AxesRaw     ) DrvContextTypeDef*, SensorAxesRaw_t* );
+  DrvStatusTypeDef ( *Get_Sensitivity ) DrvContextTypeDef*, float* );
+  DrvStatusTypeDef ( *Get_ODR         ) DrvContextTypeDef*, float* );
+  DrvStatusTypeDef ( *Set_ODR         ) DrvContextTypeDef*, SensorOdr_t );
+  DrvStatusTypeDef ( *Set_ODR_Value   ) DrvContextTypeDef*, float );
+  DrvStatusTypeDef ( *Get_FS          ) DrvContextTypeDef*, float* );
+  DrvStatusTypeDef ( *Set_FS          ) DrvContextTypeDef*, SensorFs_t );
+  DrvStatusTypeDef ( *Set_FS_Value    ) DrvContextTypeDef*, float );
+  DrvStatusTypeDef ( *Get_Axes_Status ) DrvContextTypeDef*, uint8_t* );
+  DrvStatusTypeDef ( *Set_Axes_Status ) DrvContextTypeDef*, uint8_t* );
+  DrvStatusTypeDef ( *Read_Reg        ) DrvContextTypeDef*, uint8_t, uint8_t* );
+  DrvStatusTypeDef ( *Write_Reg       ) DrvContextTypeDef*, uint8_t, uint8_t );
+  DrvStatusTypeDef ( *Get_DRDY_Status ) DrvContextTypeDef*, uint8_t* );
+} GYRO_Drv_t;
+
+// This is assigned to Get_WhoAmI field of GYRO_Drv_t struct.
+// file: lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
+status_t LSM6DSM_ACC_GYRO_R_WHO_AM_I
+(void *handle, u8_t *value)
+{
+  if( !LSM6DSM_ACC_GYRO_ReadReg(handle, 
+       LSM6DSM_ACC_GYRO_WHO_AM_I_REG, (u8_t *)value, 1))
+    return MEMS_ERROR;
+
+  *value &= LSM6DSM_ACC_GYRO_WHO_AM_I_BIT_MASK; //coerce
+  *value = *value >> LSM6DSM_ACC_GYRO_WHO_AM_I_BIT_POSITION; //mask
+
+  return MEMS_SUCCESS;
+}
+
+//file: lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
+status_t LSM6DSM_ACC_GYRO_ReadReg
+(void *handle, u8_t Reg, u8_t* Data, u16_t len)
+{
+  if (Sensor_IO_Read(handle, Reg, Data, len))
+  {
+    return MEMS_ERROR;
+  }
+  else
+  {
+    return MEMS_SUCCESS;
+  }
+}
+
+// file: sensortile/SensorTile.c
+// I2C path in this function is never used
+// because SnsorTile Stm32L4 cpu is using
+// spi to communicate with LSM6DSM
+uint8_t Sensor_IO_Read
+(void *handle, uint8_t ReadAddr,
+uint8_t *pBuffer, uint16_t nBytesToRead)
+{
+  DrvContextTypeDef *ctx = (DrvContextTypeDef *)handle;
+
+  if(ctx->ifType == 0)
+  {
+    if ( nBytesToRead > 1 )
+    {
+      if (ctx->who_am_i == HTS221_WHO_AM_I_VAL)
+      {
+        ReadAddr |= 0x80;  /* Enable I2C multi-bytes Write */
+      }
+    }
+    return Sensor_IO_I2C_Read
+      ( handle, ReadAddr, pBuffer, nBytesToRead );
+  }
+  if(ctx->ifType == 1 )
+  {
+    if ( nBytesToRead > 1 ) {
+      switch(ctx->who_am_i)
+        {
+          case LSM303AGR_ACC_WHO_AM_I: ReadAddr |= 0x40; break;
+          case LSM303AGR_MAG_WHO_AM_I: break;
+          default:;
+        }
+    }
+   return
+     Sensor_IO_SPI_Read( handle, ReadAddr, pBuffer, nBytesToRead );
+  }
+
+  return COMPONENT_ERROR;
+}
+\end{lstlisting}
+
+Svrha navedenog generiranog isječka koda je čitanje jednog bajta koji označava ime spi pod uređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog bajta. Također prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi koristi vrši se i kod svakog drugih poziva prema spi poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
+
+\subsection{cmake}
+Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugrađenog program (engl. firmware.) Cmake olakšava definiranje ovisnosti između jedicia prvođenja (engl. compilation units.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica u različitim jedinicama prevođenja.
+
+\subsection{GNU make}
+GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju ne više od pet \textbf{shell} naredbi koje se moraju izvršti za uspješnu gradnju neke komponente sustava.
 
 \begin{equation}
   \pi=3
