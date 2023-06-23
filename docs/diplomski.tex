@@ -159,10 +159,36 @@ Bluetooth\cite{core41} je otvoren protokol koji definira prijenos podataka na fi
 \section {Fizička Razina}
 Na fizičkoj razini bluetooth protokol koristi GBFSK\cite{GBFSK} modulaciju.
 
-\section{Bluetooth GAP}
+\section{Bluetooth GAP, GATT, L2CAP, HCI, ACI}
+Bluetooth standard definira podsustave koje moraju implementirati svi uređaji koji podržavaju bluetooth. Neki važniji su definirani u ovom odlomku.
+
+\subsubsection{GAP}
 Bluetooth \textbf{G}eneric \textbf{A}ccess \textbf{P}rofile.
 Gap definira uloge (engl. roles) u bluetooth standardu. Uloge koje postoje su oglašivač (engl. Advertizer), skener (engl. Scanner), sporedna (engl. Slave) i glavna (engl. Master). Oglašivačka i skener uloga vrše razmjenu informacija isključivo u smjeru od oglašivača do skenera. Isto tako, nije potrebno eksplicitno spajanje uređaja.
 Više skenera može slušati jednog oglašivača.
+
+\subsubsection{GATT}
+Bluetooth \textbf{G}eneric \textbf{ATT}ribue Profile definira koji podaci postoje na pojedinim bluetooth uređajima. Definira na način da svaki uređaj ima svoje servise koje su identificirani sa jedinstvenim brojem (engl. UUID). UUID može biti veličine 16 bajta ili 2 bajta. Neki brojevi su rezervirani u bluetooth standardu\cite{core41}.
+Dodatno GATT definira da svaki servis sadrži svoje karakteristične tokove (engl. characteristic stream) koji su isto tako identificirani jedinstvenim brojevima. Svaki karakteristični tok dodatno sadrži informaciju o tome sto je li taj tok namjenjen za pisanje ili čitanje, može li se oglašavati na tom toku, veličinu podatka jednog elementa tog toka. Primjer definicije jednostavnog servisa koji definira bateriju nekog uređaja prikazan je na slici \ref{fig:gattexample}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{examplegatt_20230623_212042.png}
+\centering
+\caption{Tablica GATT servisa i karakterističnih tokova koji definiraju bateriju nekog uređaja}
+\label{fig:gattexample}
+\end{figure}
+
+U ovom radu nije korišten niti jedan standardni servis. Standardni servisi tek postaju korisni, ako korisnik želi izgraditi uređaj koji će biti prepoznat od strane svih ostalih uređaja.
+
+\subsubsection{L2CAP}
+L2CAP je bluetooth standard koji definira na koji način će dva bluetooth uređaja razmjenjivati poruke na razini poveznice.
+
+\subsubsection{HCI}
+\textbf{H}ost \textbf{C}ontroller \textbf{I}nterface je bluetooth standard koji definira u kojem se formatu razmjenjuju podaci od računala/mikrokontrolera do bluetooth modula.
+
+\subsubsection{ACI}
+\textbf{A}pplication \textbf{C}command \textbf{I}interface je standard kojeg definira kompanija STMicroelectronics i koristi se kao sloj apstrakcije nad HCI slojem na STM-ovim mikrokontrolerima.
+
 
 \subsection {Razmjena podataka na između glavne i sporedne uloge}
 Glavan i sporedna uloga zahtjevaju eksplicitno povezivanje (engl. pairing) Nakon povezivanja moguće je razmjenjivati poruke. Poruke je moguće razmjeniti na nekoliko načina:
@@ -428,7 +454,7 @@ void fill_controll_message_gyro(uint8_t* buff) {
 }
 \end{lstlisting}
 
-\subsection{Bluetooth na linux operativnom sustavu}
+\section{Bluetooth na linux operativnom sustavu}
 Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je softversko rješenje koje se vrši na računalu. U ovom radu korišteno je rješenje koje se vrši na Linux operativnom sustavu. Navedeni su neki softverski paketi koji olakšavaju rad sa bluetooth uređajima u Linux okolini.
 
 \begin{table}[H]
@@ -447,16 +473,53 @@ Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je soft
   \end{center}
 \end{table}
 
+\subsubsection{Aplikacija}
 Sama aplikacija na strani računala podijeljena je na dva djela. Prvi dio pisan je u programskom jeziku python. Jezgra prvog djela je preuzeta od poznate python biblioteke\cite{ble-serial}. Svrha prvog djela je spajanje bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mjenja uređaj. Dodatno prvi dio aplikacije prosljeđuje blago formatirane podatke drugom djelu aplikacije preko UDP protokola\cite{firstPart}. Drugi dio aplikacije prikuplja podatke od prvog djela i iste podatke grafički iscrtava\cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik python omogućuje izrazito jednostavnu komunikaciju korištenjem bluetooth protokola.
+
+\subsubsection{Prvi dio aplikacije}
+Prvi dio aplikacije napravljen je vrlo jednostavno. Kreira se UDP socket kao sto je prikazano u kodu \ref{pyudpsock}. Pošalje se zahtijev preko dbus sustava da se bluetoothom želi povezati s mikrokontrolerom kao sto je prikazano u kodu \ref{pyconnect}. Nakon toga se pretplati na sve obavijesti sa svih servisa i karakterističnih tokova na mikrokontroleru kao sto je prikazanu u kodu \ref{pysubscribe}. Prilikom svake obavijesti, izvršava se funkcija koja prosljeđuje dobivene podatke drugom dijelu aplikacije (kod \ref{pyrelay}.
+
+\begin{lstlisting}[language=python, caption={Kreiranje udp socketa u pythonu}, label={pyudpsock}]
+client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+client_socket.settimeout(1.0)
+addr = ("localhost", 42069)
+\end{lstlisting}
+
+\begin{lstlisting}[language=python, caption={Spajanje bluetoothom na microkontroler}, label={pyconnect}]
+ble = BLE_interface("hci0", None)
+ble.set_receiver(receive_callback)
+await ble.connect("02:80:E1:00:00:AA", "public", 16.0)
+\end{lstlisting}
+
+\begin{lstlisting}[language=python, caption={Pretplaćivanje na sve obavijesti sa svih servisa i karakterističnih tokov na microkontroleru}, label={pysubscribe}]
+self.read_char = self.find_all_char(read_uuid)
+r = [asyncio.Task(self.dev.start_notify(r, self.handle_notify)) for r in self.read_char]
+await asyncio.wait(r)
+\end{lstlisting}
+
+\begin{lstlisting}[language=python, caption={Prosljeđivanje dobivene bluetooth vrijednosti drugom dijelu aplikacije}, label={relay}]
+p = DBParser()
+def receive_callback(handle: BleakGATTCharacteristic, value: bytes):
+    p.add_data(handle.handle, value)
+    d = p.pop_data() # group_id, value 
+    while d != None:
+        client_socket.sendto(f"{d[1]};{d[0]}".encode(), addr)
+        d = p.pop_data()
+\end{lstlisting}
+
+\subsubsection{Drugi dio aplikacije}
+Drugi dio aplikacije nije povezan s bluetooth. Rađen je iz razloga što je bilo potrebno validirati na neki način dobivene podatke. Grafički prikaz podataka taj zadatak drastično olakšava. Slika \ref{fig:graph} prikazuje stanje drugog dijela aplikacije nakon nekoliko sekundi od početka prikupljanja podataka. 
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{rlplot_allsensors_20230623_120537.png}
 \centering
-\caption{Prikaz drugog dijela aplikacije koja iscrtava vrijednosti senzora u realnom veremenu}
-\label{fig:wireshark}
+\caption{Prikaz drugog dijela aplikacije koja iscrtava vrijednosti senzora u realnom vremenu}
+\label{fig:graph}
 \end{figure}
 
 Rad cijelog sustava prikazan je u videu na adresi \url{https://youtu.be/AVqU0vSDVG8} \cite{videodemo}.
+
+Izvorni kod programa za mikrokontroler, prvog i drugog dijela aplikacije, dokumentacija i sve ostale skripte dostupne su u git repozitoriju na adresi \ \url{https://github.com/branc116/diplomski}.
 
 \newpage
 
@@ -484,12 +547,14 @@ OpenOCD\cite{openocd} je program koji se koristi za prebacivanje izvrsne datotek
 \subsubsection{GDB}
 GNU GDB\cite{gdb} je program koji pomaže programeru otkriti greške u kodu. GDB je besplatan alat s otvorenim izvornim kodom.
 
-\begin{equation}
-  \pi=3
-\end{equation}
+\subsubsection{GCC Arm}
+GCC Arm\cite{armgcc} je alat koji pomaže programeru pretvoriti izvorni kod pisan u C programskom jeziku u binarni format kojeg je u konačnici moguce pokrenuti na mikrokontrolerima sa ARM procesorom. Ustvari ovo je samo druga verzija(engl. fork) GCC\cite{gcc} programa, verzija koja je specijalizirana za ARM procesore.
 
 \chapter{Zaključak}
-Ugradbena računala su dobra.
+Stvaranje pouzdanog sustava zahtijeva poznavanje svake komponente sustava.
+Bez poznavanja svake komponente nemoguće je donijeti zaključak radi li sustav ispravno.
+Upoznavanje se svakim dijelom sustava iziskuje najviše vremena. Koristenje gotovih riješenja može ubrzati proces gradnje, ali bez razumijevanja svih komponenti gotovih riješenja teško se može razmatrati pouzdanost.
+S druge strane stvaranje proizvoda iziskuje puno vremena, dubinsko upoznavanje svih komponenta dodatno usporava proces gradnje. Potrebno je ponekad pouzdati se u gotove djelove sustava i zanemariti pouzdanost. Zbog svega navedenog, stvaranje pouzdanih sustava nije nimalo jednostavno, ali proces gradnje je zanimljiv i uvijek postoji nova stvar koja se može izučiti.
 
 \nocite{*}
 \bibliographystyle{diplomski}
