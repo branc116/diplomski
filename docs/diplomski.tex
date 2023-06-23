@@ -5,6 +5,8 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{graphicx}
+\usepackage{float}
+
 \graphicspath{ {./imgs/} }
 
 \renewcommand{\lstlistingname}{Kod}
@@ -61,12 +63,12 @@ Ugradbena računala su računala malih dimenzija i niske potrošnje.
 Stm32\cite{STM32L476JG} je ugradbeno računalo. U ovom radu Stm32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
 
 \section{Sensortile}
-Sensortile\cite{sensortile} je integrirana pločica na kojoj se nalazi Stm32L4 mikrokontroler i nekoliko senzora. U ovom radu koristi se sensortile pločica kao fizicko okruzenje za razvoj pouzdanog ugradbenog sustava.
+Sensortile\cite{sensortile} je integrirana pločica na kojoj se nalazi Stm32L4 mikrokontroler i nekoliko senzora. U ovom radu koristi se sensortile pločica kao fizičko okruženje za razvoj pouzdanog ugradbenog sustava.
  
-\begin{figure}[h]
-\includegraphics[scale=0.1]{tile_close.jpeg}
+\begin{figure}[H]
+\includegraphics[scale=0.14]{tile_close.jpeg}
 \centering
-\caption{Sensortile plocica}
+\caption{Sensortile plaćica}
 \end{figure}
 
 \subsection{LSM6DSM}
@@ -87,6 +89,36 @@ MP34DT05-A je integrirani system-in-package koji sadrži digitalni mikrofon. Kor
 BlueNRG-MS\cite{BlueNrgMs} je integrirani system-in-package koji sadrži Cortex-M0 ARM jezgru i mogučnost bluetooth 4.1 komunikacije.
 Cijeli paket troši maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
 
+\subsection{Povezivanje sa računalom}
+Kako bi ugradbeno računalo obavljalo koristan posao potrebno ga je prvo pripremiti za programiranje. U ovom radu ugradbeno računalo koje se programira je Stm32L4, nalazi se na sensortile pločici (slika \ref{fig:plocab}.2, dalje Pločica A) koja je povezana sa malo većom pločicom (slika \ref{fig:plocab}.1, dalje Pločica B.) Pločica A i B povezane su sa ne standardnim konektorom koji pinove sa Stm32L4 direktno prenosi na Pločica B. Konektor se može vidjeti na slici \ref{fig:plocab}.5. Pločica B na sebi sadrži st link\cite{stlink} konektor koji služi za programiranje (slika \ref{fig:plocab}.4.) Pločica B na sebi sadrži micro USB port koji služi isključivo za napajanje (slika \ref{fig:plocab}.3.)
+
+
+\begin{figure}[H]
+\includegraphics[scale=0.5]{PlocicaAiB.png}
+\centering
+\caption{Prikaz pločice A i B jedna pored druge\cite{gettingstartedsensor}}
+\label{fig:plocab}
+\end{figure}
+
+Pločica A i B nisu dovoljne za programiranje Stm32L4 mikrokontrolera. Potrebna je dodatna pločica koja je u ulozi programatora (slika \ref{fig:prog}.) U ovom radu korišten je NUCLEO-F439ZI programator
+(dalje pločica C.)
+
+\begin{figure}[H]
+  \includegraphics[scale=0.5]{connection_img.png}
+  \centering
+  \caption{Povezivanje Stm32L4 mikrokontrolera sa računalom\cite{gettingstartedsensor}}
+  \label{fig:prog}
+  \begin{enumerate}
+    \item St link konektor na pločici C.
+    \item St link konektor na pločici B.
+    \item Ne standardni konektor koji povezuje pločicu A i B.
+    \item Usb konektor za napajanje pločice B.
+    \item Usb konektor za napajanje pločice C i programiranje Stm32L4 mikrokontrolera preko 1, 2, 3.
+  \end{enumerate}
+\end{figure}
+
+\newpage
+
 \section{Upravljanje događajima (engl. interupts)}
 Cortex m procesori posjeduju specifičan načim upravljanjem događaja. Događaji su veoma bitne kod stvaranja ugradbenih sustava zato što omogućuju energetski efikasan dizajn sustava.
 Umjesto aktivnog prozivanja od strane procesora \textit{nalazi li se što na nekoj sabirnici}, procesor može biti na hardverskoj razini obaviješten da je neka sabirnica promjenila stanje.
@@ -102,7 +134,7 @@ Kad se dogodi neki događaj izvodi se sljedeća procedura:
 
 \subsubsection{xPSR registar}
 
-\begin{table}[h]
+\begin{table}[H]
   \begin{center}
     \begin{tabular}{c|c|c|c|c||c||c||c|}
       \cline{2-8} & 31 & 30 & 29 & 28 & 24 & 9 & 5-0\\
@@ -160,13 +192,13 @@ Postoji pet signala koji povezuju bluetooth module i Stm32 mikrokontroler:
 
 \begin{itemize}
   \item Odabir čipa (engl. Chip select CS) Mikrokontroler stavlja na logičku nulu da označi da BlueNRG smije komunicirati.
-  \item Takt (engl. Clock) Mikrokontroler odrađuje takt kojim ce komunicirati
+  \item Takt (engl. Clock) Mikrokontroler odrađuje takt kojim će komunicirati
   \item Stm32 govori, BlueNRG sluša (engl. Master out, slave in)
   \item BlueNRG govori, Stm32 sluša (engl. Master in, slave out)
   \item Podaci su spremni (engl. Data ready) BlueNRG označava da su dostupni podaci koje Stm32 može pročitati.
 \end{itemize}
 
-U ovom radu postoje tri stanja u kojima se moze nalaziti BlueNRG:
+U ovom radu postoje tri stanja u kojima se može nalaziti BlueNRG:
 
 \begin{itemize}
   \item Ne inicijaliziran
@@ -273,9 +305,9 @@ int blue_send_next(blue_char_collection_t* coll, int len) {
 
 \subsection{Performanse BlueNRG modula}
 
-Mjerenje propusnosti BlueNRG modula mjereno je na korištenjem programa Wireshark\cite{wireshark}. Nakon povezivanja, wireshark prikuplja dolazne podatke 100 sekundi te su nakon toga izbrojene poruke. U tablici \ref{perftable} nalaze se mjerenja koja su izvršena.
+Mjerenje propusnosti BlueNRG modula mjereno je na korištenjem programa Wireshark\cite{wireshark}. Nakon povezivanja, wireshark prikuplja dolazne podatke 100 sekundi te su nakon toga izbrojene poruke. U tablici \ref{perftable} nalaze se mjerenja koja su izvršena. Na slici \ref{fig:wireshark} prikazao je jedno mjerenje.
 
-\begin{table}[h]
+\begin{table}[H]
   \begin{center}
     \begin{tabular}[c]{l|l|l|l}
       \hline
@@ -293,6 +325,13 @@ Mjerenje propusnosti BlueNRG modula mjereno je na korištenjem programa Wireshar
   \label{perftable}
   \end{center}
 \end{table}
+
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{wireshark_100sec_20230622_225645.png}
+\centering
+\caption{Prikaza mjerenja korištenjem programa Wireshark\cite{wireshark}}
+\label{fig:wireshark}
+\end{figure}
 
 U ovom radu testirano je nekoliko konfiguracija veličina paketa i broja tokova. Ukupna propusnost ne mjenja se značajno dodavanje dodatnih tokova. Maksimalno kašnjenje nije mjereno, no pretpostavka je da nije veća od intervala spajanja (engl. connection interval.) Interval spajanja definira poduređaj. U ovom radu bio je pet milisekundi.
 
@@ -328,7 +367,7 @@ struct CircBuffer {
 \subsubsection{Podatkovni protokol}
 Sva podatkovna komunikacija se odvija od smjera mikrokontrolera do računalne aplikacije. Korisiti se više karakterističnih tokova (engl. caracteristic stream), svaki koristi način komunikacije sa obavijestima, svaki obavještava sa točno 20 podatkovnih bajta, svaki šalje točno dvije vrste poruka. Jednom u tri sekunde kroz svaki tok šalje se kontrolna poruka, a ostatak vremena šalje se podatkovna poruke. Niti bajt kontrolne poruke sadrži vrijednost \textbf{(N \% 2) * 0xFF}, osim zadnja tri bajta. Zadnja tri bajta kontrolne poruke opisuju strukturu podatkovnih poruka na način koji je definiran sljedećom tablicom.
 
-\begin{table}[h]
+\begin{table}[H]
   \begin{center}
     \begin{tabular}[c]{l|r}
       \multicolumn{1}{c|}{\textbf{Vrijednost opisnog bajta}} & 
@@ -392,7 +431,7 @@ void fill_controll_message_gyro(uint8_t* buff) {
 \subsection{Bluetooth na linux operativnom sustavu}
 Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je softversko rješenje koje se vrši na računalu. U ovom radu korišteno je rješenje koje se vrši na Linux operativnom sustavu. Navedeni su neki softverski paketi koji olakšavaju rad sa bluetooth uređajima u Linux okolini.
 
-\begin{table}[h]
+\begin{table}[H]
   \begin{center}
     \begin{tabular}[c]{l|r}
       \multicolumn{1}{c|}{\textbf{Paket}} & 
@@ -410,20 +449,40 @@ Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je soft
 
 Sama aplikacija na strani računala podijeljena je na dva djela. Prvi dio pisan je u programskom jeziku python. Jezgra prvog djela je preuzeta od poznate python biblioteke\cite{ble-serial}. Svrha prvog djela je spajanje bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mjenja uređaj. Dodatno prvi dio aplikacije prosljeđuje blago formatirane podatke drugom djelu aplikacije preko UDP protokola\cite{firstPart}. Drugi dio aplikacije prikuplja podatke od prvog djela i iste podatke grafički iscrtava\cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik python omogućuje izrazito jednostavnu komunikaciju korištenjem bluetooth protokola.
 
+\begin{figure}[H]
+\includegraphics[width=\textwidth]{rlplot_allsensors_20230623_120537.png}
+\centering
+\caption{Prikaz drugog dijela aplikacije koja iscrtava vrijednosti senzora u realnom veremenu}
+\label{fig:wireshark}
+\end{figure}
+
+Rad cijelog sustava prikazan je u videu na adresi \url{https://youtu.be/AVqU0vSDVG8} \cite{videodemo}.
+
 \newpage
 
 \chapter{Razvojno okruženje}
-U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. FLOSS\cite{FLOSS}). Integrirana okruženja poput Stm32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja kompanije čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga firma\cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem specifično Stm32CUBE integriranog okruženjem je generiran kod koji nije zadovoljavajući. Naime, Stm32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijoj čitljivošću. Primjer takvog je prikazan u \ref{badcode}.
+U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. FLOSS\cite{FLOSS}). Integrirana okruženja poput Stm32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja kompanije čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga firma\cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem specifično Stm32CUBE integriranog okruženjem je generiran kod koji nije zadovoljavajući. Naime, Stm32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijoj čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
 
-\lstinputlisting[caption={Primjer geneririranog koda kojeg generira Stm32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]{shitcode.c}
+\lstinputlisting[caption={Primjer generiranog koda kojeg generira Stm32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]{shitcode.c}
 
-Svrha navedenog generiranog isječka koda je čitanje jednog bajta koji označava ime spi pod uređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog bajta. Također prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi koristi vrši se i kod svakog drugih poziva prema spi poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
+Svrha navedenog generiranog isječka koda je čitanje jednog bajta koji označava ime spi pod uređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog bajta. Također prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi vrši se i kod svakog drugih poziva prema spi poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
 
-\subsection{cmake}
+\subsubsection{cmake}
 Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugrađenog program (engl. firmware.) Cmake olakšava definiranje ovisnosti između jedinica prevođenja (engl. compilation units.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica u različitim jedinicama prevođenja.
 
-\subsection{GNU make}
-GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju ne više od pet \textbf{shell} naredbi koje se moraju izvršiti za uspješnu gradnju neke komponente sustava.
+\subsubsection{make}
+GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju ne više od pet \textbf{shell} naredbi koje se moraju izvršiti za uspješnu gradnju neke komponente sustava. Primjer make recepta koji gradi ovu dokumentaciju pokretanjem \LaTeX\cite{ungar2002uvod} naredbi prikazan je u kodu \ref{lst:make}. Recept se čita ovako: \textit{Za izgradnju pdf-a potreban je tex file. Ako je tex datoteka novija od pdf datoteke pokreni naredbe koje su ispod.} GNU make je besplatan alat s otvorenim izvornim kodom.
+
+\begin{lstlisting}[language=make, label={lst:make}, caption={Gradnja dokumentacije korištenjem make recepta}]
+build/docs/diplomski.pdf: docs/diplomski.tex
+	cd docs && cp -R * ../build/docs && cd ../build/docs && pdflatex -mltex diplomski.tex && bibtex diplomski && pdflatex -mltex diplomski.tex
+\end{lstlisting}
+
+\subsubsection{OpenOCD}
+OpenOCD\cite{openocd} je program koji se koristi za prebacivanje izvrsne datoteke na mikrokontroler. Uz to omogućuje stvaranje GDB servera na koji moguće povezati s običnim GDB klijentima. OpenOCD je besplatan alat s otvorenim izvornim kodom.
+
+\subsubsection{GDB}
+GNU GDB\cite{gdb} je program koji pomaže programeru otkriti greške u kodu. GDB je besplatan alat s otvorenim izvornim kodom.
 
 \begin{equation}
   \pi=3
