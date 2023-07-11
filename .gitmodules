@@ -1,6 +1,8 @@
 [submodule "rlplot"]
 	path = rlplot
 	url = https://github.com/branc116/rlplot.git
+  branch = master
 [submodule "ble-serial"]
 	path = ble-serial
 	url = https://github.com/branc116/ble-serial.git
+  branch = master
