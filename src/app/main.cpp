@@ -52,6 +52,7 @@ struct SpiCs {
   int16_t acceleration[3];
   int16_t angular[3];
 };
+
 struct [[gnu::packed]]  GyroReadoutBLE {
   GyroReadout ro;
   uint16_t index;
