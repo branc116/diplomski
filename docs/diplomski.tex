@@ -54,7 +54,20 @@
 \tableofcontents
 
 \chapter{Uvod}
-Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja cine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama, iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog. Opisan je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo Stm32, koje čita podatke sa senzora i iste u realnom vremenu šalje na server.
+Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca.
+Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću.
+Iako je bolja budućnost veoma blizu svima nama, iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan.
+Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
+Opisan je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo Stm32, koje čita podatke sa senzora i iste u realnom vremenu šalje na server.
+U sklopu ovog rada opisan je sustav koji sadrži ugradbeno računalo koje je povezano bluetoothom na računalo i šalje očitanja sa raznih senzora koji su povezani sa mikrokontrolerom.
+Opisane su zančajke Stm32L4 mikrokontrolera.
+Opisani su glavni djelovi bluetooth standarda.
+Opisana je komunikacija između mikrokontrolera i bluetooth modula.
+Opisani su protokoli koji se koriste u komunikaciji između mikrokontrolera i senzora koji su povezani s mikrokontrolerom.
+Izgrađeno je programsko rješenje koje se izvršava na Stm32L4 mikrokontroleru.
+Izgređeno je programsko rješenje koje se izvršava na računalu na kojem je pokrenut linux operacijski sustav.
+Uspješno je ostvarena komunikacija programskog rješenja na mikrokontroleru i programskog rješenja na računalu.
+Pouzdano se šalju podaci s akcelerometra i žiroskopskog senzora s mikrokontrolera na računalo.
 
 \chapter{Ugradbena računala}
 Ugradbena računala su računala malih dimenzija i niske potrošnje. 
@@ -89,9 +102,27 @@ MP34DT05-A je integrirani system-in-package koji sadrži digitalni mikrofon. Kor
 BlueNRG-MS \cite{BlueNrgMs} je integrirani system-in-package koji sadrži Cortex-M0 ARM jezgru i mogučnost bluetooth 4.1 komunikacije.
 Cijeli paket troši maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
 
-\subsection{Povezivanje s računalom}
-Kako bi ugradbeno računalo obavljalo koristan posao potrebno ga je prvo pripremiti za programiranje. U ovom radu ugradbeno računalo koje se programira je Stm32L4, nalazi se na sensortile pločici (slika \ref{fig:plocab}.2, dalje Pločica A) koja je povezana s malo većom pločicom (slika \ref{fig:plocab}.1, dalje Pločica B.) Pločica A i B povezane su s nestandardnim konektorom koji pinove sa Stm32L4 direktno prenosi na Pločica B. Konektor se može vidjeti na slici \ref{fig:plocab}.5. Pločica B na sebi sadrži st link \cite{stlink} konektor koji služi za programiranje (slika \ref{fig:plocab}.4.) Pločica B na sebi sadrži micro USB port koji služi isključivo za napajanje (slika \ref{fig:plocab}.3.)
+\subsubsection{Povezivanje BlueNRGa sa Stm32L4 microkontrolerom}
+BlueNRG je bluetooth module koji se nalazi na Sensortile pločici. Komunicira s Stm32L4 mikrokontrolerom pomoću SPI protokola.
+Svi razmjenjeni podaci između Stm32L4 mikrokontrolera i BlurNRG modula koriste format prijenosa koji sadrži zaglavlje i tijelo poruke.
+Zaglavlje poruke označava koliko je okteta BlueNRG spreman primiti te koliko je okteta željan poslati. Tijelo poruke sadrži informacije definirane bluetooth sandardnom.
+Postoji pet signala koji povezuju bluetooth module i Stm32 mikrokontroler:
 
+\begin{itemize}
+  \item Odabir čipa (engl. Chip select CS) Mikrokontroler stavlja na logičku nulu da označi da BlueNRG smije komunicirati.
+  \item Takt (engl. Clock) Mikrokontroler odrađuje takt kojim će komunicirati
+  \item Stm32 govori, BlueNRG sluša (engl. Master out, slave in)
+  \item BlueNRG govori, Stm32 sluša (engl. Master in, slave out)
+  \item Podaci su spremni (engl. Data ready) BlueNRG označava da su dostupni podaci koje Stm32 može pročitati.
+\end{itemize}
+
+\subsection{Povezivanje s računalom}
+Kako bi ugradbeno računalo obavljalo koristan posao potrebno ga je prvo pripremiti za programiranje.
+U ovom radu ugradbeno računalo koje se programira je Stm32L4, nalazi se na sensortile pločici (slika \ref{fig:plocab}.2, dalje Pločica A) koja je povezana s malo većom pločicom (slika \ref{fig:plocab}.1, dalje Pločica B.)
+Pločica A i B povezane su s nestandardnim konektorom koji pinove sa Stm32L4 direktno prenosi na Pločica B.
+Konektor se može vidjeti na slici \ref{fig:plocab}.5.
+Pločica B na sebi sadrži st link \cite{stlink} konektor koji služi za programiranje (slika \ref{fig:plocab}.4.)
+Pločica B na sebi sadrži micro USB port koji služi isključivo za napajanje (slika \ref{fig:plocab}.3.)
 
 \begin{figure}[H]
 \includegraphics[scale=0.5]{PlocicaAiB.png}
@@ -154,10 +185,23 @@ Kad se dogodi neki događaj izvodi se sljedeća procedura:
 
 \chapter{Bluetooth}
 
-Bluetooth \cite{core41} je otvoren protokol koji definira prijenos podataka na fizičkom sloju na sloju veze i mrežnom sloju. Omogućuje razmjenu informacija između dva uređaja bez korištenja središnjeg čvora.
+Bluetooth \cite{core41} je otvoren protokol koji definira bežični prijenos podataka na fizičkom sloju na sloju veze i mrežnom sloju.
+Postoje komunikacijski standardi koji zahtjevaju središnji uređaj na koji se povezuju svi ostali urađaji i kroz koji teče sva komunikacija između svakog para uređaja.
+Bluetooth standard je osmišljen na načina da se dva uređaja povezuju i komuniciraju direktno jedan s drugim, bez korištenja središnjeg uređaja.
 
 \section {Fizička Razina}
-Na fizičkoj razini bluetooth protokol koristi GBFSK \cite{GBFSK} modulaciju.
+Na fizičkoj razini bluetooth protokol koristi Gausijansku binarnu digitalnu frekvencijsku modulaciju (engl. GBFSK modulation) \cite{GBFSK}.
+GBFSK je diskretna modulacija sa dva stanja (1 bit/simbol.)
+Za razliku na od ostalih diskretnih modulacija s više diskretnih područja, binarna digitalna modulacija otpornija je na šumove i zahtjeva manju snagu za prijenos jednog simbola.
+WiFi 7 standard podržavat će digitalnu modulaciju s 4096 diskretnih stanja \cite{wifimax} (12 bita/simbol.)
+Cijena koju će novi WiFi standard platiti kompiciranijom modulacijom je smanjena otpornost na šum i kompliciranija izvedba uređaja.
+Cijana koju bluetooth protokol plaća s jednostavnijom modulacijom je manja teoretska propusnost.
+Teoretska propusnost bluetooth 4.2 LE protokola je 1Mbit/s \cite{maxtrough} dok će WiFi 7 protokol podržavati teoretsku propusnost od 46 Gbit/s.
+Na podatkovnoj razini propusnost od 1Mbit/s s bluetoothom 4.2 LE protokolom nije ostvariva zbog potreba sinkronizacije, enkripcije, konzistentnosti, pouzdanosti i proširovosti koje bluetooth standard osigurava.
+Uzevši u obzri sve ne podatkovne informacije potrebne za ispravan rad bluetooth protokola, maksimalna teoretska propusnot je 508Kbit/s.
+U ovom radu s BlueNRG modulom maksimalna ostvarena propusnost je 25Kbit/s.
+Autor rada predpostavlja da je za efikasnost od samo 5\% kriva loša implementacija bluetooth protokola na razini BlurNRG \textit{firmwarea}.
+Autor rada nema pristup izvornom kodu na toj razini pa ne može potvrditi tu predpostavku.
 
 \section{Bluetooth GAP, GATT, L2CAP, HCI, ACI}
 Bluetooth standard definira podsustave koje moraju implementirati svi uređaji koji podržavaju bluetooth. Neki važniji su definirani u ovom odlomku.
@@ -204,25 +248,16 @@ Pisanje i čitanje iz karakterističnih tokova zahtijeva dodatnu logiku za osigu
 \subsection {Oglašavanje promjena}
 Razmjena poruka može se ostvariti oglašavanjem poruka. Oglašavanje poruka ostvaruje se na način da prilikom povezivanja uređaji sinkorniziraju satove i u točno određenim trenucima razmjene izmijenjene poruke. Dodatno protokol bez intervencije korisnika koristi dvosmjernu komunikaciju za osiguravanje prijenosa poruke. Time se osigurava da će poruka biti isporučena. Dodatno, bez intervencije korisnika, na svaku poruku dodaje se CRC čime se osigurava točnost poruke.
 
-\section{BlueNRG}
-BlueNRG je bluetooth module koji se nalazi na Sensortile pločici. Komunicira s mikrokontrolerom pomoću SPI protokola.
-Specifično postoji
+\chapter{Programsko rješenje}
+U sklopu ovog rada izgrađeno je programsko rješenje koje se sastoji od djela koji se pokreće na Stm32L4 mikrokontroleu i djela koji se pokreće na računalu s Linux operacijskim sustavom.
+Programsko rješenje očitava podatke sa senzora koji su povezani sa Stm32L4 mikrokontrolerom i te iste podatke prenosi na računalo korištenjem bluetooth protokola.
+U realnom vremenu računalo grafički iscrtava iste te podatke.
 
-\begin{itemize}
-  \item Zaglavlje
-  \item Tijelo
-\end{itemize}
-
-Zaglavlje govori koliko okteta je BlueNRG spreman primiti te koliko je okteta željan poslati.
-Postoji pet signala koji povezuju bluetooth module i Stm32 mikrokontroler:
-
-\begin{itemize}
-  \item Odabir čipa (engl. Chip select CS) Mikrokontroler stavlja na logičku nulu da označi da BlueNRG smije komunicirati.
-  \item Takt (engl. Clock) Mikrokontroler odrađuje takt kojim će komunicirati
-  \item Stm32 govori, BlueNRG sluša (engl. Master out, slave in)
-  \item BlueNRG govori, Stm32 sluša (engl. Master in, slave out)
-  \item Podaci su spremni (engl. Data ready) BlueNRG označava da su dostupni podaci koje Stm32 može pročitati.
-\end{itemize}
+\section{Programsko rješenje za Stm32L4 mikrokontroler}
+Programsko rješenje za Stm32L4 mikrokontroler pisano je u programskom jeziku C.
+Na visokoj razini rješenje inicijalizira komunikacijeske kanale prema senzorima i prema BlueNRG modulu.
+Nakon toga pokreče se inicijalizira postavki na BlueNRG modulu i BlueNRG se povezuje sa računalom.
+Nakon povezivanja počinju se očitavati vrijednosti senzora i isti podaci se prosljeđuju povezanom računalu.
 
 U ovom radu postoje tri stanja u kojima se može nalaziti BlueNRG:
 
@@ -322,7 +357,7 @@ U \textbf{inicijaliziranom} stanju nema komunikacije između BlueNRG i Stm32 mik
 Nakon povezivanja bez eksplicitnog zahtjeva, razmjene se poruke između BlueNRGa i poduređaja koji je na njega povezan. Specifično razmjenju se poruke o maksimalnoj veličini poruke (engl. MTU), način enkripcije, definicija servisa i karakterističnih tokova. Nakon razmjene tih poruka. Stm32 mikrokontroler može početi slati poruke s mjernim podacima. Procedura slanja u ovom radu je definirana na sljedeći način:
 
 \begin{enumerate}
-  \item Odredi koji će se se karakteristični tok sljedeći slati
+  \item Odredi koji će se karakteristični tok sljedeći slati
 \begin{lstlisting}[caption = {Procedura za odabir karakterističnog toka koji će sljedeći biti poslan}]
 int blue_send_next(blue_char_collection_t* coll, int len) {
   if (coll->waiting_for_confirm != -1) return -1;
@@ -498,7 +533,7 @@ Za testiranje pouzdanosti i kvalitete prijenosa preko bluetootha potrebo je soft
 Sama aplikacija na strani računala podijeljena je na dva djela. Prvi dio pisan je u programskom jeziku python. Jezgra prvog djela je preuzeta od poznate python biblioteke \cite{ble-serial}. Svrha prvog djela je spajanje bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mjenja uređaj. Dodatno prvi dio aplikacije prosljeđuje blago formatirane podatke drugom djelu aplikacije preko UDP protokola \cite{firstPart}. Drugi dio aplikacije prikuplja podatke od prvog djela i iste podatke grafički iscrtava \cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik python omogućuje izrazito jednostavnu komunikaciju korištenjem bluetooth protokola.
 
 \subsubsection{Prvi dio aplikacije}
-Prvi dio aplikacije napravljen je vrlo jednostavno. Kreira se UDP socket kao sto je prikazano u kodu \ref{pyudpsock}. Pošalje se zahtijev preko dbus sustava da se bluetoothom želi povezati s mikrokontrolerom kao sto je prikazano u kodu \ref{pyconnect}. Nakon toga se pretplati na sve obavijesti sa svih servisa i karakterističnih tokova na mikrokontroleru kao sto je prikazanu u kodu \ref{pysubscribe}. Prilikom svake obavijesti, izvršava se funkcija koja prosljeđuje dobivene podatke drugom dijelu aplikacije (kod \ref{prelay}).
+Prvi dio aplikacije napravljen je vrlo jednostavno. Kreira se UDP socket kao sto je prikazano u kodu \ref{pyudpsock}. Pošalje se zahtijev preko dbus sustava da se bluetoothom želi povezati s mikrokontrolerom kao sto je prikazano u kodu \ref{pyconnect}. Nakon toga se pretplati na sve obavijesti sa svih servisa i karakterističnih tokova na mikrokontroleru kao sto je prikazanu u kodu \ref{pysubscribe}. Prilikom svake obavijesti, izvršava se funkcija koja prosljeđuje dobivene podatke drugom dijelu aplikacije (kod \ref{relay}).
 
 \begin{lstlisting}[language=python, caption={Kreiranje udp socketa u pythonu}, label={pyudpsock}]
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
