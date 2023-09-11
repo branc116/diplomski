@@ -16,7 +16,7 @@ build/src/stm32-bt.elf: build/src/build.ninja
 	cd build/src && ninja
 
 build/src/build.ninja: build/src
-	cd build/src && STM32_CUBE_L4_PATH=/opt/STM32CubeL4 cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../../src
+	cd build/src && STM32_CUBE_L4_PATH=/home/branimir/Documents/github.com/STMicroelectronics/STM32CubeL4 cmake -DCMAKE_BUILD_TYPE=Debug -G Ninja ../../src
 
 compile_commands.json: build/src/build.ninja build/src/compile_commands.json
 	cp build/src/compile_commands.json .
@@ -42,7 +42,7 @@ clean:
 .PHONY: deps
 deps:
 	@yay -S arm-none-eabi-gcc arm-none-eabi-gdb arm-none-eabi-newlib arm-none-eabi-binutils openocd ninja
-	cd /opt && sudo git https://github.com/STMicroelectronics/STM32CubeL4.git --depth 1
+	#cd /opt && sudo git https://github.com/STMicroelectronics/STM32CubeL4.git --depth 1
 
 .PHONY: doc-deps
 doc-deps:

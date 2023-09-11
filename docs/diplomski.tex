@@ -70,10 +70,25 @@ Uspješno je ostvarena komunikacija programskog rješenja na mikrokontroleru i p
 Pouzdano se šalju podaci s akcelerometra i žiroskopskog senzora s mikrokontrolera na računalo.
 
 \chapter{Ugradbena računala}
-Ugradbena računala su računala malih dimenzija i niske potrošnje. 
+Ugradbena računala su računala malih dimenzija i niske potrošnje. Dimenzije takvih računala su veličine nekoliko centimetara, a češće su još i manji.
+Električna potrošnja često se mjeri u miliamperima i to u najgorim slučajevima kad je računalno opterećenje najveće.
+U situacijama kada obavlja minimalan rad potrošnja čest pada na svega nekoliko mikroampera.
+Razlikuju se od običnih računala po tome što često odrađuju samo jedan zadatak koji često nije previše kompleksan.
+U ovom radu zadatak koji obavlja ugradbeno računalo je čitanje podataka s raznih senzora i slanje istina na računao korištenjem drugog ugradbenog
+računala kojem je jedina zadatak slanje podataka korištenjem Bluetooth protokola na računalo.
+Pravila implementacija sustava s ugradbenim računalom omogućuje izradu baterijskih uređaja koji bez ikakve intervencije korisnika mogu raditi desetljećima. \cite{holosys}
+Glavni nedostatak je otežana izrade takvih sustava. Posebno važno kod izrade takvih sustava je smanjenje memorijske i vremenske složenosti.
+Dodatno, potrebno je obratiti pažnju na vrijeme koje ugradbeno računalo prevodi u aktivnom stanju i smanjiti to vrijeme koliko god je moguće.
+Sve to zahtijeva od programera da bude pažljiv kod izrade svakog dijela sustava.
+
 
 \section{STM32}
 STM32 \cite{STM32L476JG} je ugradbeno računalo. U ovom radu STM32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
+Specifično korišten je STM32L476JG mikroupravljač.
+Glavne karakteristike STM32L476JG mikroupravljača su Arm Cortex M4 32-bitna jezgra koja ima takt od 80MHz-a.
+Također ima ugrađen jedan 1MB flash memorije i 128KB statičke RAM memorije.
+Ima podršku za mnogo komunikacijskih protokola (u ovom radu od iznimne važnosti bio je SPI komunikacijski protokol.)
+Najvažnije od svega, iznimno niska energetska potrošnja.
 
 \section{Sensortile}
 Sensortile \cite{sensortile} je integrirana pločica na kojoj se nalazi STM32L4 mikrokontroler i nekoliko senzora. U ovom radu koristi se sensortile pločica kao fizičko okruženje za razvoj pouzdanog ugradbenog sustava.
