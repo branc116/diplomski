@@ -55,30 +55,29 @@
 
 \chapter{Uvod}
 Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca.
-Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću.
+Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji od onih proizvedenih u prošlom desetljeću.
 Iako je bolja budućnost veoma blizu svima nama i iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan.
 Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
-Opisan je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo STM32, koje čita podatke sa senzora i iste u realnom vremenu šalje na server.
-U sklopu ovog rada opisan je sustav koji sadrži ugradbeno računalo koje je povezano Bluetoothom na računalo i šalje očitanja s raznih senzora koji su povezani s mikrokontrolerom.
-Opisane su značajke STM32L4 mikrokontrolera.
-Opisani su glavni dijelovi Bluetooth standarda.
-Opisana je komunikacija između mikrokontrolera i Bluetooth modula.
-Opisani su protokoli koji se koriste u komunikaciji između mikrokontrolera i senzora koji su povezani s mikrokontrolerom.
+Dokumentiran je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo STM32, koje čita podatke sa senzora i iste u realnom vremenu šalje na server.
+U sklopu ovog rada izgrađen je sustav koji sadrži ugradbeno računalo koje je povezano Bluetoothom na računalo i šalje očitanja s raznih senzora koji su povezani s mikrokontrolerom.
+Opisane su značajke STM32L4 mikrokontrolera isto kao i glavni dijelovi Bluetooth standarda.
+Objašnjena je komunikacija između mikrokontrolera i Bluetooth modula.
+Navedeni su protokoli koji se koriste u komunikaciji između mikrokontrolera i senzora koji su povezani s mikrokontrolerom.
 Izgrađeno je programsko rješenje koje se izvršava na STM32L4 mikrokontroleru.
 Izgrađeno je programsko rješenje koje se izvršava na računalu na kojem je pokrenut Linux operacijski sustav.
 Uspješno je ostvarena komunikacija programskog rješenja na mikrokontroleru i programskog rješenja na računalu.
 Pouzdano se šalju podaci s akcelerometra i žiroskopskog senzora s mikrokontrolera na računalo.
 
 \chapter{Ugradbena računala}
-Ugradbena računala su računala malih dimenzija i niske potrošnje. Dimenzije takvih računala su veličine nekoliko centimetara, a češće su još i manji.
+Ugradbena računala su računala malih dimenzija i niske potrošnje. Dimenzije takvih računala su veličine nekoliko centimetara, a češće su još i manje.
 Električna potrošnja često se mjeri u miliamperima i to u najgorim slučajevima kad je računalno opterećenje najveće.
-U situacijama kada obavlja minimalan rad potrošnja čest pada na svega nekoliko mikroampera.
-Razlikuju se od običnih računala po tome što često odrađuju samo jedan zadatak koji često nije previše kompleksan.
-U ovom radu zadatak koji obavlja ugradbeno računalo je čitanje podataka s raznih senzora i slanje istina na računao korištenjem drugog ugradbenog
-računala kojem je jedina zadatak slanje podataka korištenjem Bluetooth protokola na računalo.
-Pravila implementacija sustava s ugradbenim računalom omogućuje izradu baterijskih uređaja koji bez ikakve intervencije korisnika mogu raditi desetljećima. \cite{holosys}
-Glavni nedostatak je otežana izrade takvih sustava. Posebno važno kod izrade takvih sustava je smanjenje memorijske i vremenske složenosti.
-Dodatno, potrebno je obratiti pažnju na vrijeme koje ugradbeno računalo prevodi u aktivnom stanju i smanjiti to vrijeme koliko god je moguće.
+U situacijama kada obavlja minimalan rad potrošnja često pada na svega nekoliko mikroampera.
+Razlikuju se od običnih računala po tome što često odrađuju samo jedan zadatak koji nije previše kompleksan.
+Zadatak u ovom radu koji obavlja ugradbeno računalo je čitanje podataka s raznih senzora i slanje istih na računalo korištenjem drugog ugradbenog
+računala kojem je jedini zadatak slanje podataka korištenjem Bluetooth protokola na računalo.
+Pravilna implementacija sustava s ugradbenim računalom omogućuje izradu baterijskih uređaja koji bez ikakve intervencije korisnika mogu raditi desetljećima. \cite{holosys}
+Glavni nedostatak je otežana izrada takvih sustava. Posebno važno kod izrade takvih sustava je smanjenje memorijske i vremenske složenosti.
+Dodatno, potrebno je obratiti pažnju na vrijeme koje ugradbeno računalo provodi u aktivnom stanju i smanjiti ga koliko god je moguće.
 Sve to zahtijeva od programera da bude pažljiv kod izrade svakog dijela sustava.
 
 
