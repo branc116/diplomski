@@ -75,7 +75,7 @@ U situacijama kada obavlja minimalan rad potrošnja često pada na svega nekolik
 Razlikuju se od običnih računala po tome što često odrađuju samo jedan zadatak koji nije previše kompleksan.
 Zadatak u ovom radu koji obavlja ugradbeno računalo je čitanje podataka s raznih senzora i slanje istih na računalo korištenjem drugog ugradbenog
 računala kojem je jedini zadatak slanje podataka korištenjem Bluetooth protokola na računalo.
-Pravilna implementacija sustava s ugradbenim računalom omogućuje izradu baterijskih uređaja koji bez ikakve intervencije korisnika mogu raditi desetljećima. \cite{holosys}
+Pravilna implementacija sustava s ugradbenim računalom omogućuje izradu baterijskih uređaja koji bez ikakve intervencije korisnika mogu raditi desetljećima \cite{holosys}. 
 Glavni nedostatak je otežana izrada takvih sustava. Posebno važno kod izrade takvih sustava je smanjenje memorijske i vremenske složenosti.
 Dodatno, potrebno je obratiti pažnju na vrijeme koje ugradbeno računalo provodi u aktivnom stanju i smanjiti ga koliko god je moguće.
 Sve to zahtijeva od programera da bude pažljiv kod izrade svakog dijela sustava.
@@ -83,14 +83,14 @@ Sve to zahtijeva od programera da bude pažljiv kod izrade svakog dijela sustava
 
 \section{STM32}
 STM32 \cite{STM32L476JG} je ugradbeno računalo. U ovom radu STM32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
-Specifično korišten je STM32L476JG mikroupravljač.
+Specifično, korišten je STM32L476JG mikroupravljač.
 Glavne karakteristike STM32L476JG mikroupravljača su Arm Cortex M4 32-bitna jezgra koja ima takt od 80MHz-a.
-Također ima ugrađen jedan 1MB flash memorije i 128KB statičke RAM memorije.
+Također, ima ugrađen jedan megabajt flash memorije i 128KB statičke RAM memorije.
 Ima podršku za mnogo komunikacijskih protokola (u ovom radu od iznimne važnosti bio je SPI komunikacijski protokol.)
 Najvažnije od svega, iznimno niska energetska potrošnja.
 
 \section{Sensortile}
-Sensortile \cite{sensortile} je integrirana pločica na kojoj se nalazi STM32L4 mikrokontroler i nekoliko senzora. U ovom radu koristi se sensortile pločica kao fizičko okruženje za razvoj pouzdanog ugradbenog sustava.
+Sensortile \cite{sensortile} je integrirana pločica na kojoj se nalazi STM32L4 mikrokontroler i nekoliko senzora. U ovom radu koristi se Sensortile pločica kao fizičko okruženje za razvoj pouzdanog ugradbenog sustava.
  
 \begin{figure}[H]
 \includegraphics[scale=0.14]{tile_close.jpeg}
@@ -104,7 +104,7 @@ LSM6DSM \cite{LSM6DSM} je integrirani system-in-package koji sadrži 3-osni digi
 
 \subsection{LSM303AGR}
 LSM303AGR je integrirani system-in-package koji sadrži 3-osni digitalni akcelerometar i 3-osni magnetometar. Skala akcelerometra je podesiva na
-±2/±4/±8/±16g. Magnetometar senzor ima dinamički raspon do ±50 gausa. Koristi I\(^2\)C ili SPI sučelje za komunikaciju.
+±2/±4/±8/±16g. Magnetometarski senzor ima dinamički raspon do ±50 gausa. Koristi I\(^2\)C ili SPI sučelje za komunikaciju.
 
 \subsection{LPS22HB}
 LPS22HB je integrirani system-in-package koji sadrži digitalni barometar. Koristi I\(^2\)C ili SPI sučelje za komunikaciju.
@@ -116,37 +116,37 @@ MP34DT05-A je integrirani system-in-package koji sadrži digitalni mikrofon. Kor
 BlueNRG-MS \cite{BlueNrgMs} je integrirani system-in-package koji sadrži Cortex M0 ARM jezgru i mogučnost Bluetooth 4.1 komunikacije.
 Cijeli paket troši maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
 
-\subsubsection{Povezivanje BlueNRGa sa STM32L4 microkontrolerom}
+\subsubsection{Povezivanje BlueNRG-a sa STM32L4 microkontrolerom}
 BlueNRG je Bluetooth module koji se nalazi na Sensortile pločici. Komunicira s STM32L4 mikrokontrolerom pomoću SPI protokola.
 Svi razmijenjeni podaci između STM32L4 mikrokontrolera i BlurNRG modula koriste format prijenosa koji sadrži zaglavlje i tijelo poruke.
 Zaglavlje poruke označava koliko je okteta BlueNRG spreman primiti te koliko je okteta željan poslati. Tijelo poruke sadrži informacije definirane Bluetooth standardnom.
 Postoji pet signala koji povezuju Bluetooth module i STM32 mikrokontroler:
 
 \begin{itemize}
-  \item Odabir čipa (engl. Chip select CS) Mikrokontroler stavlja na logičku nulu da označi da BlueNRG smije komunicirati.
-  \item Takt (engl. Clock) Mikrokontroler odrađuje takt kojim će komunicirati
-  \item STM32 govori, BlueNRG sluša (engl. Master out, slave in)
-  \item BlueNRG govori, STM32 sluša (engl. Master in, slave out)
-  \item Podaci su spremni (engl. Data ready) BlueNRG označava da su dostupni podaci koje STM32 može pročitati.
+  \item Odabir čipa (engl. \textit{Chip select CS}) - mikrokontroler stavlja na logičku nulu da označi da BlueNRG smije komunicirati.
+  \item Takt (engl. \textit{Clock}) - mikrokontroler odrađuje takt kojim će komunicirati
+  \item STM32 govori, BlueNRG sluša (engl. \textit{Master out, slave in})
+  \item BlueNRG govori, STM32 sluša (engl. \textit{Master in, slave out})
+  \item Podaci su spremni (engl. \textit{Data ready}) - BlueNRG označava da su dostupni podaci koje STM32 može pročitati.
 \end{itemize}
 
 \subsection{Povezivanje s računalom}
 Kako bi ugradbeno računalo obavljalo koristan posao potrebno ga je prvo pripremiti za programiranje.
-U ovom radu ugradbeno računalo koje se programira je STM32L4, nalazi se na sensortile pločici (slika \ref{fig:plocab}.2, dalje Pločica A) koja je povezana s malo većom pločicom (slika \ref{fig:plocab}.1, dalje Pločica B.)
-Pločica A i B povezane su s nestandardnim konektorom koji pinove sa STM32L4 direktno prenosi na Pločica B.
+U ovom radu ugradbeno računalo koje se programira je STM32L4, nalazi se na Sensortile pločici (slika \ref{fig:plocab}.2, dalje Pločica A) koja je povezana s malo većom pločicom (slika \ref{fig:plocab}.1, dalje Pločica B.)
+Pločica A i B povezane su s nestandardnim konektorom koji pinove sa STM32L4 direktno prenosi na Pločicu B.
 Konektor se može vidjeti na slici \ref{fig:plocab}.5.
-Pločica B na sebi sadrži st link \cite{stlink} konektor koji služi za programiranje (slika \ref{fig:plocab}.4.)
+Pločica B na sebi sadrži ST Link \cite{stlink} priključak koji služi za programiranje (slika \ref{fig:plocab}.4.)
 Pločica B na sebi sadrži micro USB port koji služi isključivo za napajanje (slika \ref{fig:plocab}.3.)
 
 \begin{figure}[H]
 \includegraphics[scale=0.5]{PlocicaAiB.png}
 \centering
-\caption{Prikaz pločice A i B jedna pored druge \cite{gettingstartedsensor}}
+\caption{Prikaz Pločice A i B jedna pored druge \cite{gettingstartedsensor}}
 \label{fig:plocab}
 \end{figure}
 
 Pločica A i B nisu dovoljne za programiranje STM32L4 mikrokontrolera. Potrebna je dodatna pločica koja je u ulozi programatora (slika \ref{fig:prog}.) U ovom radu korišteno je fizičko razvojno okruženje NUCLEO-F439ZI koje je služilo samo za programiranje STM32L4 mikrokontrolera.
-(dalje pločica C.)
+(dalje Pločica C.)
 
 \begin{figure}[H]
   \includegraphics[scale=0.5]{connection_img.png}
@@ -154,18 +154,18 @@ Pločica A i B nisu dovoljne za programiranje STM32L4 mikrokontrolera. Potrebna 
   \caption{Povezivanje STM32L4 mikrokontrolera s računalom \cite{gettingstartedsensor}}
   \label{fig:prog}
   \begin{enumerate}
-    \item St link konektor na pločici C.
-    \item St link konektor na pločici B.
-    \item Ne standardni konektor koji povezuje pločicu A i B.
-    \item Usb konektor za napajanje pločice B.
-    \item Usb konektor za napajanje pločice C i programiranje STM32L4 mikrokontrolera preko 1, 2, 3.
+    \item ST Link priključak na Pločici C.
+    \item ST Link priključak na Pločici B.
+    \item Nestandardni priključak koji povezuje Pločicu A i B.
+    \item Usb priključak za napajanje Pločice B.
+    \item Usb priključak za napajanje Pločice C i programiranje STM32L4 mikrokontrolera preko 1, 2, 3.
   \end{enumerate}
 \end{figure}
 
 \newpage
 
-\section{Upravljanje događajima (engl. interrupts)}
-Cortex M procesori posjeduju specifičan način upravljanjem događaja. Događaji su veoma bitni kod stvaranja ugradbenih sustava zato što omogućuju energetski efikasan dizajn sustava.
+\section{Upravljanje događajima (engl. \textit{interrupts})}
+Cortex M procesori posjeduju specifičan način upravljanjem događaja. Događaji su veoma bitni prilikom stvaranja ugradbenih sustava zato što omogućuju energetski efikasan dizajn sustava.
 Umjesto aktivnog prozivanja od strane procesora \textit{nalazi li se što na nekoj sabirnici}, procesor može biti na hardverskoj razini obaviješten da je neka sabirnica promijenila stanje.
 Kad se dogodi neki događaj izvodi se sljedeća procedura:
 
@@ -199,35 +199,35 @@ Kad se dogodi neki događaj izvodi se sljedeća procedura:
 
 \chapter{Bluetooth}
 
-Bluetooth \cite{core41} je otvoren protokol koji definira bežični prijenos podataka na fizičkom sloju na sloju veze i mrežnom sloju.
-Postoje komunikacijski standardi koji zahtijevaju središnji uređaj na koji se povezuju svi ostali uređaji i kroz koji teče sva komunikacija između svakog para uređaja.
+Bluetooth \cite{core41} je otvoren protokol koji definira bežični prijenos podataka na fizičkom sloju, na sloju veze i na mrežnom sloju.
+Postoje komunikacijski standardi (npr. WiFi) koji zahtijevaju središnji uređaj na koji se povezuju svi ostali uređaji i kroz koji teče sva komunikacija između svakog para uređaja.
 Bluetooth standard je osmišljen na načina da se dva uređaja povezuju i komuniciraju direktno jedan s drugim, bez korištenja središnjeg uređaja.
 
 \section {Fizička Razina}
-Na fizičkoj razini Bluetooth protokol koristi Gausijansku binarnu digitalnu frekvencijsku modulaciju (engl. 2GFSK modulation) \cite{GBFSK}.
+Na fizičkoj razini Bluetooth protokol koristi Gausijansku binarnu digitalnu frekvencijsku modulaciju (engl. \textit{2GFSK modulation}) \cite{GBFSK}.
 GBFSK je diskretna modulacija s dva stanja (1 bit/simbol.)
-Za razliku na od ostalih diskretnih modulacija s više diskretnih područja, binarna digitalna modulacija otpornija je na šumove i zahtjeva manju snagu za prijenos jednog simbola.
+Za razliku od ostalih diskretnih modulacija s više diskretnih područja, binarna digitalna modulacija otpornija je na šumove i zahtjeva manju snagu za prijenos jednog simbola.
 WiFi 7 standard podržavat će digitalnu modulaciju s 4096 diskretnih stanja \cite{wifimax} (12 bita/simbol.)
 Cijena koju će novi WiFi standard platiti kompliciranijom modulacijom je smanjena otpornost na šum i kompliciranija izvedba uređaja.
-Cijana koju Bluetooth protokol plaća s jednostavnijom modulacijom je manja teoretska propusnost.
+Cijena koju Bluetooth protokol plaća s jednostavnijom modulacijom je manja teoretska propusnost.
 Teoretska propusnost Bluetooth 4.2 LE protokola je 1Mbit/s \cite{maxtrough} dok će WiFi 7 protokol podržavati teoretsku propusnost od 46 Gbit/s.
 Na podatkovnoj razini propusnost od 1Mbit/s s Bluetoothom 4.2 LE protokolom nije ostvariva zbog potreba sinkronizacije, enkripcije, konzistentnosti, pouzdanosti i proširivosti koje Bluetooth standard osigurava.
-Uzevši u obzir sve ne podatkovne informacije potrebne za ispravan rad Bluetooth protokola, maksimalna teoretska propusnost je 508kbit/s.
+Uzevši u obzir sve nepodatkovne informacije potrebne za ispravan rad Bluetooth protokola, maksimalna teoretska propusnost je 508kbit/s.
 U ovom radu s BlueNRG modulom maksimalna ostvarena propusnost je 25kbit/s.
 Autor rada pretpostavlja da je za efikasnost od samo 5\% kriva loša implementacija Bluetooth protokola na razini BlurNRG \textit{firmwarea}.
 Autor rada nema pristup izvornom kodu na toj razini pa ne može potvrditi tu pretpostavku.
 
-\section{Bluetooth GAP, GATT, L2CAP, HCI, ACI}
+\section{Bluetooth podsustavi}
 Bluetooth standard definira podsustave koje moraju implementirati svi uređaji koji podržavaju Bluetooth. Neki važniji su definirani u ovom odlomku.
 
-\subsubsection{GAP}
+\subsection{GAP}
 Bluetooth \textbf{G}eneric \textbf{A}ccess \textbf{P}rofile.
-Gap definira uloge (engl. roles) u Bluetooth standardu. Uloge koje postoje su oglašivač (engl. Advertizer), skener (engl. Scanner), sporedna (engl. Slave) i glavna (engl. Master). Oglašivačka i skener uloga vrše razmjenu informacija isključivo u smjeru od oglašivača do skenera. Isto tako, nije potrebno eksplicitno spajanje uređaja.
+GAP definira uloge (engl. \textit{roles}) u Bluetooth standardu. Uloge koje postoje su oglašivač (engl. \textit{Advertizer}), skener (engl. \textit{Scanner}), sporedna (engl. \textit{Slave}) i glavna (engl. \textit{Master}) uloga. Oglašivačka i skener uloga vrše razmjenu informacija isključivo u smjeru od oglašivača do skenera. Isto tako, nije potrebno eksplicitno spajanje uređaja.
 Više skenera može slušati jednog oglašivača.
 
-\subsubsection{GATT}
-Bluetooth \textbf{G}eneric \textbf{ATT}ribue Profile definira koji podaci postoje na pojedinim Bluetooth uređajima. Definira tako da svaki uređaj ima svoje servise koje su identificirani s jedinstvenim brojem (engl. UUID). UUID može biti veličine 16 okteta ili 2 okteta. Neki brojevi su rezervirani u Bluetooth standardu \cite{core41}.
-Dodatno GATT definira da svaki servis sadrži svoje karakteristične tokove (engl. characteristic stream) koji su isto tako identificirani jedinstvenim brojevima. Svaki karakteristični tok dodatno sadrži informaciju o tome što je li taj tok namijenjen za pisanje ili čitanje, može li se oglašavati na tom toku, veličinu podatka jednog elementa tog toka. Primjer definicije jednostavnog servisa koji definira bateriju nekog uređaja prikazan je na slici \ref{fig:gattexample}
+\subsection{GATT}
+Bluetooth \textbf{G}eneric \textbf{ATT}ribue Profile definira koji podaci postoje na pojedinim Bluetooth uređajima. Definira tako da svaki uređaj ima svoje servise koje su identificirani s jedinstvenim brojem (engl. \textit{UUID}). UUID može biti veličine 16 okteta ili 2 okteta. Neki brojevi su rezervirani u Bluetooth standardu \cite{core41}.
+Dodatno, GATT definira da svaki servis sadrži svoje karakteristične tokove (engl. \textit{characteristic stream}) koji su isto tako identificirani jedinstvenim brojevima. Svaki karakteristični tok dodatno sadrži informaciju o tome što li je taj tok namijenjen za pisanje ili čitanje, može li se oglašavati na tom toku, veličinu podatka jednog elementa tog toka. Primjer definicije jednostavnog servisa koji definira bateriju nekog uređaja prikazan je na slici \ref{fig:gattexample}
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{examplegatt_20230623_212042.png}
@@ -236,31 +236,33 @@ Dodatno GATT definira da svaki servis sadrži svoje karakteristične tokove (eng
 \label{fig:gattexample}
 \end{figure}
 
-U ovom radu nije korišten niti jedan standardni servis. Standardni servisi tek postaju korisni, ako korisnik želi izgraditi uređaj koji će biti prepoznat od strane svih ostalih uređaja.
+U ovom radu nije korišten niti jedan standardni servis, tj. korišten je servis kojeg je definirao autor rada. Standardni servisi tek postaju korisni ako korisnik želi izgraditi uređaj koji će biti prepoznat od strane svih ostalih uređaja.
 
-\subsubsection{L2CAP}
+\subsection{L2CAP}
 L2CAP je Bluetooth standard koji definira na koji način će dva Bluetooth uređaja razmjenjivati poruke na razini poveznice.
 
-\subsubsection{HCI}
+\subsection{HCI}
 \textbf{H}ost \textbf{C}ontroller \textbf{I}nterface je Bluetooth standard koji definira u kojem se formatu razmjenjuju podaci od računala/mikrokontrolera do Bluetooth modula.
 
-\subsubsection{ACI}
+\subsection{ACI}
 \textbf{A}pplication \textbf{C}ommand \textbf{I}nterface je standard kojeg definira tvrtka ST Microelectronics i koristi se kao sloj apstrakcije nad HCI slojem na STM32 mikrokontrolerima.
 
 
-\subsection {Razmjena podataka na između glavne i sporedne uloge}
-Glavna i sporedna uloga zahtijevaju eksplicitno povezivanje (engl. pairing) Nakon povezivanja moguće je razmjenjivati poruke. Poruke je moguće razmijeniti na nekoliko načina:
+\section {Razmjena podataka između glavne i sporedne uloge}
+Glavna i sporedna uloga zahtijevaju eksplicitno povezivanje (engl. \textit{pairing}.) Nakon povezivanja moguće je razmjenjivati poruke. Poruke je moguće razmijeniti na nekoliko načina:
 
 \begin{itemize}
-  \item Pisanje u karakteristični tok (engl. characteristic stream) i čitanje iz istog.
+  \item Pisanje u karakteristični tok (engl. \textit{characteristic stream}) i čitanje iz istog.
   \item Oglašavanje promjena u karakterističnom toku.
   \item Oglašavanje promjena u karakterističnom toku uz potvrdu o primitku oglasa.
 \end{itemize}
 
-Pisanje i čitanje iz karakterističnih tokova zahtijeva dodatnu logiku za osiguranje prijenosa svih poruka. Ovaj načina prijenosa radi na principu prozivanja. Klijent koji čita podatak i bez dodatne intervencije ne daje do znanja drugoj strani da je pročitao podatak.
+Pisanje i čitanje iz karakterističnih tokova zahtijeva dodatnu logiku za osiguranje prijenosa svih poruka. Ovaj način prijenosa radi na principu prozivanja.
+Klijent koji čita podatak, bez dodatne intervencije, ne daje do znanja drugoj strani da je pročitao podatak,
+ali uz dodatno programsko rješenje moguće je dati do znanja drugoj strani da je poruka pročitana.
 
-\subsection {Oglašavanje promjena}
-Razmjena poruka može se ostvariti oglašavanjem poruka. Oglašavanje poruka ostvaruje se tako da prilikom povezivanja uređaji sinkroniziraju satove i u točno određenim trenucima razmjene izmijenjene poruke. Dodatno protokol bez intervencije korisnika koristi dvosmjernu komunikaciju za osiguravanje prijenosa poruke. Time se osigurava da će poruka biti isporučena. Dodatno, bez intervencije korisnika, na svaku poruku dodaje se CRC čime se osigurava točnost poruke.
+\section {Oglašavanje promjena}
+Razmjena poruka može se ostvariti oglašavanjem poruka. Oglašavanje poruka ostvaruje se tako da prilikom povezivanja uređaji sinkroniziraju satove i u točno određenim trenucima razmjene izmijenjene poruke. Dodatno, protokol bez intervencije korisnika koristi dvosmjernu komunikaciju za osiguravanje prijenosa poruke. Time se osigurava da će poruka biti isporučena. Dodatno, bez intervencije korisnika, na svaku poruku dodaje se CRC čime se osigurava točnost poruke.
 
 \chapter{Programsko rješenje}
 U sklopu ovog rada izgrađeno je programsko rješenje koje se sastoji od djela koji se pokreće na STM32L4 mikrokontroleru i djela koji se pokreće na računalu s Linux operacijskim sustavom.
@@ -270,30 +272,30 @@ U realnom vremenu računalo grafički iscrtava iste te podatke.
 \section{Programsko rješenje za STM32L4 mikrokontroler}
 Programsko rješenje za STM32L4 mikrokontroler pisano je u programskom jeziku C.
 Na visokoj razini rješenje inicijalizira komunikacijske kanale prema senzorima i prema BlueNRG modulu.
-Nakon toga pokreče se inicijalizira postavki na BlueNRG modulu i BlueNRG se povezuje s računalom.
+Nakon toga pokreče se inicijalizacija postavki na BlueNRG modulu i BlueNRG se povezuje s računalom.
 Nakon povezivanja počinju se očitavati vrijednosti senzora i isti podaci se prosljeđuju povezanom računalu.
 
 U ovom radu postoje tri stanja u kojima se može nalaziti BlueNRG:
 
 \begin{itemize}
-  \item Ne inicijaliziran
-  \item Inicijaliziran
+  \item Neinicijalizirano
+  \item Inicijalizirano
   \item Povezano
 \end{itemize}
 
-\subsection{Ne inicijalizirano stanje BlueNRG-a}
-Prilikom svakog ponovnog pokretanja, BlueNRG module se nalazi u \textbf{ne inicijaliziranom} stanju. Sve interne vrijednosti postavljene su na inicijalne vrijednosti. Za ispravan rad BlueNRG modula potrebno je promijeniti neke vrijednosti. U ovom radu BlueNRG je u glavnoj ulozi. Postupak postavljanje BlueNRGa u glavnu ulogu u ovom radu izvršavaju se koraci opisani u kodovima od \ref{firstinit} do \ref{lastinit}.
+\subsection{Neinicijalizirano stanje BlueNRG-a}
+Prilikom svakog ponovnog pokretanja, BlueNRG module se nalazi u \textbf{neinicijaliziranom} stanju. Sve interne vrijednosti postavljene su na inicijalne vrijednosti. Za ispravan rad BlueNRG modula potrebno je promijeniti neke vrijednosti. U ovom radu BlueNRG je u glavnoj ulozi. Postupak postavljanja BlueNRGa u glavnu ulogu u ovom radu izvršavaju se koraci opisani u kodovima od \ref{firstinit} do \ref{lastinit}.
 
 \begin{lstlisting}[caption={Postavi MAC adresu}, label={firstinit}]
 aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET,
   CONFIG_DATA_PUBADDR_LEN, bdaddr);
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Inicijaliziraj gatt podsustav}]
+\begin{lstlisting}[caption={Inicijaliziraj GATT podsustav}]
 aci_gatt_init();
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Inicijaliziraj gap podsustav}]
+\begin{lstlisting}[caption={Inicijaliziraj GAP podsustav}]
 aci_gap_init_IDB05A1(GAP_PERIPHERAL_ROLE_IDB05A1, privary_enabled, device_name_len, &service_handle, &dev_name_char_handle, &appearance_char_handle);
 \end{lstlisting}
 
@@ -340,12 +342,12 @@ aci_gatt_add_char(serviceHandle,
 aci_hal_set_tx_power_level(1, 7);
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Postavi odgovor na poruku otkrivanja (engl. discover message)}]
+\begin{lstlisting}[caption={Postavi odgovor na poruku otkrivanja (engl. \textit{discover message})}]
 // Ne odgovaraj
 hci_le_set_scan_resp_data(0, NULL);
 \end{lstlisting}
 
-\begin{lstlisting}[caption={Postavi stanje BlueNRGa u stanje u povezivo stanje}, label={lastinit}]
+\begin{lstlisting}[caption={Postavi stanje BlueNRG-a u stanje u povezivo stanje}, label={lastinit}]
 aci_gap_set_discoverable(
   ADV_DATA_TYPE,     // uint8_t AdvType,
   ADV_INTERV_MIN,    // uint16_t AdvIntervMin,
@@ -364,11 +366,11 @@ aci_gap_set_discoverable(
 
 Nakon uspješnog izvršavanja navedenog postupka, BlueNRG prelazi u \textbf{inicijalizirano} stanje.
 
-\subsection{Inicijalizirano stanje BlueNRGa}
+\subsection{Inicijalizirano stanje BlueNRG-a}
 U \textbf{inicijaliziranom} stanju nema komunikacije između BlueNRG i STM32 mikrokontrolera sve dok se BlueNRG ne poveže s nekim Bluetooth poduređajem. Nakon što se BlueNRG poveže s Bluetooth poduređajem, BlueNRG generira događaj kojim obavještava STM32 mikrokontroler da se stanje može postaviti u \textbf{povezano}.
 
-\subsection{Povezano stanje BlueNRGa}
-Nakon povezivanja bez eksplicitnog zahtjeva, razmjene se poruke između BlueNRGa i Bluetooth poduređaja koji je na njega povezan. Specifično razmjenju se poruke o maksimalnoj veličini poruke (engl. MTU), način enkripcije, definicija servisa i karakterističnih tokova. Nakon razmjene tih poruka. STM32 mikrokontroler može početi slati poruke s mjernim podacima. Procedura slanja u ovom radu je definirana na sljedeći način:
+\subsection{Povezano stanje BlueNRG-a}
+Nakon povezivanja, bez eksplicitnog zahtjeva, razmjene se poruke između BlueNRG-a i Bluetooth poduređaja koji je na njega povezan. Specifično, razmjenju se poruke o maksimalnoj veličini poruke (engl. \textit{MTU}), način enkripcije, definicija servisa i karakterističnih tokova. Nakon razmjene tih poruka, STM32 mikrokontroler može početi slati poruke s mjernim podacima. Procedura slanja u ovom radu je definirana na sljedeći način:
 
 \begin{enumerate}
   \item Odredi koji će se karakteristični tok sljedeći slati
@@ -391,7 +393,7 @@ int blue_send_next(blue_char_collection_t* coll, int len) {
   return -1;
 }
 \end{lstlisting}
-  \item Čekaj odgovor BlueNRGa je li poruka uspješno poslana.
+  \item Čekaj odgovor BlueNRG-a je li poruka uspješno poslana.
     \begin{enumerate}
       \item Ako je uspješno poslana, vrati se na korak 1.
       \item Ako nije uspješno poslana, pošalji istu poruku ponovno i vrati se na korak 2.
@@ -401,7 +403,7 @@ int blue_send_next(blue_char_collection_t* coll, int len) {
 
 \subsection{Performanse BlueNRG modula}
 
-Mjerenje propusnosti BlueNRG modula mjereno je korištenjem programa Wireshark \cite{wireshark}. Nakon povezivanja, wireshark prikuplja dolazne podatke 100 sekundi te su nakon toga izbrojene poruke. U tablici \ref{perftable} nalaze se mjerenja koja su izvršena. Na slici \ref{fig:wireshark} prikazao je jedno mjerenje.
+Mjerenje propusnosti BlueNRG modula mjereno je korištenjem programa Wireshark \cite{wireshark}. Nakon povezivanja, Wireshark prikuplja dolazne podatke 100 sekundi te su nakon toga izbrojene poruke. U tablici \ref{perftable} nalaze se mjerenja koja su izvršena. Na slici \ref{fig:wireshark} prikazano je jedno mjerenje.
 
 \begin{table}[H]
   \begin{center}
@@ -429,13 +431,12 @@ Mjerenje propusnosti BlueNRG modula mjereno je korištenjem programa Wireshark \
 \label{fig:wireshark}
 \end{figure}
 
-U ovom radu testirano je nekoliko konfiguracija veličina paketa i broja tokova. Ukupna propusnost ne mijenja se značajno dodavanjem dodatnih tokova. Maksimalno kašnjenje nije mjereno, no pretpostavka je da nije veća od intervala spajanja (engl. connection interval.) Interval spajanja definira Bluetooth poduređaj. U ovom radu bio je pet milisekundi.
-
+U ovom radu testirano je nekoliko konfiguracija veličina paketa i broja tokova. Ukupna propusnost ne mijenja se značajno dodavanjem dodatnih tokova. Maksimalno kašnjenje nije mjereno, no pretpostavka je da nije veća od intervala spajanja (engl. \textit{connection interval}.) Interval spajanja definira Bluetooth poduređaj. U ovom radu bio je pet milisekundi.
 
 \subsection{Ugradbeni program na Mikrokontroleru}
-Ugradbeni program (engl. firmware) za mikrokontroler pisan je u programskim jezicima C i C++. Pisan je na načina da se sva komunikacija s Bluetooth BlueNRG modulom izvršava unutar događaja (engl. interrupt). Nije korišten operativni sustav. Čitanje podataka sa senzora odvija u glavnoj petlji programa. Postoji \textbf{struktura koja ima oblik reda} (engl. FIFO) struktura koja osigurava da se čitanje novih podatak sa senzora može odvijati neovisno o slanju istih Bluetoothom. Ista struktura opisana je kodom \ref{codefifo}.
+Ugradbeni program (engl. \textit{firmware}) za mikrokontroler pisan je u programskim jezicima C i C++. Pisan je na način da se sva komunikacija s Bluetooth BlueNRG modulom izvršava unutar događaja (engl. \textit{interrupt}). Nije korišten operativni sustav. Čitanje podataka sa senzora odvija se u glavnoj petlji programa. Postoji \textbf{struktura koja ima oblik reda} (engl. \textit{FIFO}) koja osigurava da se čitanje novih podatak sa senzora može odvijati neovisno o slanju istih Bluetoothom. Ista struktura opisana je kodom \ref{codefifo}.
 
-\begin{lstlisting}[language=c++, caption={FIFO struktura koja omogućuje neovisan dohvat novih podataka i slanje najstarijih}, label={codefifo}]
+\begin{lstlisting}[language=c++, caption={\textit{FIFO} struktura koja omogućuje neovisan dohvat novih podataka i slanje najstarijih}, label={codefifo}]
 template<class T, size_t buffSize>
 struct CircBuffer {
   T& push(T el) {
@@ -461,7 +462,12 @@ struct CircBuffer {
 \end{lstlisting}
 
 \subsubsection{Podatkovni protokol}
-Sva podatkovna komunikacija se odvija od smjera mikrokontrolera do računalne aplikacije. Koristi se više karakterističnih tokova (engl. characteristic stream), svaki koristi način komunikacije s obavijestima, svaki obavještava s točno 20 podatkovnih okteta, svaki šalje točno dvije vrste poruka. Jednom u tri sekunde kroz svaki tok šalje se kontrolna poruka, a ostatak vremena šalje se podatkovna poruke. N-ti oktet kontrolne poruke sadrži vrijednost \textbf{(N \% 2) * 0xFF}, to jest prvi oktet ima vrijednost \textbf{0x00}, drugi \textbf{0xFF}, treći \textbf{0x00}, itd. Svaki oktet kontrolne poruke ima tako definiranu vrijednost osim zadnja tri okteta. Zadnja tri okteta kontrolne poruke opisuju strukturu podatkovnih poruka na način koji je definiran sljedećom tablicom.
+Sva podatkovna komunikacija se odvija od smjera mikrokontrolera do računalne aplikacije.
+Koristi se više karakterističnih tokova (engl. \textit{characteristic stream}), svaki koristi način komunikacije s obavijestima, svaki obavještava s točno 20 podatkovnih okteta, svaki šalje točno dvije vrste poruka.
+Jednom u tri sekunde kroz svaki tok šalje se kontrolna poruka, a ostatak vremena šalje se korisna poruke.
+N-ti oktet kontrolne poruke sadrži vrijednost \textbf{(N \% 2) * 0xFF}, to jest prvi oktet ima vrijednost \textbf{0x00}, drugi \textbf{0xFF}, treći \textbf{0x00}, itd.
+Svaki oktet kontrolne poruke ima tako definiranu vrijednost osim zadnja tri okteta.
+Zadnja tri okteta kontrolne poruke opisuju strukturu korisnih poruka kao što je definiran tablicom \ref{datatable}.
 
 \begin{table}[H]
   \begin{center}
@@ -479,7 +485,8 @@ Sva podatkovna komunikacija se odvija od smjera mikrokontrolera do računalne ap
       0b1111 & jedan float32 \\
       \hline
     \end{tabular}
-  \caption{Značenje svake polovice okteta zadnjih tri okteta kontrolne poruke}
+  \caption{Značenje svakog kvarteta zadnjih šest kvarteta kontrolne poruke}
+  \label{datatable}
   \end{center}
 \end{table}
 
@@ -546,11 +553,11 @@ Za testiranje pouzdanosti i kvalitete prijenosa preko Bluetootha potrebno je sof
   \end{center}
 \end{table}
 
-\subsubsection{Aplikacija}
-Sama aplikacija na strani računala podijeljena je na dva djela. Prvi dio pisan je u programskom jeziku Python. Jezgra prvog djela je preuzeta od poznate Python biblioteke \textit{ble-serial} \cite{ble-serial}. Svrha prvog djela je spajanje Bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mijenja uređaj. Dodatno prvi dio aplikacije prosljeđuje eksplicitno definirane podatke drugom djelu aplikacije preko UDP protokola \cite{firstPart}. Drugi dio aplikacije prikuplja podatke od prvog djela i iste podatke grafički iscrtava \cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik Python omogućuje izrazito jednostavnu komunikaciju korištenjem Bluetooth protokola.
+\subsection{Aplikacija za računalo}
+Sama aplikacija na strani računala podijeljena je na dva djela. Dio aplikacije za popvezivanje Bluetoothom pisan je u programskom jeziku Python. Jezgra prvog djela je preuzeta od poznate Python biblioteke \textit{ble-serial} \cite{ble-serial}. Svrha prvog djela je spajanje Bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mijenja uređaj. Dodatno, dio aplikacije za povezivanje Bluetoothom prosljeđuje eksplicitno definirane podatke drugom djelu aplikacije preko UDP protokola \cite{firstPart}. Dio aplikacije za prikaz podataka prikuplja podatke od dijela aplikacije za povezivanje Bluetoothom i iste podatke grafički iscrtava \cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik Python omogućuje izrazito jednostavnu komunikaciju korištenjem Bluetooth protokola.
 
-\subsubsection{Prvi dio aplikacije}
-Prvi dio aplikacije napravljen je vrlo jednostavno. Kreira se UDP socket kao što je prikazano u kodu \ref{pyudpsock}. Pošalje se zahtjev preko dbus sustava da se Bluetoothom želi povezati s mikrokontrolerom kao što je prikazano u kodu \ref{pyconnect}. Nakon toga se pretplati na sve obavijesti sa svih servisa i karakterističnih tokova na mikrokontroleru kao što je prikazanu u kodu \ref{pysubscribe}. Prilikom svake obavijesti, izvršava se funkcija koja prosljeđuje dobivene podatke drugom dijelu aplikacije (kod \ref{relay}).
+\subsubsection{Dio aplikacije za povezivanje Bluetoothom}
+Dio aplikacije za povezivanje Bluetoothom napravljen je vrlo jednostavno. Kreira se UDP socket kao što je prikazano u kodu \ref{pyudpsock}. Pošalje se zahtjev preko dbus sustava da se Bluetoothom želi povezati s mikrokontrolerom kao što je prikazano u kodu \ref{pyconnect}. Nakon toga se pretplati na sve obavijesti sa svih servisa i karakterističnih tokova na mikrokontroleru kao što je prikazanu u kodu \ref{pysubscribe}. Prilikom svake obavijesti, izvršava se funkcija koja prosljeđuje dobivene podatke drugom dijelu aplikacije (kod \ref{relay}).
 
 \begin{lstlisting}[language=python, caption={Kreiranje UDP socketa u Pythonu}, label={pyudpsock}]
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -580,31 +587,31 @@ def receive_callback(handle: BleakGATTCharacteristic, value: bytes):
         d = p.pop_data()
 \end{lstlisting}
 
-\subsubsection{Drugi dio aplikacije}
-Drugi dio aplikacije nije povezan s Bluetoothom. Rađen je jer je bilo potrebno validirati na neki način dobivene podatke. Grafički prikaz podataka taj zadatak drastično olakšava. Slika \ref{fig:graph} prikazuje stanje drugog dijela aplikacije nakon nekoliko sekundi od početka prikupljanja podataka. 
+\subsubsection{Dio aplikacije za prikaz podataka}
+Dio aplikacije za prikaz podataka nije povezan Bluetoothom. Rađen je jer je bilo potrebno validirati dobivene podatke. Grafički prikaz podataka taj zadatak drastično olakšava. Slika \ref{fig:graph} prikazuje stanje dijela aplikacije za prikaz podataka nakon nekoliko sekundi od početka prikupljanja podataka. 
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{rlplot_allsensors_20230623_120537.png}
 \centering
-\caption{Prikaz drugog dijela aplikacije koja iscrtava vrijednosti senzora u realnom vremenu}
+\caption{Prikaz dijela aplikacije za prikaz podataka koja iscrtava vrijednosti senzora u realnom vremenu}
 \label{fig:graph}
 \end{figure}
 
 Rad cijelog sustava prikazan je u videu na adresi \url{https://youtu.be/AVqU0vSDVG8} \cite{videodemo}.
 
-Izvorni kod programa za mikrokontroler, prvog i drugog dijela aplikacije, dokumentacija i sve ostale skripte dostupne su u git repozitoriju na adresi \ \url{https://github.com/branc116/diplomski}.
+Izvorni kod programa za mikrokontroler, dio aplikacije za komunikacijom Bluetooth protokolom, aplikacija za prikaz podataka, dokumentacija i sve ostale skripte dostupne su u git repozitoriju na adresi \ \url{https://github.com/branc116/diplomski}.
 
 \newpage
 
 \chapter{Razvojno okruženje}
-U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. FLOSS \cite{FLOSS}). Integrirana okruženja poput STM32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja tvrtka čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga tvrtka \cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem specifično STM32CUBE integriranog okruženjem je generiran kod koji nije zadovoljavajući. Naime, STM32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijoj čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
+U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. \textit{FLOSS} \cite{FLOSS}). Integrirana okruženja poput STM32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja tvrtka čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga tvrtka \cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem, specifično STM32CUBE integriranog okruženjem, je generiran kod koji nije zadovoljavajući. Naime, STM32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
 
 \lstinputlisting[caption={Primjer generiranog koda kojeg generira STM32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]{shitcode.c}
 
-Svrha navedenog generiranog isječka koda je čitanje jednog okteta koji označava ime SPI poduređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog okteta. Također prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi izvršava se i kod svakog drugog poziva prema SPI poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
+Svrha navedenog generiranog isječka koda je čitanje jednog okteta koji označava ime SPI poduređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog okteta. Također, prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi izvršava se i kod svakog drugog poziva prema SPI poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
 
 \subsubsection{cmake}
-Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugradbenog program (engl. firmware.) Cmake olakšava definiranje ovisnosti između jedinica prevođenja (engl. compilation units.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica u različitim jedinicama prevođenja.
+Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugradbenog program (engl. \textit{firmware}.) Cmake olakšava definiranje ovisnosti između jedinica prevođenja (engl. \textit{compilation units}.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica (engl. \textit{compilation flags}) u različitim jedinicama prevođenja.
 
 \subsubsection{make}
 GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju, ne više od, pet \textbf{shell} naredbi koje se moraju izvršiti za gradnju neke komponente sustava. Primjer make recepta koji gradi ovu dokumentaciju pokretanjem \LaTeX \cite{ungar2002uvod} naredbi prikazan je u kodu \ref{lst:make}. Recept se čita ovako: \textit{Za izgradnju pdf-a potreban je tex file. Ako je tex datoteka novija od pdf datoteke pokreni naredbe koje su ispod.} GNU make je besplatan alat s otvorenim izvornim kodom.
@@ -621,7 +628,16 @@ OpenOCD \cite{openocd} je program koji se koristi za prebacivanje izvršne datot
 GNU GDB \cite{gdb} je program koji pomaže programeru otkriti greške u kodu. GDB je besplatan alat s otvorenim izvornim kodom.
 
 \subsubsection{GCC Arm}
-GCC Arm \cite{armgcc} je alat koji pomaže programeru pretvoriti izvorni kod pisan u C programskom jeziku u binarni format kojeg je u konačnici moguće pokrenuti na mikrokontrolerima s ARM procesorom. Ustvari ovo je samo druga verzija(engl. fork) GCC \cite{gcc} programa, verzija koja je specijalizirana za ARM procesore.
+GCC Arm \cite{armgcc} je alat koji pomaže programeru pretvoriti izvorni kod pisan u C programskom jeziku u binarni format kojeg je u konačnici moguće pokrenuti na mikrokontrolerima s ARM procesorom. Ustvari ovo je samo druga verzija(engl. \textit{fork}) GCC \cite{gcc} programa, verzija koja je specijalizirana za ARM procesore.
+
+\subsubsection{Upute za pokretanje}
+Za izgranju i pokretanje sustava opisanog u ovom radu potrebo je slijediti sljedeće uputu:
+
+\begin{itemize}
+  \item Preuzeti izvorni kod sa stranice \url{https://github.com/branc116/diplomski}
+  \item Pokrenuti gradnju izvršne datoteke naredbom \textit{make}
+  \item Slanje izvršne datoteke na STM32L4 mikroupravljač
+\end{itemize}
 
 \chapter{Zaključak}
 Stvaranje pouzdanog sustava zahtijeva poznavanje svake komponente sustava.
