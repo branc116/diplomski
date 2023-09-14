@@ -44,7 +44,7 @@ typedef struct {
 
 #define BLUE_EVENTS_CAPACITY 32
 #define BLUE_CHAN_SIZE 20
-#define BLUE_NUMBER_OF_CHAR_STREAMS 1
+#define BLUE_NUMBER_OF_CHAR_STREAMS 2
 
 typedef struct {
   int waiting_for_confirm;

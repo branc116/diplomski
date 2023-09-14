@@ -47,20 +47,101 @@ struct SpiCs {
   uint32_t pin;
 };
 
- struct [[gnu::packed]]  GyroReadout {
+template<typename TSelf>
+struct BaseBLEChar : public TSelf {
+  //    NODATA  = 0
+  //    USHORT  = 4
+  //    SSHORT  = 6
+  //    USHORT2 = 8
+  //    SSHORT2 = 10
+  //    ULONG   = 12
+  //    SLONG   = 14
+  //    SFLOAT   = 15
+  void fill_controll(uint8_t* buff) {
+    static_assert(sizeof(TSelf) <= 20);
+    for (int i = 0; i < 17; ++i) {
+      buff[i] = (i % 2) * 0xFF;
+    }
+    this->fill_meta_data(buff);
+  }
+  bool send_next(uint8_t* buff) {
+    if (send_next_controll < uwTick) {
+      fill_controll(buff);
+      return true;
+    }
+    if (this->has_next()) {
+      this->next();
+      memcpy(buff, (TSelf*)this, sizeof(TSelf));
+      return true;
+    }
+    return false;
+  }
+  void confirm() {
+    if (send_next_controll < uwTick) send_next_controll = uwTick + 3000;
+    else this->confirm_data();
+  }
+  bool is_empty() {
+    return this->has_next() || send_next_controll < uwTick;
+  }
+  uint32_t send_next_controll;
+};
+
+struct [[gnu::packed]] GyroReadout  {
   uint16_t temperature;
   int16_t acceleration[3];
   int16_t angular[3];
 };
 
-struct [[gnu::packed]]  GyroReadoutBLE {
+struct [[gnu::packed]] GyroReadoutBLE {
+  static CircBuffer<GyroReadoutBLE, 16> circ_buff;
+  void fill_meta_data(uint8_t* buff) {
+    buff[17] = 0x4A; //ui16, 2*i16
+    buff[18] = 0xAA; //4*i16
+    buff[19] = 0x4C; //ui16, i32
+  }
+  void next() {
+    *this = circ_buff.peek();
+  }
+  bool has_next() { return circ_buff.len > 0; }
+  void confirm_data() {
+    circ_buff.pop();
+  }
   GyroReadout ro;
   uint16_t index;
   uint32_t timestamp;
 };
 
-static_assert(sizeof(GyroReadout) == 14U, "GyroReadout must be of size 14");
-static_assert(sizeof(GyroReadoutBLE) == 20U, "GyroReadoutBLE must be of size 20");
+CircBuffer<GyroReadoutBLE, 16> GyroReadoutBLE::circ_buff;
+
+using Send_GyroReadoutBLE = BaseBLEChar<GyroReadoutBLE>;
+
+struct [[gnu::packed]] BlueMetaData {
+  void fill_meta_data(uint8_t* buff) {
+    // 7*uint16_t, uint32_t
+    buff[17] = 0x88; //ui16, 2*i16
+    buff[18] = 0x84; //4*i16
+    buff[19] = 0xC0;
+  }
+  bool has_next() { return true; }
+  void next() {
+    changed_attrs_count = blue_state.changed_attrs_count;
+    gat_notification_cb_count = blue_state.gat_notification_cb_count;
+    number_of_resets = blue_state.number_of_resets;
+    number_of_attempts_to_read_data = blue_state.number_of_attempts_to_read_data;
+    blue_number_of_times_in_interupt = blue_state.blue_number_of_times_in_interupt;
+    number_of_send_attempts = blue_state.number_of_send_attempts;
+    number_of_unsuccessfull_sends = blue_state.number_of_unsuccessfull_sends;
+    timestamp = uwTick;
+  }
+  void confirm_data() {}
+  uint16_t changed_attrs_count, gat_notification_cb_count;
+  uint16_t number_of_resets, number_of_attempts_to_read_data;
+  uint16_t blue_number_of_times_in_interupt;
+  uint16_t number_of_send_attempts, number_of_unsuccessfull_sends;
+  uint32_t timestamp;
+};
+
+using Send_BlueMetaData = BaseBLEChar<BlueMetaData>;
 
 class Lsm6dsm {
   public:
@@ -84,11 +165,11 @@ class Lsm6dsm {
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_IF_INC_MASK, LSM6DSM_ACC_GYRO_IF_INC_ENABLED);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL3_C, LSM6DSM_ACC_GYRO_BDU_MASK, LSM6DSM_ACC_GYRO_BDU_BLOCK_UPDATE);
       res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_FIFO_MODE_MASK, LSM6DSM_ACC_GYRO_FIFO_MODE_DYN_STREAM_2);
-      res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_ODR_FIFO_MASK, LSM6DSM_ACC_GYRO_ODR_FIFO_200Hz);
+      res += bang_reg(LSM6DSM_ACC_GYRO_FIFO_CTRL5, LSM6DSM_ACC_GYRO_ODR_FIFO_MASK, LSM6DSM_ACC_GYRO_ODR_FIFO_13300Hz);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_FS_G_MASK, LSM6DSM_ACC_GYRO_FS_G_2000dps);
-      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_ODR_G_104Hz);
+      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL2_G, LSM6DSM_ACC_GYRO_ODR_G_MASK, LSM6DSM_ACC_GYRO_ODR_G_6660Hz);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL1_XL, LSM6DSM_ACC_GYRO_FS_XL_MASK, LSM6DSM_ACC_GYRO_FS_XL_8g);
-      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL1_XL, LSM6DSM_ACC_GYRO_ODR_XL_MASK, LSM6DSM_ACC_GYRO_ODR_XL_104Hz);
+      res += bang_reg(LSM6DSM_ACC_GYRO_CTRL1_XL, LSM6DSM_ACC_GYRO_ODR_XL_MASK, LSM6DSM_ACC_GYRO_ODR_XL_6660Hz);
       res += bang_reg(LSM6DSM_ACC_GYRO_CTRL4_C, LSM6DSM_ACC_GYRO_I2C_DISABLE_MASK, LSM6DSM_ACC_GYRO_I2C_DISABLE_SPI_ONLY);
       return res;
     }
@@ -259,58 +340,37 @@ class Lsm6dsm {
     GPIO_TypeDef* gpioPort{};
     uint16_t index = 0;
 };
-
-CircBuffer<GyroReadoutBLE, 16> circ_buff;
 uint32_t last_sent_controll = 0;
 
-static void fill_controll_message(uint8_t* buff) {
-  for (int i = 0; i < 17; ++i) {
-    buff[i] = (i % 2) * 0xFF;
-  }
-  // uint16_t, 6*int16_t, uint16_t, uint32_t
-//    NODATA  = 0
-//    USHORT  = 4
-//    SSHORT  = 6
-//    USHORT2 = 8
-//    SSHORT2 = 10
-//    ULONG   = 12
-//    SLONG   = 14
-//    SFLOAT   = 15
-  buff[17] = 0x4A; //ui16, 2*i16
-  buff[18] = 0xAA; //4*i16
-  buff[19] = 0x4C;
-}
+Send_BlueMetaData send_ble;
+Send_GyroReadoutBLE send_ro;
+#define CHAR_LIST(X) X(send_ble, 0) \
+  X(send_ro, 1)
 
 extern "C" bool fill(int char_id, uint8_t* buff) {
-  if (char_id == 0) {
-    if (last_sent_controll < uwTick) {
-      fill_controll_message(buff);
-      return true;
-    }
-    if (circ_buff.len == 0) return false;
-    auto& a = circ_buff.peek();
-    memcpy(buff, &a, sizeof(a));
-    return true;
-  }else {
-    return false;
+#define X(name, id) case id: return name.send_next(buff);
+  switch (char_id) {
+    CHAR_LIST(X)
+    default: return false;
   }
+#undef X
 }
 
 extern "C" void confirm_sent(int char_id) {
   if (char_id == 0) {
-    if (last_sent_controll < uwTick)  {
-      // Send controll message every 3 seconds;
-      last_sent_controll = uwTick + 3000;
-    }
-    circ_buff.pop();
+    send_ro.confirm();
+  } else if (char_id == 1) {
+    send_ble.confirm();
   }
 }
 
 extern "C" bool is_empty(int char_id) {
   if (char_id == 0) {
-    return circ_buff.len == 0 && last_sent_controll >= uwTick;
-  }else {
-    return false;
+    return send_ro.is_empty();
+  } else if (char_id == 1) {
+    return send_ble.is_empty();
+  } else {
+    return true;
   }
 }
 
@@ -332,7 +392,7 @@ static int entry(void) {
         t = (int)uwTick;
       }
       if (t2 < (int)uwTick) {
-        circ_buff.push(l.get_readout());
+        GyroReadoutBLE::circ_buff.push(l.get_readout());
         t2 = uwTick + 10;
       }
     }
