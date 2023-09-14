@@ -214,8 +214,8 @@ Teoretska propusnost Bluetooth 4.2 LE protokola je 1Mbit/s \cite{maxtrough} dok 
 Na podatkovnoj razini propusnost od 1Mbit/s s Bluetoothom 4.2 LE protokolom nije ostvariva zbog potreba sinkronizacije, enkripcije, konzistentnosti, pouzdanosti i proširivosti koje Bluetooth standard osigurava.
 Uzevši u obzir sve nepodatkovne informacije potrebne za ispravan rad Bluetooth protokola, maksimalna teoretska propusnost je 508kbit/s.
 U ovom radu s BlueNRG modulom maksimalna ostvarena propusnost je 25kbit/s.
-Autor rada pretpostavlja da je za efikasnost od samo 5\% kriva loša implementacija Bluetooth protokola na razini BlurNRG \textit{firmwarea}.
-Autor rada nema pristup izvornom kodu na toj razini pa ne može potvrditi tu pretpostavku.
+Bluetooth modul BlueNRG implementira Bluetooth standard 4.1 koji ne podržava proširenje maksimalne jedinice prijenosa (engl. \textit{MTU}) na više od 20 okteta, dodatno interval povezvanja (engl. \textit{connection interval}) nije moguće smanjiti na vrijednost manju od 7.5 milisekunda i maksimalno je moguće poslati dvije prijenosne jedinice u jednom intervalu povezivanja.
+Uzevši sve to u obzir, teoretska maksimalna propusnost BlueNRG modula je 42kbit/s.
 
 \section{Bluetooth podsustavi}
 Bluetooth standard definira podsustave koje moraju implementirati svi uređaji koji podržavaju Bluetooth. Neki važniji su definirani u ovom odlomku.
