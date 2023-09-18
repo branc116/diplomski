@@ -46,19 +46,21 @@ int blue_send_next(blue_char_collection_t* coll) {
   return -1;
 }
 
+void InfLoop(void);
+
 int blue_send_char_stream(blue_char_stream_t* state, int char_index)
 {
   static uint8_t buff[20];
   memset(buff, 0, 20);
   ++state->sent_attempts;
-  fill(char_index, buff);
+  if (!fill(char_index, buff)) InfLoop();
   int s = aci_gatt_update_char_value(state->serv_handle, state->char_handle, 0, 20, buff);
-  state->send_ticks = uwTick + 3;
+  state->send_ticks = uwTick + 1;
   return s;
 }
 
 void initialize_blue_char_collection(blue_char_collection_t* coll) {
-  for (int j = 0; j < BLUE_NUMBER_OF_CHAR_STREAMS; ++j) {
+  for (uint8_t j = 0; j < BLUE_NUMBER_OF_CHAR_STREAMS; ++j) {
     coll->char_streams[j].char_uuid[0] = 0x66 + j;
     coll->char_streams[j].char_uuid[1] = 0x9a + j;
     coll->char_streams[j].char_size = 20;
@@ -138,10 +140,9 @@ static void user_notify_begin(blue_state_t* state, uint8_t evt, evt_cmd_complete
       {
         gatt_add_serv_rp* resp = (gatt_add_serv_rp*)cc->res;
         if (resp->status) InfLoop();
-        int cur = state->chars.initialized_streams;
+        int cur = state->chars.initialized_streams++;
         state->chars.char_streams[cur].char_handle = btohs(resp->handle);
         state->chars.char_streams[cur].is_initialized = true;
-        ++(state->chars.initialized_streams);
         if (state->chars.initialized_streams < BLUE_NUMBER_OF_CHAR_STREAMS) {
           ++cur;
           aci_gatt_add_char(state->chars.char_streams[cur].serv_handle, // serviceHandle
@@ -188,8 +189,8 @@ static void user_notify_begin(blue_state_t* state, uint8_t evt, evt_cmd_complete
         break;
       }
     case to_opcode(OGF_VENDOR_CMD, OCF_GATT_UPD_CHAR_VAL):
-      aci_gap_set_auth_requirement(MITM_PROTECTION_NOT_REQUIRED, OOB_AUTH_DATA_ABSENT, NULL, 7,
-          16, USE_FIXED_PIN_FOR_PAIRING, 123456, BONDING);
+      //hci_le_read_maximum_data_length();
+      aci_gap_set_auth_requirement(MITM_PROTECTION_NOT_REQUIRED, OOB_AUTH_DATA_ABSENT, NULL, 7, 16, USE_FIXED_PIN_FOR_PAIRING, 123456, BONDING);
       break;
     case to_opcode(OGF_VENDOR_CMD, OCF_GAP_INIT):
       {
