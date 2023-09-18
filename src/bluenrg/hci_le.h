@@ -71,6 +71,24 @@
  * Each function returns 0 in case of success, otherwise one of the error codes.
  */
 
+typedef struct __packed hci_le_test_end_rp0_s {
+  uint8_t Status;
+  uint16_t Number_Of_Packets;
+} hci_le_test_end_rp0;
+
+typedef struct __packed hci_le_set_data_length_cp0_s {
+  uint16_t Connection_Handle;
+  uint16_t TxOctets;
+  uint16_t TxTime;
+} hci_le_set_data_length_cp0;
+
+typedef struct __packed hci_le_set_data_length_rp0_s {
+  uint8_t Status;
+  uint16_t Connection_Handle;
+} hci_le_set_data_length_rp0;
+
+tBleStatus hci_le_read_maximum_data_length(void);
+
 int hci_reset(void);
 
 int hci_disconnect(uint16_t handle, uint8_t reason);

@@ -817,3 +817,60 @@ int hci_le_test_end(uint16_t *num_pkts)
   return 0;
 }
 
+
+tBleStatus hci_le_set_data_length(uint16_t Connection_Handle,
+                                  uint16_t TxOctets,
+                                  uint16_t TxTime)
+{
+  struct hci_request rq;
+  uint8_t cmd_buffer[258];
+  hci_le_set_data_length_cp0* cp0 = (hci_le_set_data_length_cp0*)(cmd_buffer);
+  hci_le_set_data_length_rp0 resp;
+  BLUENRG_memset(&resp, 0, sizeof(resp));
+  uint8_t index_input = 0;
+  cp0->Connection_Handle = htobs(Connection_Handle);
+  index_input += 2;
+  cp0->TxOctets = htobs(TxOctets);
+  index_input += 2;
+  cp0->TxTime = htobs(TxTime);
+  index_input += 2;
+  BLUENRG_memset(&rq, 0, sizeof(rq));
+  rq.ogf = 0x08;
+  rq.ocf = 0x022;
+  rq.cparam = cmd_buffer;
+  rq.clen = index_input;
+  rq.rparam = &resp;
+  rq.rlen = sizeof(resp);
+  if (hci_send_req(&rq) < 0)
+    return BLE_STATUS_TIMEOUT;
+  if (resp.Status) {
+    return resp.Status;
+  }
+  return BLE_STATUS_SUCCESS;
+}
+
+typedef struct __packed hci_le_read_maximum_data_length_rp0_s {
+  uint8_t Status;
+  uint16_t supportedMaxTxOctets;
+  uint16_t supportedMaxTxTime;
+  uint16_t supportedMaxRxOctets;
+  uint16_t supportedMaxRxTime;
+} hci_le_read_maximum_data_length_rp0;
+
+tBleStatus hci_le_read_maximum_data_length(void)
+{
+  struct hci_request rq;
+  hci_le_read_maximum_data_length_rp0 resp;
+  BLUENRG_memset(&resp, 0, sizeof(resp));
+  BLUENRG_memset(&rq, 0, sizeof(rq));
+  rq.ogf = 0x08;
+  rq.ocf = 0x02f;
+  rq.rparam = &resp;
+  rq.rlen = sizeof(resp);
+  if (hci_send_req(&rq) < 0)
+    return BLE_STATUS_TIMEOUT;
+  if (resp.Status) {
+    return resp.Status;
+  }
+  return BLE_STATUS_SUCCESS;
+}
