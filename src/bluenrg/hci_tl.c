@@ -7,6 +7,7 @@
 #include "hci_tl.h"
 #include "sample_service.h"
 #include <stdint.h>
+#include <stm32l4xx_hal_tim.h>
 #include <string.h>
 
 #define HCI_LOG_ON                      0
@@ -55,7 +56,7 @@ void hci_init(void)
 
 int hci_send_req(struct hci_request* r)
 {
-  send_cmd(r->ogf, r->ocf, r->clen, r->cparam);
+  send_cmd(r->ogf, r->ocf, (uint8_t)r->clen, r->cparam);
   return 0;
 }
 
@@ -65,8 +66,9 @@ void hci_notify_asynch_evt(void)
   int n = 3;
   Disable_SPI_IRQ();
   again: ;
+  us150Delay();
   blue_state.number_of_attempts_to_read_data++;
-  uint32_t data_len = BlueNRG_SPI_Read_All(buff, sizeof(buff));
+  int32_t data_len = BlueNRG_SPI_Read_All(buff, sizeof(buff));
   if (data_len > 0)
   {
     user_notify((hci_uart_pckt *)buff);

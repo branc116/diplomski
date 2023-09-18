@@ -27,14 +27,12 @@ set(PS
   bluenrg/hci_tl_interface.c
 
   SensorTile/SensorTile_accelero.c
-  SensorTile/SensorTile_audio_in.c
   SensorTile/SensorTile_BlueNRG.c
   SensorTile/SensorTile.c
   SensorTile/SensorTile_gyro.c
   SensorTile/SensorTile_humidity.c
   SensorTile/SensorTile_magneto.c
   SensorTile/SensorTile_pressure.c
-  SensorTile/SensorTile_sd.c
   SensorTile/SensorTile_temperature.c
 
   lsm6dsm/LSM6DSM_ACC_GYRO_driver.c
@@ -58,7 +56,7 @@ set(PS
 set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 add_executable(stm32-bt ${PS})
-target_compile_options(stm32-bt PRIVATE -ggdb3 -Wno-missing-braces -Wno-language-extension-token -Wextra -Wall -Wpedantic)
+target_compile_options(stm32-bt PRIVATE -ggdb3 -Wconversion -Wno-missing-braces -Wno-language-extension-token -Wextra -Wall -Wpedantic)
 target_compile_features(stm32-bt PRIVATE cxx_std_20)
 
 target_include_directories(stm32-bt PRIVATE "app")

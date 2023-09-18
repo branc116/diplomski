@@ -4,14 +4,14 @@
 #include "SensorTile_gyro.h"
 
 struct SpiCs {
-  SpiCs(GPIO_TypeDef* port, uint32_t pin) : port(port), pin(pin) {
-    HAL_GPIO_WritePin(port, pin, GPIO_PIN_RESET);
+  SpiCs(GPIO_TypeDef* port, uint32_t pin) : port(port), pin((uint16_t)pin) {
+    HAL_GPIO_WritePin(port, (uint16_t)pin, GPIO_PIN_RESET);
   }
   ~SpiCs() {
     HAL_GPIO_WritePin(port, pin, GPIO_PIN_SET);
   }
   GPIO_TypeDef* port;
-  uint32_t pin;
+  uint16_t pin;
 };
 
 Lsm6dsm::Lsm6dsm() {

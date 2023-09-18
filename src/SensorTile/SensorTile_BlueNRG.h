@@ -98,11 +98,6 @@ void BlueNRG_RST(void);
 void    BlueNRG_HW_Bootloader(void);
 int32_t BlueNRG_SPI_Read_All(uint8_t *buffer,
                              uint16_t buff_size);
-int32_t BlueNRG_SPI_Write(SPI_HandleTypeDef *hspi,
-                          uint8_t* data1,
-                          uint8_t* data2,
-                          uint8_t Nb_bytes1,
-                          uint8_t Nb_bytes2);
 
 int32_t BlueNRG_Write(uint8_t* data, uint16_t size);
 void us150Delay(void);

@@ -194,7 +194,7 @@ static int blue_number_of_writes = 0;
 int32_t BlueNRG_Write(uint8_t* data, uint16_t size)
 {
   blue_number_of_writes++;
-  int32_t result = 0;
+  HAL_StatusTypeDef result = 0;
 
   unsigned char header_master[HEADER_SIZE] = {0x0a, 0x00, 0x00, 0x00, 0x00};
   unsigned char header_slave[HEADER_SIZE]  = {0xaa, 0x00, 0x00, 0x00, 0x00};
@@ -231,11 +231,11 @@ int32_t BlueNRG_Write(uint8_t* data, uint16_t size)
       }
     } else {
       /* Buffer is too small */
-      result = -2;
+      result = HAL_ERROR;
     }
   } else {
     /* SPI is not ready */
-    result = -1;
+    result = HAL_ERROR;
   }
 
   /* Release CS line */
@@ -243,7 +243,7 @@ int32_t BlueNRG_Write(uint8_t* data, uint16_t size)
 
   Clear_SPI_EXTI_Flag();
 
-  return result;
+  return (int)result;
 }
 
 /**

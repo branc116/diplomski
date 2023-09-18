@@ -57,9 +57,9 @@ typedef struct {
   uint16_t service_handle, dev_name_char_handle, appearance_char_handle;
   evt_le_connection_complete connection;
   int changed_attrs_count, gat_notification_cb_count;
-  int number_of_resets, number_of_attempts_to_read_data;
-  int blue_number_of_times_in_interupt;
-  uint32_t number_of_send_attempts, number_of_unsuccessfull_sends, number_of_successfull_sends;
+  uint32_t number_of_resets, number_of_attempts_to_read_data;
+  uint32_t blue_number_of_times_in_interupt;
+  uint32_t number_of_unsuccessfull_sends, number_of_successfull_sends;
   int number_of_events;
   uint32_t write_history;
   bool everything_inited;

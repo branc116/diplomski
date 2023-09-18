@@ -49,7 +49,7 @@ int _read (int file, char *ptr, int len)
 
   for (DataIdx = 0; DataIdx < len; DataIdx++)
   {
-    *ptr++ = __io_getchar();
+    *ptr++ = (char)__io_getchar();
   }
 
   return len;

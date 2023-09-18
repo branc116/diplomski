@@ -88,7 +88,7 @@ tBleStatus aci_hal_read_config_data(uint8_t offset, uint16_t data_len, uint8_t *
   if(rp.status)
     return rp.status;
 
-  *data_len_out_p = rq.rlen-1;
+  *data_len_out_p = (uint8_t)rq.rlen-1;
 
   BLUENRG_memcpy(data, rp.data, MIN(data_len, *data_len_out_p));
 

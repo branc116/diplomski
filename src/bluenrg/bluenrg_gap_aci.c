@@ -830,7 +830,7 @@ tBleStatus aci_gap_start_auto_conn_establish_proc_IDB05A1(uint16_t scanInterval,
   indx++;
 
   BLUENRG_memcpy(buffer + indx, addr_array, (num_whitelist_entries*7));
-  indx +=  num_whitelist_entries * 7;
+  indx +=  num_whitelist_entries * (uint8_t)7;
 
   BLUENRG_memset(&rq, 0, sizeof(rq));
   rq.ogf = OGF_VENDOR_CMD;
@@ -910,7 +910,7 @@ tBleStatus aci_gap_start_auto_conn_establish_proc_IDB04A1(uint16_t scanInterval,
   indx++;
 
   BLUENRG_memcpy(buffer + indx, addr_array, (num_whitelist_entries*7));
-  indx +=  num_whitelist_entries * 7;
+  indx +=  (uint8_t)num_whitelist_entries * 7;
 
   BLUENRG_memset(&rq, 0, sizeof(rq));
   rq.ogf = OGF_VENDOR_CMD;
@@ -1009,7 +1009,7 @@ tBleStatus aci_gap_start_selective_conn_establish_proc(uint8_t scan_type, uint16
   rq.ogf = OGF_VENDOR_CMD;
   rq.ocf = OCF_GAP_START_SELECTIVE_CONN_ESTABLISH_PROC;
   rq.cparam = &cp;
-  rq.clen = GAP_START_SELECTIVE_CONN_ESTABLISH_PROC_CP_SIZE + (num_whitelist_entries*7);
+  rq.clen = (uint8_t)(GAP_START_SELECTIVE_CONN_ESTABLISH_PROC_CP_SIZE + (num_whitelist_entries*7));
   rq.event = EVT_CMD_STATUS;
   rq.rparam = &status;
   rq.rlen = 1;
@@ -1191,7 +1191,7 @@ tBleStatus aci_gap_set_broadcast_mode(uint16_t adv_interv_min, uint16_t adv_inte
   gap_set_broadcast_mode_cp cp;
   uint8_t status;
   uint8_t indx = 0;
-  uint8_t variable_size =  1 + adv_data_length + 1 + num_whitelist_entries*7;
+  uint8_t variable_size =  (uint8_t)(1 + adv_data_length + 1 + num_whitelist_entries*7);
 
   if (variable_size > sizeof(cp.var_len_data) )
     return BLE_STATUS_INVALID_PARAMS;
@@ -1294,7 +1294,7 @@ tBleStatus aci_gap_get_bonded_devices(uint8_t *num_devices, uint8_t *device_list
 
   *num_devices = rp.num_addr;
   if(device_list != NULL)
-    BLUENRG_memcpy(device_list, rp.dev_list, MIN(device_list_size,rp.num_addr*7));
+    BLUENRG_memcpy(device_list, rp.dev_list, MIN(device_list_size, ((uint8_t)(rp.num_addr*7)) ));
 
   return 0;
 }

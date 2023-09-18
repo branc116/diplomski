@@ -1,6 +1,7 @@
 #include "ble_serializer.hpp"
 #include "sample_service.h"
 #include <stdint.h>
+#include <stm32l4xx_hal.h>
 
 void GyroAccTemp_Serialize::fill_meta_data(uint8_t* buff) {
   buff[17] = 0x4A; //ui16, 2*i16
@@ -10,16 +11,18 @@ void GyroAccTemp_Serialize::fill_meta_data(uint8_t* buff) {
 
 void GyroAccTemp_Serialize::next() {
   *this = circ_buff.peek();
+  if (this->timestamp < last_timestamp) InfLoop();
 }
 
 bool GyroAccTemp_Serialize::has_next() { return circ_buff.len > 0; }
 
 void GyroAccTemp_Serialize::confirm_data() {
   circ_buff.pop();
-  this->next();
 }
 
-CircBuffer<GyroAccTemp_Serialize, 16> GyroAccTemp_Serialize::circ_buff;
+CircBuffer<GyroAccTemp_Serialize, GyroAccTemp_Serialize::circ_buff_len> GyroAccTemp_Serialize::circ_buff;
+uint32_t GyroAccTemp_Serialize::last_timestamp = 0;
+
 
 void BlueMetaData_Serialize::fill_meta_data(uint8_t* buff) {
   // 4*uint32_t, 2*uint16_t
@@ -28,16 +31,23 @@ void BlueMetaData_Serialize::fill_meta_data(uint8_t* buff) {
   buff[19] = 0x80; //2*ui16
 }
 
-bool BlueMetaData_Serialize::has_next() { return true; }
+bool BlueMetaData_Serialize::has_next() { return sent_next < uwTick; }
 
 void BlueMetaData_Serialize::next() {
   number_of_attempts_to_read_data = blue_state.number_of_attempts_to_read_data;
   blue_number_of_times_in_interupt = blue_state.blue_number_of_times_in_interupt;
-  number_of_send_attempts = blue_state.number_of_send_attempts;
+  number_of_successfull_sends = blue_state.number_of_successfull_sends;
   number_of_unsuccessfull_sends = blue_state.number_of_unsuccessfull_sends;
-  number_of_resets = (uint16_t)blue_state.number_of_resets;
+  ro_q_len = (uint16_t)GyroAccTemp_Serialize::circ_buff.len;
   timestamp = (uint16_t)uwTick;
 }
+void BlueMetaData_Serialize::confirm_data() {
+  BlueMetaData_Serialize::sent_next = uwTick + 100; // Send every 100 miliseconds
+  this->next();
+}
+
+uint32_t BlueMetaData_Serialize::sent_next = 0;
+
 
 using Send_BlueMetaData = BleSerializer<BlueMetaData_Serialize>;
 using Send_GyroReadoutBLE = BleSerializer<GyroAccTemp_Serialize>;
