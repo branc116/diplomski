@@ -1,5 +1,4 @@
 #include "sample_service.h"
-#include "SensorTile_BlueNRG.h"
 #include "bluenrg_aci_const.h"
 #include "bluenrg_def.h"
 #include "bluenrg_gap.h"
@@ -18,6 +17,13 @@
 #include <stm32l476xx.h>
 #include <stm32l4xx_hal.h>
 #include <sys/_stdint.h>
+
+uint32_t blue_init(void)
+{
+  blue_state.status = USER_PROCESS_STATUS__BEGIN;
+  hci_init();
+  return 0;
+}
 
 int blue_send_next(blue_char_collection_t* coll) {
   if (coll->waiting_for_confirm != -1) return -1;

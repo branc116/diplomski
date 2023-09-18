@@ -9,11 +9,9 @@ find_package(HAL COMPONENTS STM32L476G REQUIRED)
 
 set(PS
   app/cube_hal_l4.c
-  app/app_bluenrg_ms.c
   app/main.c
   app/main.cpp
   app/sample_service.c
-  app/stm32l4xx_it.c
 
   bluenrg/bluenrg_gap_aci.c
   bluenrg/bluenrg_gatt_aci.c
