@@ -6,23 +6,26 @@
 #include "bluenrg_gatt_aci.h"
 #include "bluenrg_gatt_server.h"
 #include "bluenrg_hal_aci.h"
-
 #include "bluenrg_types.h"
 #include "hci_const.h"
 #include "hci_tl.h"
+
 #include "help.h"
-#include "stm32l4xx.h"
 #include "SensorTile.h"
-#include "stm32l4xx_hal_conf.h"
-#include <stm32l476xx.h>
-#include <stm32l4xx_hal.h>
-#include <sys/_stdint.h>
 
 uint32_t blue_init(void)
 {
   blue_state.status = USER_PROCESS_STATUS__BEGIN;
   hci_init();
   return 0;
+}
+
+static void disconnect(blue_state_t* state) {
+  state->status = USER_PROCESS_STATUS__RESET;
+  if (blue_state.chars.waiting_for_confirm != -1) {
+    blue_state.chars.waiting_for_confirm = -1;
+  }
+  BSP_LED_Off(LED1);
 }
 
 int blue_send_next(blue_char_collection_t* coll) {
@@ -47,7 +50,6 @@ int blue_send_char_stream(blue_char_stream_t* state, int char_index)
 {
   static uint8_t buff[20];
   memset(buff, 0, 20);
-  state->waiting_for_confirm = true;
   ++state->sent_attempts;
   fill(char_index, buff);
   int s = aci_gatt_update_char_value(state->serv_handle, state->char_handle, 0, 20, buff);
@@ -99,17 +101,17 @@ static void user_notify_begin(blue_state_t* state, uint8_t evt, evt_cmd_complete
   if (evt == EVT_VENDOR) {
     switch (eba->ecode) {
       case 1: {
-                uint8_t SERVER_BDADDR[] = {0xaa, 0x00, 0x00, 0xE1, 0x80, 0x02};
-                uint8_t bdaddr[6];
-                BLUENRG_memcpy(bdaddr, SERVER_BDADDR, sizeof(SERVER_BDADDR));
-                aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET,
-                    CONFIG_DATA_PUBADDR_LEN,
-                    bdaddr);
-                break;
-              }
+        uint8_t SERVER_BDADDR[] = {0xaa, 0x00, 0x00, 0xE1, 0x80, 0x02};
+        uint8_t bdaddr[6];
+        BLUENRG_memcpy(bdaddr, SERVER_BDADDR, sizeof(SERVER_BDADDR));
+        aci_hal_write_config_data(CONFIG_DATA_PUBADDR_OFFSET,
+            CONFIG_DATA_PUBADDR_LEN,
+            bdaddr);
+        break;
+      }
       default: {
-                 InfLoop();
-               }
+        InfLoop();
+      }
     }
     return;
   }
@@ -236,8 +238,8 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
           add_event(state, evt->conn_handle, evt->attr_handle, evt->data_length, evt->att_data);
           state->changed_attrs_count++;
           if (state->changed_attrs_count == (BLUE_NUMBER_OF_CHAR_STREAMS * 2)) {
-            state->everything_inited = true;
             //state->chars.char_streams[0].send_ticks = uwTick + 1000;
+            state->everything_inited = true;
           }
         }
         break;
@@ -258,6 +260,11 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
           InfLoop();
         }
         break;
+      case EVT_BLUE_GATT_PROCEDURE_TIMEOUT:
+        {
+          disconnect(state);
+          break;
+        }
 
       case EVT_BLUE_GATT_PROCEDURE_COMPLETE:
         {
@@ -289,8 +296,7 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
         InfLoop();
     }
   } else if (ev == EVT_DISCONN_COMPLETE) {
-    state->status = USER_PROCESS_STATUS__RESET;
-    BSP_LED_Off(LED1);
+    disconnect(state);
   } else if (ev == EVT_CMD_COMPLETE) {
     if (cc->opcode == to_opcode(OGF_VENDOR_CMD, 0x106));
     else if (cc->opcode == to_opcode(OGF_VENDOR_CMD, OCF_GATT_UPD_CHAR_VAL_EXT));
@@ -299,7 +305,6 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
     uint8_t status = cc->res[0];
     int i = state->chars.waiting_for_confirm;
     state->chars.waiting_for_confirm = -1;
-    state->chars.char_streams[i].waiting_for_confirm = false;
     state->write_history <<= 1;
     if (status) {
       // Error happed, eventualy someone will send the same packet again...
@@ -308,7 +313,7 @@ void user_notify_connected(blue_state_t* state, uint8_t ev, evt_blue_aci* eaci, 
     } else {
       // Successfuly sent
       state->number_of_successfull_sends++;
-      state->chars.char_streams[i].send_ticks = uwTick + 3;
+      state->chars.char_streams[i].send_ticks = uwTick + 1;
       state->write_history |= 1;
       confirm_sent(i);
     }

@@ -12,6 +12,8 @@ set(PS
   app/main.c
   app/main.cpp
   app/sample_service.c
+  app/ble_serializer.cpp
+  app/lsm6dsm.cpp
 
   bluenrg/bluenrg_gap_aci.c
   bluenrg/bluenrg_gatt_aci.c

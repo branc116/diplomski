@@ -61,8 +61,8 @@ int hci_send_req(struct hci_request* r)
 
 void hci_notify_asynch_evt(void)
 {
-  uint8_t buff[128];
-  int n = 5;
+  static uint8_t buff[128];
+  int n = 3;
   Disable_SPI_IRQ();
   again: ;
   blue_state.number_of_attempts_to_read_data++;
