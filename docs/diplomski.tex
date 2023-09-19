@@ -602,6 +602,21 @@ Rad cijelog sustava prikazan je u videu na adresi \url{https://youtu.be/AVqU0vSD
 Izvorni kod programa za mikrokontroler, dio aplikacije za komunikacijom Bluetooth protokolom, aplikacija za prikaz podataka, dokumentacija i sve ostale skripte dostupne su u git repozitoriju na adresi \ \url{https://github.com/branc116/diplomski}.
 
 \newpage
+\chapter{Mjerenje pouzdanosti}
+Dio ovog rada je mjerenje pouzdanosti sustava slanja očitanih podataka korištenjem Bluetootha. Mjerene metrike su:
+\begin{enumerate}
+  \item Broj izgubljenih paketa uzevši u obzir brzinu očitanja podataka
+  \item Broj elemenata u strukturi koja ima oblik reda uzevši u obzir brzinu očitanja podataka
+\end{enumerate}
+
+\noindent
+\includegraphics[width=0.5\textwidth]{packets_lost_every_10ms.png}\hspace{0.05\textwidth}%
+\includegraphics[width=0.5\textwidth]{packets_lost_every_9ms.png}\\[1em]
+\includegraphics[width=0.5\textwidth]{packets_lost_every_8ms.png}\hspace{0.05\textwidth}%
+\includegraphics[width=0.5\textwidth]{packets_lost_every_7ms.png}\\[1em]
+\includegraphics[width=0.5\textwidth]{packets_lost_every_6ms.png}\hspace{0.05\textwidth}%
+\includegraphics[width=0.5\textwidth]{packets_lost_every_5ms.png}\par
+ 
 
 \chapter{Razvojno okruženje}
 U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. \textit{FLOSS} \cite{FLOSS}). Integrirana okruženja poput STM32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja tvrtka čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga tvrtka \cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem, specifično STM32CUBE integriranog okruženjem, je generiran kod koji nije zadovoljavajući. Naime, STM32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
