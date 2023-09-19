@@ -1,5 +1,3 @@
-// @brief   Contains the basic functions for managing the framework required for handling the HCI interface
-
 #include "SensorTile_BlueNRG.h"
 #include "bluenrg_types.h"
 #include "hci_const.h"
@@ -9,10 +7,6 @@
 #include <stdint.h>
 #include <stm32l4xx_hal_tim.h>
 #include <string.h>
-
-#define HCI_LOG_ON                      0
-#define HCI_PCK_TYPE_OFFSET             0
-#define EVENT_PARAMETER_TOT_LEN_OFFSET  2
 
 #define MIN(a,b)      ((a) < (b))? (a) : (b)
 #define MAX(a,b)      ((a) > (b))? (a) : (b)
@@ -25,8 +19,7 @@
   * @param  plen The HCI command length
   * @param  param The HCI command parameters
   */
-static void send_cmd(uint16_t ogf, uint16_t ocf, uint8_t plen, void *param)
-{
+static void send_cmd(uint16_t ogf, uint16_t ocf, uint8_t plen, void *param) {
   uint8_t payload[HCI_MAX_PAYLOAD_SIZE];
   memset(payload, 0, sizeof(payload));
   hci_command_hdr hc;
@@ -46,22 +39,19 @@ static void send_cmd(uint16_t ogf, uint16_t ocf, uint8_t plen, void *param)
 
 /********************** HCI Transport layer functions *****************************/
 
-void hci_init(void)
-{
+void hci_init(void) {
   /* Initialize low level driver */
   HCI_TL_SPI_Init();
   Enable_SPI_IRQ();
   BlueNRG_RST();
 }
 
-int hci_send_req(struct hci_request* r)
-{
+int hci_send_req(struct hci_request* r) {
   send_cmd(r->ogf, r->ocf, (uint8_t)r->clen, r->cparam);
   return 0;
 }
 
-void hci_notify_asynch_evt(void)
-{
+void hci_notify_asynch_evt(void) {
   static uint8_t buff[128];
   int n = 3;
   Disable_SPI_IRQ();
@@ -69,8 +59,7 @@ void hci_notify_asynch_evt(void)
   us150Delay();
   blue_state.number_of_attempts_to_read_data++;
   int32_t data_len = BlueNRG_SPI_Read_All(buff, sizeof(buff));
-  if (data_len > 0)
-  {
+  if (data_len > 0) {
     user_notify((hci_uart_pckt *)buff);
   }
   else {
