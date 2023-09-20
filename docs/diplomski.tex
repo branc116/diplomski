@@ -202,7 +202,7 @@ Kad se dogodi neki događaj izvodi se sljedeća procedura:
 
 Bluetooth \cite{core41} je otvoren protokol koji definira bežični prijenos podataka na fizičkom sloju, na sloju veze i na mrežnom sloju.
 Postoje komunikacijski standardi (npr. WiFi) koji zahtijevaju središnji uređaj na koji se povezuju svi ostali uređaji i kroz koji teče sva komunikacija između svakog para uređaja.
-Bluetooth standard je osmišljen na načina da se dva uređaja povezuju i komuniciraju direktno jedan s drugim, bez korištenja središnjeg uređaja.
+Bluetooth standard je osmišljen tako da se dva uređaja povezuju i komuniciraju direktno jedan s drugim, bez korištenja središnjeg uređaja.
 
 \section {Fizička razina}
 Na fizičkoj razini Bluetooth protokol koristi Gausijansku binarnu digitalnu frekvencijsku modulaciju (engl. \textit{2GFSK modulation}) \cite{GBFSK}.
@@ -371,7 +371,7 @@ Nakon uspješnog izvršavanja navedenog postupka, BlueNRG prelazi u \textbf{inic
 U \textbf{inicijaliziranom} stanju nema komunikacije između BlueNRG i STM32 mikrokontrolera sve dok se BlueNRG ne poveže s nekim Bluetooth poduređajem. Nakon što se BlueNRG poveže s Bluetooth poduređajem, BlueNRG generira događaj kojim obavještava STM32 mikrokontroler da se stanje može postaviti u \textbf{povezano}.
 
 \subsection{Povezano stanje BlueNRG-a}
-Nakon povezivanja, bez eksplicitnog zahtjeva, razmjene se poruke između BlueNRG-a i Bluetooth poduređaja koji je na njega povezan. Specifično, razmjenju se poruke o maksimalnoj veličini poruke (engl. \textit{MTU}), način enkripcije, definicija servisa i karakterističnih tokova. Nakon razmjene tih poruka, STM32 mikrokontroler može početi slati poruke s mjernim podacima. Procedura slanja u ovom radu je definirana na sljedeći način:
+Nakon povezivanja, bez eksplicitnog zahtjeva, razmjene se poruke između BlueNRG-a i Bluetooth poduređaja koji je na njega povezan. Specifično, razmjenjuju se poruke o maksimalnoj veličini poruke (engl. \textit{MTU}), način enkripcije, definicija servisa i karakterističnih tokova. Nakon razmjene tih poruka, STM32 mikrokontroler može početi slati poruke s mjernim podacima. Procedura slanja u ovom radu je definirana na sljedeći način:
 
 \begin{enumerate}
   \item Odredi koji će se karakteristični tok sljedeći slati
@@ -435,7 +435,7 @@ Mjerenje propusnosti BlueNRG modula mjereno je korištenjem programa Wireshark \
 U ovom radu testirano je nekoliko konfiguracija veličina paketa i broja tokova. Ukupna propusnost ne mijenja se značajno dodavanjem dodatnih tokova. Maksimalno kašnjenje nije mjereno, no pretpostavka je da nije veća od intervala spajanja (engl. \textit{connection interval}.) Interval spajanja definira Bluetooth poduređaj. U ovom radu bio je pet milisekundi.
 
 \subsection{Ugradbeni program na Mikrokontroleru}
-Ugradbeni program (engl. \textit{firmware}) za mikrokontroler pisan je u programskim jezicima C i C++. Pisan je na način da se sva komunikacija s Bluetooth BlueNRG modulom izvršava unutar događaja (engl. \textit{interrupt}). Nije korišten operativni sustav. Čitanje podataka sa senzora odvija se u glavnoj petlji programa. Postoji \textbf{struktura koja ima oblik reda} (engl. \textit{FIFO}) koja osigurava da se čitanje novih podatak sa senzora može odvijati neovisno o slanju istih Bluetoothom. Ista struktura opisana je kodom \ref{codefifo}.
+Ugradbeni program (engl. \textit{firmware}) za mikrokontroler pisan je u programskim jezicima C i C++. Pisan je tako da se sva komunikacija s Bluetooth BlueNRG modulom izvršava unutar događaja (engl. \textit{interrupt}). Nije korišten operativni sustav. Čitanje podataka sa senzora odvija se u glavnoj petlji programa. Postoji \textbf{struktura koja ima oblik reda} (engl. \textit{FIFO}) koja osigurava da se čitanje novih podatak sa senzora može odvijati neovisno o slanju istih Bluetoothom. Ista struktura opisana je kodom \ref{codefifo}.
 
 \begin{lstlisting}[language=c++, caption={\textit{FIFO} struktura koja omogućuje neovisan dohvat novih podataka i slanje najstarijih}, label={codefifo}]
 template<class T, size_t buffSize>
@@ -507,7 +507,7 @@ struct [[gnu::packed]]  GyroReadoutBLE {
 \end{lstlisting}
 
 Važno je napomenuti zašto je \textit{[[gnu::packed]]} atribut postavljen na svaku od struktura. Razlog stavljanja je raspored memorije.
-Ako struktura nema taj atribut, svaka varijabla tipa \textit{GyroReadout} neće imati očekivanu veličinu, osim ako očekivana veličina nije upravo ona koja se dobije kad se dodaju dodatni okteti koji služe tome da podaci u memoriji uvijek budu spremljeni na način da ih je moguće pročitati s minimalnim brojem procesorskih ciklusa (engl. \textit{padding bytes}.)
+Ako struktura nema taj atribut, svaka varijabla tipa \textit{GyroReadout} neće imati očekivanu veličinu, osim ako očekivana veličina nije upravo ona koja se dobije kad se dodaju dodatni okteti koji služe tome da podaci u memoriji uvijek budu spremljeni tako da ih je moguće pročitati s minimalnim brojem procesorskih ciklusa (engl. \textit{padding bytes}.)
 U kontekstu serijalizacije, slanja i deserijalizacije ti okteti nisu važni i samo bi usporavali proces pouzdanog prijenosa podataka.
 Navedena struktura puni se svakih 10 milisekundi pozivom metode navedene u kodu \ref{codegetreadout}.
 
@@ -555,7 +555,7 @@ Za testiranje pouzdanosti i kvalitete prijenosa preko Bluetootha potrebno je sof
 \end{table}
 
 \subsection{Aplikacija za računalo}
-Sama aplikacija na strani računala podijeljena je na dva djela. Dio aplikacije za popvezivanje Bluetoothom pisan je u programskom jeziku Python. Jezgra prvog djela je preuzeta od poznate Python biblioteke \textit{ble-serial} \cite{ble-serial}. Svrha prvog djela je spajanje Bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mijenja uređaj. Dodatno, dio aplikacije za povezivanje Bluetoothom prosljeđuje eksplicitno definirane podatke drugom djelu aplikacije preko UDP protokola \cite{firstPart}. Dio aplikacije za prikaz podataka prikuplja podatke od dijela aplikacije za povezivanje Bluetoothom i iste podatke grafički iscrtava \cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik Python omogućuje izrazito jednostavnu komunikaciju korištenjem Bluetooth protokola.
+Sama aplikacija na strani računala podijeljena je na dva djela. Dio aplikacije za povezivanje Bluetoothom pisan je u programskom jeziku Python. Jezgra prvog djela je preuzeta od poznate Python biblioteke \textit{ble-serial} \cite{ble-serial}. Svrha prvog djela je spajanje Bluetoothom na uređaj i slušanje oglasa o promjeni stanja koje mijenja uređaj. Dodatno, dio aplikacije za povezivanje Bluetoothom prosljeđuje eksplicitno definirane podatke drugom djelu aplikacije preko UDP protokola \cite{firstPart}. Dio aplikacije za prikaz podataka prikuplja podatke od dijela aplikacije za povezivanje Bluetoothom i iste podatke grafički iscrtava \cite{secondPart}. Razlog razdvajanja aplikacije je to što programski jezik C pruža okruženje u kojem je moguće kreirati responzivno sučelje za grafički prikaz, a programski jezik Python omogućuje izrazito jednostavnu komunikaciju korištenjem Bluetooth protokola.
 
 \subsubsection{Dio aplikacije za povezivanje Bluetoothom}
 Dio aplikacije za povezivanje Bluetoothom napravljen je vrlo jednostavno. Kreira se UDP socket kao što je prikazano u kodu \ref{pyudpsock}. Pošalje se zahtjev preko dbus sustava da se Bluetoothom želi povezati s mikrokontrolerom kao što je prikazano u kodu \ref{pyconnect}. Nakon toga se pretplati na sve obavijesti sa svih servisa i karakterističnih tokova na mikrokontroleru kao što je prikazanu u kodu \ref{pysubscribe}. Prilikom svake obavijesti, izvršava se funkcija koja prosljeđuje dobivene podatke drugom dijelu aplikacije (kod \ref{relay}).
@@ -617,10 +617,10 @@ U ovom radu mjeren je broj izgubljenih paketa uzevši u obzir brzinu očitanja p
   \item Postavnjanje željenog broja očitanja u izvorni kod ugradbenog programa
   \item Pokretanje ugradbenog sustava i aplikacije za prikupljanje podataka na računalu
   \item Čekanje sve dok aplikacija ne dobije 4000 očitanja
-  \item Spremanje grafa izgubljenih pakata
+  \item Spremanje grafa izgubljenih paketa
 \end{enumerate}
 
-Na slici \ref{fig:packet_loss} prikazana su mjerenja izgubljenih pakata kad su se prikupljali podaci svakih 5 do 10ms.
+Na slici \ref{fig:packet_loss} prikazana su mjerenja izgubljenih paketa kad su se prikupljali podaci svakih 5 do 10ms.
 
 
 \begin{figure}[H]
@@ -637,10 +637,10 @@ Na slici \ref{fig:packet_loss} prikazana su mjerenja izgubljenih pakata kad su s
 \end{figure}
 
 Može se vidjeti da se paketi gube tek kada je interval očitanja podataka kraći od 6ms.
-Dodatno, provedena su duža mjeranja kada je interval očitanja 5ms. Jedno gdje je broj očitanja bio 20`000 i dva gdje je broj očitanja bio 50`000.
-Još jedno mjerenje provedeno je sa itervalom očitanja 6ms, ali u ovoj situaciji, autor rada je udaljavao i približavao ugradbeno računao od računala dok se provodilo mjerenje.
+Dodatno, provedena su duža mjerenja kada je interval očitanja 5ms. Jedno gdje je broj očitanja bio 20`000 i dva gdje je broj očitanja bio 50`000.
+Još jedno mjerenje provedeno je sa intervalom očitanja 6ms, ali u ovoj situaciji, autor rada je udaljavao i približavao ugradbeno računao od računala dok se provodilo mjerenje.
 Slika \ref{fig:packet_loss_2} prikazuje ta mjerenja.
-Na slici \ref{fig:packet_loss_2} se može primjetiti da broj izgubljenih paketa raste ukoliko se mikroupravljač udaljava od računala.
+Na slici \ref{fig:packet_loss_2} se može primijetiti da broj izgubljenih paketa raste ako se mikroupravljač udaljava od računala.
 
 \begin{figure}[H]
   \begin{tabular}{cc}
@@ -658,7 +658,7 @@ Na slikama \ref{fig:packet_loss_4_20} i \ref{fig:packet_loss_4_50} prikazani su 
 
 \begin{figure}[H]
   \includegraphics[width=\textwidth]{packets_lost_every_4ms_20k.png}
-  \caption{Broj izgubljenih paketa uz brzinu očitanja podataka od 4ms. Dvadest tisuća očitanja.}
+  \caption{Broj izgubljenih paketa uz brzinu očitanja podataka od 4ms. Dvadeset tisuća očitanja.}
   \label{fig:packet_loss_4_20}
 \end{figure}
 
@@ -668,13 +668,13 @@ Na slikama \ref{fig:packet_loss_4_20} i \ref{fig:packet_loss_4_50} prikazani su 
   \label{fig:packet_loss_4_50}
 \end{figure}
 
-Može se primjetiti da je broj izgubljenih paketa velik.
+Može se primijetiti da je broj izgubljenih paketa velik.
 
 \section{Broj elemenata u strukturi koja ima oblik reda uzevši u obzir brzinu očitanja podataka}
 
 Za provedbu ovog mjerenja implementiran je dodatni karakteristični tok koji šalje interne podatke o stanju mikroupravljača.
 Specifično, jedan od podataka je broj elemenata u strukturi koja ima oblik reda.
-Taj podatak je zanimljiv za promatrati je govori o tome koliko je Bluetooth mikroupravljač opterećen i može se vidjeti poveznica između broja izgbljenih paketa i broja elemenata u strukturi koja ima oblik reda.
+Taj podatak je zanimljiv za promatrati je govori o tome koliko je Bluetooth mikroupravljač opterećen i može se vidjeti poveznica između broja izgubljenih paketa i broja elemenata u strukturi koja ima oblik reda.
 Na slici \ref{fig:q_full} prikazani su rezultati mjerenja broja elementa uz intervale očitavanja od 5 do 10 milisekundi.
 
 \begin{figure}[H]
@@ -689,9 +689,9 @@ Na slici \ref{fig:q_full} prikazani su rezultati mjerenja broja elementa uz inte
   \caption{Broj elementa u strukturi koja ima oblik reda uzevši u obzir interval očitavanja podataka}
   \label{fig:q_full}
 \end{figure}
-Može se primjetiti da broj elementa ostaje minimalan sve dok interval očitavanja nije kraći od 6 milisekundi.
+Može se primijetiti da broj elementa ostaje minimalan sve dok interval očitavanja nije kraći od 6 milisekundi.
 
-Provedena su dva dodatna mjeranja s intervalom očitanja od 5ms, jedno mjerenje s intervalom očitanja od 4ms i jedno mjerenje s itervalom očitanja 6ms uz udaljavanje i približavanj mikroupravljača od računala dok se provodilo mjerenje.
+Provedena su dva dodatna mjerenja s intervalom očitanja od 5ms, jedno mjerenje s intervalom očitanja od 4ms i jedno mjerenje s intervalom očitanja 6ms uz udaljavanje i približivanjem mikroupravljača od računala dok se provodilo mjerenje.
 Slika \ref{fig:q_full_1} prikazuje ta mjerenja.
 
 \begin{figure}[H]
@@ -705,8 +705,8 @@ Slika \ref{fig:q_full_1} prikazuje ta mjerenja.
   \label{fig:q_full_1}
 \end{figure}
 
-Na slici \ref{fig:q_full_1} se može primjetiti da uz interval očitavanja od 5ms i 4ms broj elemenata raste do kapaciteta strukture koja ima oblik reda i nakon toga nastavlja biti u blizini te vrijednosti.
-Dodatno, može se primjetiti da uz interval očitavanja od 6ms uz udaljavanje broj elemenata raste u trenucima kad je mikroupravljač udanjen od računala, ali nakon što se ponovno približi, broj elemenata počne padati.
+Na slici \ref{fig:q_full_1} se može primijetiti da uz interval očitavanja od 5ms i 4ms broj elemenata raste do kapaciteta strukture koja ima oblik reda i nakon toga nastavlja biti u blizini te vrijednosti.
+Dodatno, može se primijetiti da uz interval očitavanja od 6ms uz udaljavanje broj elemenata raste u trenucima kada je mikroupravljač udaljen od računala, ali nakon što se ponovno približi, broj elemenata počne padati.
 
 \chapter{Razvojno okruženje}
 U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. \textit{FLOSS} \cite{FLOSS}). Integrirana okruženja poput STM32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja tvrtke čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga tvrtka \cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem, specifično STM32CUBE integriranog okruženjem, je generiran kod koji nije zadovoljavajući. Naime, STM32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
@@ -736,7 +736,7 @@ GNU GDB \cite{gdb} je program koji pomaže programeru otkriti greške u kodu. GD
 GCC Arm \cite{armgcc} je alat koji pomaže programeru pretvoriti izvorni kod pisan u C programskom jeziku u binarni format kojeg je u konačnici moguće pokrenuti na mikrokontrolerima s ARM procesorom. Ustvari ovo je samo druga verzija(engl. \textit{fork}) GCC \cite{gcc} programa, verzija koja je specijalizirana za ARM procesore.
 
 \subsubsection{Upute za pokretanje}
-Za izranju i pokretanje sustava opisanog u ovom radu potrebo je slijediti sljedeće uputu:
+Za izranju i pokretanje sustava opisanog u ovom radu potrebno je slijediti sljedeće uputu:
 
 \begin{itemize}
   \item Preuzeti izvorni kod sa stranice \url{https://github.com/branc116/diplomski}
