@@ -6,6 +6,7 @@
 \usepackage{xcolor}
 \usepackage{graphicx}
 \usepackage{float}
+\usepackage{subfig}
 
 \graphicspath{ {./imgs/} }
 
@@ -55,11 +56,11 @@
 
 \chapter{Uvod}
 Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca.
-Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji od onih proizvedenih u prošlom desetljeću.
-Iako je bolja budućnost veoma blizu svima nama i iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan.
+Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatima za stvaranje uređaja i strojeva koji su pametniji od onih proizvedenih u prošlom desetljeću.
+Iako je bolja budućnost veoma blizu svima nama i iako postoje ugradbena računala koja nam omogućuju izradnju pametnijih stvari, proces izradnje nije nimalo trivijalan.
 Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
 Dokumentiran je postupak izrade jednostavnog sustava s ugradbenim računalom gdje je ugradbeno računalo STM32, koje čita podatke sa senzora i iste u realnom vremenu šalje na server.
-U sklopu ovog rada izgrađen je sustav koji sadrži ugradbeno računalo koje je povezano Bluetoothom na računalo i šalje očitanja s raznih senzora koji su povezani s mikrokontrolerom.
+U sklopu ovog rada izrađen je sustav koji sadrži ugradbeno računalo koje je povezano Bluetoothom na računalo i šalje očitanja s raznih senzora koji su povezani s mikrokontrolerom.
 Opisane su značajke STM32L4 mikrokontrolera isto kao i glavni dijelovi Bluetooth standarda.
 Objašnjena je komunikacija između mikrokontrolera i Bluetooth modula.
 Navedeni su protokoli koji se koriste u komunikaciji između mikrokontrolera i senzora koji su povezani s mikrokontrolerom.
@@ -85,9 +86,9 @@ Sve to zahtijeva od programera da bude pažljiv kod izrade svakog dijela sustava
 STM32 \cite{STM32L476JG} je ugradbeno računalo. U ovom radu STM32 koristi se kao primjer računala na kojem je moguće razvijati pouzdan sustav.
 Specifično, korišten je STM32L476JG mikroupravljač.
 Glavne karakteristike STM32L476JG mikroupravljača su Arm Cortex M4 32-bitna jezgra koja ima takt od 80MHz-a.
-Također, ima ugrađen jedan megabajt flash memorije i 128KB statičke RAM memorije.
+Također, ima ugrađen 1MB flash memorije i 128KB statičke RAM memorije.
 Ima podršku za mnogo komunikacijskih protokola (u ovom radu od iznimne važnosti bio je SPI komunikacijski protokol.)
-Najvažnije od svega, iznimno niska energetska potrošnja.
+Najvažnije od svega je iznimno niska energetska potrošnja.
 
 \section{Sensortile}
 Sensortile \cite{sensortile} je integrirana pločica na kojoj se nalazi STM32L4 mikrokontroler i nekoliko senzora. U ovom radu koristi se Sensortile pločica kao fizičko okruženje za razvoj pouzdanog ugradbenog sustava.
@@ -95,7 +96,7 @@ Sensortile \cite{sensortile} je integrirana pločica na kojoj se nalazi STM32L4 
 \begin{figure}[H]
 \includegraphics[scale=0.14]{tile_close.jpeg}
 \centering
-\caption{Sensortile plaćica}
+\caption{Sensortile ploćica}
 \end{figure}
 
 \subsection{LSM6DSM}
@@ -113,7 +114,7 @@ LPS22HB je integrirani system-in-package koji sadrži digitalni barometar. Koris
 MP34DT05-A je integrirani system-in-package koji sadrži digitalni mikrofon. Koristi I\(^2\)C sučelje.
 
 \subsection{BlueNRG-MS}
-BlueNRG-MS \cite{BlueNrgMs} je integrirani system-in-package koji sadrži Cortex M0 ARM jezgru i mogučnost Bluetooth 4.1 komunikacije.
+BlueNRG-MS \cite{BlueNrgMs} je integrirani system-in-package koji sadrži Cortex M0 ARM jezgru i mogućnost Bluetooth 4.1 komunikacije.
 Cijeli paket troši maksimalno 1mA za 1dBm izlazne snage. Za komunikaciju s glavnim mikrokontrolerom kositi se SPI komunikacija.
 
 \subsubsection{Povezivanje BlueNRG-a sa STM32L4 microkontrolerom}
@@ -145,7 +146,7 @@ Pločica B na sebi sadrži micro USB port koji služi isključivo za napajanje (
 \label{fig:plocab}
 \end{figure}
 
-Pločica A i B nisu dovoljne za programiranje STM32L4 mikrokontrolera. Potrebna je dodatna pločica koja je u ulozi programatora (slika \ref{fig:prog}.) U ovom radu korišteno je fizičko razvojno okruženje NUCLEO-F439ZI koje je služilo samo za programiranje STM32L4 mikrokontrolera.
+Pločica A i B nisu dovoljne za programiranje STM32L4 mikrokontrolera. Potrebna je dodatna pločica koja je u ulozi programatora (slika \ref{fig:prog}.) U ovom radu korišteno je fizičko razvojno okruženje NUCLEO-F439ZI koje je služilo za programiranje STM32L4 mikrokontrolera.
 (dalje Pločica C.)
 
 \begin{figure}[H]
@@ -203,7 +204,7 @@ Bluetooth \cite{core41} je otvoren protokol koji definira bežični prijenos pod
 Postoje komunikacijski standardi (npr. WiFi) koji zahtijevaju središnji uređaj na koji se povezuju svi ostali uređaji i kroz koji teče sva komunikacija između svakog para uređaja.
 Bluetooth standard je osmišljen na načina da se dva uređaja povezuju i komuniciraju direktno jedan s drugim, bez korištenja središnjeg uređaja.
 
-\section {Fizička Razina}
+\section {Fizička razina}
 Na fizičkoj razini Bluetooth protokol koristi Gausijansku binarnu digitalnu frekvencijsku modulaciju (engl. \textit{2GFSK modulation}) \cite{GBFSK}.
 GBFSK je diskretna modulacija s dva stanja (1 bit/simbol.)
 Za razliku od ostalih diskretnih modulacija s više diskretnih područja, binarna digitalna modulacija otpornija je na šumove i zahtjeva manju snagu za prijenos jednog simbola.
@@ -227,7 +228,7 @@ Više skenera može slušati jednog oglašivača.
 
 \subsection{GATT}
 Bluetooth \textbf{G}eneric \textbf{ATT}ribue Profile definira koji podaci postoje na pojedinim Bluetooth uređajima. Definira tako da svaki uređaj ima svoje servise koje su identificirani s jedinstvenim brojem (engl. \textit{UUID}). UUID može biti veličine 16 okteta ili 2 okteta. Neki brojevi su rezervirani u Bluetooth standardu \cite{core41}.
-Dodatno, GATT definira da svaki servis sadrži svoje karakteristične tokove (engl. \textit{characteristic stream}) koji su isto tako identificirani jedinstvenim brojevima. Svaki karakteristični tok dodatno sadrži informaciju o tome što li je taj tok namijenjen za pisanje ili čitanje, može li se oglašavati na tom toku, veličinu podatka jednog elementa tog toka. Primjer definicije jednostavnog servisa koji definira bateriju nekog uređaja prikazan je na slici \ref{fig:gattexample}
+Dodatno, GATT definira da svaki servis sadrži svoje karakteristične tokove (engl. \textit{characteristic stream}) koji su isto tako identificirani jedinstvenim brojevima. Svaki karakteristični tok dodatno sadrži informaciju o tome je li taj tok namijenjen za pisanje ili čitanje, može li se oglašavati na tom toku, veličinu podatka jednog elementa tog toka. Primjer definicije jednostavnog servisa koji definira bateriju nekog uređaja prikazan je na slici \ref{fig:gattexample}
 
 \begin{figure}[H]
 \includegraphics[width=\textwidth]{examplegatt_20230623_212042.png}
@@ -236,7 +237,7 @@ Dodatno, GATT definira da svaki servis sadrži svoje karakteristične tokove (en
 \label{fig:gattexample}
 \end{figure}
 
-U ovom radu nije korišten niti jedan standardni servis, tj. korišten je servis kojeg je definirao autor rada. Standardni servisi tek postaju korisni ako korisnik želi izgraditi uređaj koji će biti prepoznat od strane svih ostalih uređaja.
+U ovom radu nije korišten niti jedan standardni servis, tj. korišten je servis kojeg je definirao autor rada. Standardni servisi tek postaju korisni ako korisnik želi izraditi uređaj koji će biti prepoznat od strane svih ostalih uređaja.
 
 \subsection{L2CAP}
 L2CAP je Bluetooth standard koji definira na koji način će dva Bluetooth uređaja razmjenjivati poruke na razini poveznice.
@@ -265,14 +266,14 @@ ali uz dodatno programsko rješenje moguće je dati do znanja drugoj strani da j
 Razmjena poruka može se ostvariti oglašavanjem poruka. Oglašavanje poruka ostvaruje se tako da prilikom povezivanja uređaji sinkroniziraju satove i u točno određenim trenucima razmjene izmijenjene poruke. Dodatno, protokol bez intervencije korisnika koristi dvosmjernu komunikaciju za osiguravanje prijenosa poruke. Time se osigurava da će poruka biti isporučena. Dodatno, bez intervencije korisnika, na svaku poruku dodaje se CRC čime se osigurava točnost poruke.
 
 \chapter{Programsko rješenje}
-U sklopu ovog rada izgrađeno je programsko rješenje koje se sastoji od djela koji se pokreće na STM32L4 mikrokontroleru i djela koji se pokreće na računalu s Linux operacijskim sustavom.
+U sklopu ovog rada izrađeno je programsko rješenje koje se sastoji od djela koji se pokreće na STM32L4 mikrokontroleru i djela koji se pokreće na računalu s Linux operacijskim sustavom.
 Programsko rješenje očitava podatke sa senzora koji su povezani sa STM32L4 mikrokontrolerom i te iste podatke prenosi na računalo korištenjem Bluetooth protokola.
 U realnom vremenu računalo grafički iscrtava iste te podatke.
 
 \section{Programsko rješenje za STM32L4 mikrokontroler}
 Programsko rješenje za STM32L4 mikrokontroler pisano je u programskom jeziku C.
 Na visokoj razini rješenje inicijalizira komunikacijske kanale prema senzorima i prema BlueNRG modulu.
-Nakon toga pokreče se inicijalizacija postavki na BlueNRG modulu i BlueNRG se povezuje s računalom.
+Nakon toga pokreće se inicijalizacija postavki na BlueNRG modulu i BlueNRG se povezuje s računalom.
 Nakon povezivanja počinju se očitavati vrijednosti senzora i isti podaci se prosljeđuju povezanom računalu.
 
 U ovom radu postoje tri stanja u kojima se može nalaziti BlueNRG:
@@ -464,7 +465,7 @@ struct CircBuffer {
 \subsubsection{Podatkovni protokol}
 Sva podatkovna komunikacija se odvija od smjera mikrokontrolera do računalne aplikacije.
 Koristi se više karakterističnih tokova (engl. \textit{characteristic stream}), svaki koristi način komunikacije s obavijestima, svaki obavještava s točno 20 podatkovnih okteta, svaki šalje točno dvije vrste poruka.
-Jednom u tri sekunde kroz svaki tok šalje se kontrolna poruka, a ostatak vremena šalje se korisna poruke.
+Jednom u tri sekunde kroz svaki tok šalje se kontrolna poruka, a ostatak vremena šalju se korisne poruke.
 N-ti oktet kontrolne poruke sadrži vrijednost \textbf{(N \% 2) * 0xFF}, to jest prvi oktet ima vrijednost \textbf{0x00}, drugi \textbf{0xFF}, treći \textbf{0x00}, itd.
 Svaki oktet kontrolne poruke ima tako definiranu vrijednost osim zadnja tri okteta.
 Zadnja tri okteta kontrolne poruke opisuju strukturu korisnih poruka kao što je definiran tablicom \ref{datatable}.
@@ -506,7 +507,7 @@ struct [[gnu::packed]]  GyroReadoutBLE {
 \end{lstlisting}
 
 Važno je napomenuti zašto je \textit{[[gnu::packed]]} atribut postavljen na svaku od struktura. Razlog stavljanja je raspored memorije.
-Ako struktura nema taj atribut, svaka varijabla tipa \textit{GyroReadout} neće imati očekivanu veličinu, osim ako očekivana veličina nije upravo ona koja se dobije kad se dodaju dodati okteti koji služe tome da podaci u memoriji uvijek budu spremljeni na način da ih je moguće pročitati s minimalnim brojem procesorskih ciklusa (engl. \textit{padding bytes}.)
+Ako struktura nema taj atribut, svaka varijabla tipa \textit{GyroReadout} neće imati očekivanu veličinu, osim ako očekivana veličina nije upravo ona koja se dobije kad se dodaju dodatni okteti koji služe tome da podaci u memoriji uvijek budu spremljeni na način da ih je moguće pročitati s minimalnim brojem procesorskih ciklusa (engl. \textit{padding bytes}.)
 U kontekstu serijalizacije, slanja i deserijalizacije ti okteti nisu važni i samo bi usporavali proces pouzdanog prijenosa podataka.
 Navedena struktura puni se svakih 10 milisekundi pozivom metode navedene u kodu \ref{codegetreadout}.
 
@@ -535,7 +536,7 @@ void fill_controll_message_gyro(uint8_t* buff) {
 \end{lstlisting}
 
 \section{Bluetooth na Linux operativnom sustavu}
-Za testiranje pouzdanosti i kvalitete prijenosa preko Bluetootha potrebno je softversko rješenje koje pokreče na računalu. U ovom radu korišteno je rješenje koje se izvršava na Linux operativnom sustavu. Navedeni su neki softverski paketi koji olakšavaju rad s Bluetooth uređajima u Linux okolini.
+Za testiranje pouzdanosti i kvalitete prijenosa preko Bluetootha potrebno je softversko rješenje koje pokreće na računalu. U ovom radu korišteno je rješenje koje se izvršava na Linux operativnom sustavu. Navedeni su neki softverski paketi koji olakšavaju rad s Bluetooth uređajima u Linux okolini.
 
 \begin{table}[H]
   \begin{center}
@@ -608,28 +609,117 @@ Dio ovog rada je mjerenje pouzdanosti sustava slanja očitanih podataka korište
   \item Broj izgubljenih paketa uzevši u obzir brzinu očitanja podataka
   \item Broj elemenata u strukturi koja ima oblik reda uzevši u obzir brzinu očitanja podataka
 \end{enumerate}
+U svim mjerenjima kapacitet strukture koja ima oblik reda je 128 elemenata.
 
-\noindent
-\includegraphics[width=0.5\textwidth]{packets_lost_every_10ms.png}\hspace{0.05\textwidth}%
-\includegraphics[width=0.5\textwidth]{packets_lost_every_9ms.png}\\[1em]
-\includegraphics[width=0.5\textwidth]{packets_lost_every_8ms.png}\hspace{0.05\textwidth}%
-\includegraphics[width=0.5\textwidth]{packets_lost_every_7ms.png}\\[1em]
-\includegraphics[width=0.5\textwidth]{packets_lost_every_6ms.png}\hspace{0.05\textwidth}%
-\includegraphics[width=0.5\textwidth]{packets_lost_every_5ms.png}\par
- 
+\section{Broj izgubljenih paketa uzevši u obzir brzinu očitanja podataka}
+U ovom radu mjeren je broj izgubljenih paketa uzevši u obzir brzinu očitanja podataka. Procedura kojom se mjerilo bila je:
+\begin{enumerate}
+  \item Postavnjanje željenog broja očitanja u izvorni kod ugradbenog programa
+  \item Pokretanje ugradbenog sustava i aplikacije za prikupljanje podataka na računalu
+  \item Čekanje sve dok aplikacija ne dobije 4000 očitanja
+  \item Spremanje grafa izgubljenih pakata
+\end{enumerate}
+
+Na slici \ref{fig:packet_loss} prikazana su mjerenja izgubljenih pakata kad su se prikupljali podaci svakih 5 do 10ms.
+
+
+\begin{figure}[H]
+  \begin{tabular}{cc}
+    \subfloat[10ms]{\includegraphics[width=2.8in]{packets_lost_every_10ms.png}} &
+    \subfloat[9ms]{\includegraphics[width=2.8in]{packets_lost_every_9ms.png}} \\
+    \subfloat[8ms]{\includegraphics[width=2.8in]{packets_lost_every_8ms.png}} &
+    \subfloat[7ms]{\includegraphics[width=2.8in]{packets_lost_every_7ms.png}} \\
+    \subfloat[6ms]{\includegraphics[width=2.8in]{packets_lost_every_6ms.png}} &
+    \subfloat[5ms]{\includegraphics[width=2.8in]{packets_lost_every_5ms.png}}
+  \end{tabular}
+  \caption{Broj izgubljenih paketa uzevši u obzir brzinu očitanja podataka}
+  \label{fig:packet_loss}
+\end{figure}
+
+Može se vidjeti da se paketi gube tek kada je interval očitanja podataka kraći od 6ms.
+Dodatno, provedena su duža mjeranja kada je interval očitanja 5ms. Jedno gdje je broj očitanja bio 20`000 i dva gdje je broj očitanja bio 50`000.
+Još jedno mjerenje provedeno je sa itervalom očitanja 6ms, ali u ovoj situaciji, autor rada je udaljavao i približavao ugradbeno računao od računala dok se provodilo mjerenje.
+Slika \ref{fig:packet_loss_2} prikazuje ta mjerenja.
+Na slici \ref{fig:packet_loss_2} se može primjetiti da broj izgubljenih paketa raste ukoliko se mikroupravljač udaljava od računala.
+
+\begin{figure}[H]
+  \begin{tabular}{cc}
+    \subfloat[5ms]{\includegraphics[width=2.8in]{packets_lost_every_5ms_20k.png}} &
+    \subfloat[5ms]{\includegraphics[width=2.8in]{packets_lost_every_5ms_50k.png}} \\
+    \subfloat[5ms]{\includegraphics[width=2.8in]{packets_lost_every_5ms_50k_v2.png}} &
+    \subfloat[6ms uz udaljavanje]{\includegraphics[width=2.8in]{packets_lost_every_6ms_with_walking.png}}
+  \end{tabular}
+  \caption{Broj izgubljenih paketa uz brzinu očitanja podataka od 5ms i 6ms}
+  \label{fig:packet_loss_2}
+\end{figure}
+
+Provedena su još mjerenja s intervalom očitanja podataka od 4 milisekunde.
+Na slikama \ref{fig:packet_loss_4_20} i \ref{fig:packet_loss_4_50} prikazani su rezultati tih mjerenja.
+
+\begin{figure}[H]
+  \includegraphics[width=\textwidth]{packets_lost_every_4ms_20k.png}
+  \caption{Broj izgubljenih paketa uz brzinu očitanja podataka od 4ms. Dvadest tisuća očitanja.}
+  \label{fig:packet_loss_4_20}
+\end{figure}
+
+\begin{figure}[H]
+  \includegraphics[width=\textwidth]{packets_lost_every_4ms_50k.png}
+  \caption{Broj izgubljenih paketa uz brzinu očitanja podataka od 4ms. Pedeset tisuća očitanja.}
+  \label{fig:packet_loss_4_50}
+\end{figure}
+
+Može se primjetiti da je broj izgubljenih paketa velik.
+
+\section{Broj elemenata u strukturi koja ima oblik reda uzevši u obzir brzinu očitanja podataka}
+
+Za provedbu ovog mjerenja implementiran je dodatni karakteristični tok koji šalje interne podatke o stanju mikroupravljača.
+Specifično, jedan od podataka je broj elemenata u strukturi koja ima oblik reda.
+Taj podatak je zanimljiv za promatrati je govori o tome koliko je Bluetooth mikroupravljač opterećen i može se vidjeti poveznica između broja izgbljenih paketa i broja elemenata u strukturi koja ima oblik reda.
+Na slici \ref{fig:q_full} prikazani su rezultati mjerenja broja elementa uz intervale očitavanja od 5 do 10 milisekundi.
+
+\begin{figure}[H]
+  \begin{tabular}{cc}
+    \subfloat[10ms]{\includegraphics[width=2.8in]{q_full_ro_every_10ms.png}} &
+    \subfloat[9ms]{\includegraphics[width=2.8in]{q_full_ro_every_9ms.png}} \\
+    \subfloat[8ms]{\includegraphics[width=2.8in]{q_full_ro_every_8ms.png}} &
+    \subfloat[7ms]{\includegraphics[width=2.8in]{q_full_ro_every_7ms.png}} \\
+    \subfloat[6ms]{\includegraphics[width=2.8in]{q_full_ro_every_6ms.png}} &
+    \subfloat[5ms]{\includegraphics[width=2.8in]{q_full_ro_every_5ms.png}} \\
+  \end{tabular}
+  \caption{Broj elementa u strukturi koja ima oblik reda uzevši u obzir interval očitavanja podataka}
+  \label{fig:q_full}
+\end{figure}
+Može se primjetiti da broj elementa ostaje minimalan sve dok interval očitavanja nije kraći od 6 milisekundi.
+
+Provedena su dva dodatna mjeranja s intervalom očitanja od 5ms, jedno mjerenje s intervalom očitanja od 4ms i jedno mjerenje s itervalom očitanja 6ms uz udaljavanje i približavanj mikroupravljača od računala dok se provodilo mjerenje.
+Slika \ref{fig:q_full_1} prikazuje ta mjerenja.
+
+\begin{figure}[H]
+  \begin{tabular}{cc}
+    \subfloat[5ms]{\includegraphics[width=2.8in]{q_full_ro_every_5ms_v2.png}} &
+    \subfloat[5ms]{\includegraphics[width=2.8in]{q_full_ro_every_5ms_v3.png}} \\
+    \subfloat[4ms]{\includegraphics[width=2.8in]{q_full_ro_every_4ms.png}} &
+    \subfloat[6ms uz udaljavanje]{\includegraphics[width=2.8in]{q_full_ro_every_6ms_with_walking.png}}
+  \end{tabular}
+  \caption{Broj izgubljenih paketa uz brzinu očitanja podataka od 5ms i 6ms}
+  \label{fig:q_full_1}
+\end{figure}
+
+Na slici \ref{fig:q_full_1} se može primjetiti da uz interval očitavanja od 5ms i 4ms broj elemenata raste do kapaciteta strukture koja ima oblik reda i nakon toga nastavlja biti u blizini te vrijednosti.
+Dodatno, može se primjetiti da uz interval očitavanja od 6ms uz udaljavanje broj elemenata raste u trenucima kad je mikroupravljač udanjen od računala, ali nakon što se ponovno približi, broj elemenata počne padati.
 
 \chapter{Razvojno okruženje}
-U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. \textit{FLOSS} \cite{FLOSS}). Integrirana okruženja poput STM32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja tvrtka čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga tvrtka \cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem, specifično STM32CUBE integriranog okruženjem, je generiran kod koji nije zadovoljavajući. Naime, STM32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
+U ovom radu korišteno je slobodno i otvoreno razvojno okruženje (engl. \textit{FLOSS} \cite{FLOSS}). Integrirana okruženja poput STM32CUBE omogućuju brz razvoj programskog rješenja. Cijena brzog razvoja nije direktno novčana, često takva integrirana razvojna rješenja imaju cijenu od 0€. Valuta plaćanju kod korištenja takvih sustava je sloboda. Sloboda mijenjanja tvrtke čiji se mikrokontroleri koriste. Jednom kad se programsko rješenje razvije u jednom od ne slobodnih integriranih okruženja, teško je to isto rješenje preformulirati da radi na uređajima koje proizvodi druga tvrtka \cite{VENDORLOCKIN}. Dodatna cijena koja se plaća korištenjem, specifično STM32CUBE integriranog okruženjem, je generiran kod koji nije zadovoljavajući. Naime, STM32CUBE često generira kod koji je previše općenit i rezultira većom potrošnjom memorije, sporijim izvođenjem i lošijom čitljivošću. Primjer takvog koda prikazan je u \ref{badcode}.
 
 \lstinputlisting[caption={Primjer generiranog koda kojeg generira STM32CUBE IDE}, label={badcode}, basicstyle={\ttfamily\footnotesize\tiny}]{shitcode.c}
 
 Svrha navedenog generiranog isječka koda je čitanje jednog okteta koji označava ime SPI poduređaja. Postoji pet indirekcija između pozivatelja funkcije i krajnje funkcije koja izvršava logiku čitanja tog okteta. Također, prilikom svakog poziva zadnje funkcije provjerava se koristi li se SPI ili I\(^2\)C. Provjera koji protokol se koristi izvršava se i kod svakog drugog poziva prema SPI poduređaju. Dodatno, niti jedan poduređaj nije moguće spojiti ni na koji drugi način osim korištenjem SPI protokola.
 
 \subsubsection{cmake}
-Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izgradnju projekta. U ovom radu koristi se za izgradnju ugradbenog program (engl. \textit{firmware}.) Cmake olakšava definiranje ovisnosti između jedinica prevođenja (engl. \textit{compilation units}.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica (engl. \textit{compilation flags}) u različitim jedinicama prevođenja.
+Cmake je programski alat koji je koristan za definiranje koraka potrebnih za izradnju projekta. U ovom radu koristi se za izradnju ugradbenog programa (engl. \textit{firmware}.) Cmake olakšava definiranje ovisnosti između jedinica prevođenja (engl. \textit{compilation units}.) Definiranje koje jedinice je potrebno prevesti ako se promjeni \textbf{header} datoteka. Dodatno osigurava konzistentnost postavljanja zastavica (engl. \textit{compilation flags}) u različitim jedinicama prevođenja.
 
 \subsubsection{make}
-GNU make je programski alat za definiranje \textit{recepta} i kako izgraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju, ne više od, pet \textbf{shell} naredbi koje se moraju izvršiti za gradnju neke komponente sustava. Primjer make recepta koji gradi ovu dokumentaciju pokretanjem \LaTeX \cite{ungar2002uvod} naredbi prikazan je u kodu \ref{lst:make}. Recept se čita ovako: \textit{Za izgradnju pdf-a potreban je tex file. Ako je tex datoteka novija od pdf datoteke pokreni naredbe koje su ispod.} GNU make je besplatan alat s otvorenim izvornim kodom.
+GNU make je programski alat za definiranje \textit{recepta} i kako izraditi pojedini element sustava. U ovom projektu koristi se za automatizaciju, ne više od, pet \textbf{shell} naredbi koje se moraju izvršiti za gradnju neke komponente sustava. Primjer make recepta koji gradi ovu dokumentaciju pokretanjem \LaTeX \cite{ungar2002uvod} naredbi prikazan je u kodu \ref{lst:make}. Recept se čita ovako: \textit{Za izradnju pdf-a potreban je tex file. Ako je tex datoteka novija od pdf datoteke pokreni naredbe koje su ispod.} GNU make je besplatan alat s otvorenim izvornim kodom.
 
 \begin{lstlisting}[language=make, label={lst:make}, caption={Gradnja dokumentacije korištenjem make recepta}]
 build/docs/diplomski.pdf: docs/diplomski.tex
@@ -646,7 +736,7 @@ GNU GDB \cite{gdb} je program koji pomaže programeru otkriti greške u kodu. GD
 GCC Arm \cite{armgcc} je alat koji pomaže programeru pretvoriti izvorni kod pisan u C programskom jeziku u binarni format kojeg je u konačnici moguće pokrenuti na mikrokontrolerima s ARM procesorom. Ustvari ovo je samo druga verzija(engl. \textit{fork}) GCC \cite{gcc} programa, verzija koja je specijalizirana za ARM procesore.
 
 \subsubsection{Upute za pokretanje}
-Za izgranju i pokretanje sustava opisanog u ovom radu potrebo je slijediti sljedeće uputu:
+Za izranju i pokretanje sustava opisanog u ovom radu potrebo je slijediti sljedeće uputu:
 
 \begin{itemize}
   \item Preuzeti izvorni kod sa stranice \url{https://github.com/branc116/diplomski}
@@ -657,7 +747,7 @@ Za izgranju i pokretanje sustava opisanog u ovom radu potrebo je slijediti sljed
 \chapter{Zaključak}
 Stvaranje pouzdanog sustava zahtijeva poznavanje svake komponente sustava.
 Bez poznavanja svake komponente nemoguće je donijeti zaključak radi li sustav ispravno.
-Upoznavanje se svakim dijelom sustava iziskuje najviše vremena.
+Upoznavanje sa svakim dijelom sustava iziskuje najviše vremena.
 Korištenje gotovih rješenja može ubrzati proces gradnje, ali bez razumijevanja svih komponenti gotovih rješenja teško se može razmatrati pouzdanost.
 S druge strane stvaranje proizvoda iziskuje puno vremena, dubinsko upoznavanje svih komponenta dodatno usporava proces gradnje.
 Potrebno je ponekad pouzdati se u gotove dijelove sustava i zanemariti pouzdanost.
@@ -673,7 +763,7 @@ Zbog svega navedenog, stvaranje pouzdanih sustava nije nimalo jednostavno, ali p
 
 
 \begin{sazetak}
-Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji on onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama i iako postoje ugradbena računala koja nam omogućuju izgradnju pametnijih stvari, proces izgradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
+Ugradbena računala nude brojne mogućnosti poboljšanja svakodnevice pojedinaca. Njihove fizičke dimenzije i niska potrošnja čine ih dobrim kandidatom za stvaranjem uređaja i strojeva koji su pametniji od onih proizvedenih u prošlom desetljeću. Iako je bolja budućnost veoma blizu svima nama i iako postoje ugradbena računala koja nam omogućuju izradnju pametnijih stvari, proces izradnje nije nimalo trivijalan. Ovaj se rad bavi navedenim procesom i analizom pouzdanosti istog.
 
 \kljucnerijeci{Ugradbena računala, Pouzdanost, Bluetooth, STM32}
 \end{sazetak}
